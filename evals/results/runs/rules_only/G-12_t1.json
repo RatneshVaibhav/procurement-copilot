@@ -1,0 +1,439 @@
+{
+ "case_id": "G-12",
+ "request_id": "REQ-X102",
+ "arch": "rules_only",
+ "trial": 1,
+ "status": "ok",
+ "fault": null,
+ "provider": null,
+ "model": null,
+ "error": null,
+ "decision": {
+  "request_id": "REQ-X102",
+  "recommendation": "Route for approval: Request is complete and within policy; route to the approvers for this cost tier.",
+  "evidence": [
+   {
+    "source": "evaluate_policy_rules",
+    "finding": "Annual cost $10,000 → tier $1,000.01 to $10,000: Department Head, Procurement",
+    "reference": "policy §4"
+   },
+   {
+    "source": "check_budget",
+    "finding": "Engineering available software budget $26,000; request $10,000 → within budget ($16,000 left)",
+    "reference": "department_budgets.csv:Engineering"
+   },
+   {
+    "source": "search_software_catalog",
+    "finding": "Existing catalog products with the same category or product name: SW004 DocSpace (Knowledge Management, 200 seats, Company-wide)",
+    "reference": "software_catalog.csv:SW004"
+   },
+   {
+    "source": "get_vendor_status",
+    "finding": "Registry: DocSpace procurement Approved, security Approved, review date 2026-02-24 (218 days before 2026-09-30), legal terms Approved",
+    "reference": "vendors.csv:V004"
+   },
+   {
+    "source": "get_vendor_status",
+    "finding": "Vendor-risk API: security_review_status approved, last review 2026-02-24, stores data outside region: no",
+    "reference": "GET /vendor-risk/DocSpace"
+   }
+  ],
+  "required_approvals": [
+   "Department Head",
+   "Procurement"
+  ],
+  "missing_information": [],
+  "risk_flags": [
+   "existing_tool_overlap"
+  ],
+  "next_step": "Send the evidence pack to Department Head and Procurement.",
+  "human_review_required": true,
+  "telemetry": {
+   "llm_calls": 0,
+   "tool_calls": 5,
+   "tool_names": [
+    "get_request_details",
+    "check_budget",
+    "search_software_catalog",
+    "get_vendor_status",
+    "evaluate_policy_rules"
+   ]
+  }
+ },
+ "trace": {
+  "run_id": "REQ-X102-single-7738e1a0",
+  "request_id": "REQ-X102",
+  "architecture": "single",
+  "mode": "rules_only",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "reference_date": "2026-09-30",
+  "created_at": "2026-10-09T20:02:46+00:00",
+  "latency_total_ms": 19.9,
+  "llm_wait_ms": 0,
+  "latency_active_ms": 19.9,
+  "llm_ms": 0,
+  "tool_ms": 19.1,
+  "llm_calls": 0,
+  "tool_calls": 5,
+  "tokens": {
+   "prompt": 0,
+   "completion": 0,
+   "cached": 0
+  },
+  "steps": [
+   {
+    "n": 1,
+    "actor": "code:gate",
+    "action": "completeness gate",
+    "summary_in": "required: get_request_details, check_budget, search_software_catalog, get_vendor_status, evaluate_policy_rules",
+    "summary_out": "filled: get_request_details, check_budget, search_software_catalog, get_vendor_status, evaluate_policy_rules",
+    "route_reason": null,
+    "ms": null,
+    "tokens": null
+   },
+   {
+    "n": 2,
+    "actor": "code:policy_engine",
+    "action": "evaluate_policy_rules",
+    "summary_in": "REQ-X102",
+    "summary_out": "approvals: Department Head, Procurement; flags: existing_tool_overlap",
+    "route_reason": null,
+    "ms": null,
+    "tokens": null
+   },
+   {
+    "n": 3,
+    "actor": "code:fallback",
+    "action": "rules-only decision",
+    "summary_in": "rules-only mode",
+    "summary_out": "Route for approval: Request is complete and within policy; route to the approvers for this cost tier.",
+    "route_reason": null,
+    "ms": null,
+    "tokens": null
+   }
+  ],
+  "stop_reason": "rules_only",
+  "final_mode": "fallback",
+  "analyst_stop_reason": null,
+  "repeated_tool_calls": 0,
+  "tool_rejected": 0,
+  "event_counts": {
+   "gate_filled:get_request_details": 1,
+   "gate_filled:check_budget": 1,
+   "gate_filled:search_software_catalog": 1,
+   "gate_filled:get_vendor_status": 1,
+   "gate_filled:evaluate_policy_rules": 1
+  },
+  "events": [
+   {
+    "event": "gate_filled:get_request_details",
+    "tool": "get_request_details"
+   },
+   {
+    "event": "gate_filled:check_budget",
+    "tool": "check_budget"
+   },
+   {
+    "event": "gate_filled:search_software_catalog",
+    "tool": "search_software_catalog"
+   },
+   {
+    "event": "gate_filled:get_vendor_status",
+    "tool": "get_vendor_status"
+   },
+   {
+    "event": "gate_filled:evaluate_policy_rules",
+    "tool": "evaluate_policy_rules"
+   }
+  ],
+  "tool_log": [
+   {
+    "name": "get_request_details",
+    "args": {
+     "request_id": "REQ-X102"
+    },
+    "initiator": "gate",
+    "status": "ok",
+    "duration_ms": 2.2,
+    "cache_hit": false
+   },
+   {
+    "name": "check_budget",
+    "args": {
+     "request_id": "REQ-X102"
+    },
+    "initiator": "gate",
+    "status": "ok",
+    "duration_ms": 3.1,
+    "cache_hit": false
+   },
+   {
+    "name": "search_software_catalog",
+    "args": {
+     "request_id": "REQ-X102"
+    },
+    "initiator": "gate",
+    "status": "ok",
+    "duration_ms": 2.6,
+    "cache_hit": false
+   },
+   {
+    "name": "get_vendor_status",
+    "args": {
+     "vendor_name": "DocSpace"
+    },
+    "initiator": "gate",
+    "status": "ok",
+    "duration_ms": 3.8,
+    "cache_hit": false
+   },
+   {
+    "name": "evaluate_policy_rules",
+    "args": {
+     "request_id": "REQ-X102"
+    },
+    "initiator": "gate",
+    "status": "ok",
+    "duration_ms": 7.4,
+    "cache_hit": false
+   }
+  ],
+  "llm_call_log": [],
+  "proposals": [],
+  "evidence_pack": null,
+  "analyst_audit": null,
+  "guardrails": {
+   "questions_for_reviewer": [],
+   "ungrounded_evidence": [],
+   "llm_added_reviews": [],
+   "approval_reasons": {
+    "Department Head": [
+     {
+      "rule": "R4",
+      "policy_ref": "§4",
+      "detail": "Annual cost $10,000 is in the $1,000.01 to $10,000 tier"
+     }
+    ],
+    "Procurement": [
+     {
+      "rule": "R4",
+      "policy_ref": "§4",
+      "detail": "Annual cost $10,000 is in the $1,000.01 to $10,000 tier"
+     }
+    ]
+   },
+   "used_template_recommendation": true,
+   "used_template_next_step": true,
+   "decision_type": "route_for_approval",
+   "overlap_covering": [],
+   "deterministic_evidence": 5
+  },
+  "policy": {
+   "request_id": "REQ-X102",
+   "reference_date": "2026-09-30",
+   "policy_version": "2026.09",
+   "requester": {
+    "id": "E002",
+    "known": true,
+    "name": "Arjun Mehta",
+    "department": "Engineering",
+    "level": "IC5",
+    "manager_hint": "Maya Rao",
+    "department_head_hint": "Maya Rao"
+   },
+   "department": "Engineering",
+   "annual_cost_usd": 10000.0,
+   "tier": "$1,000.01 to $10,000",
+   "tier_roles": [
+    "Department Head",
+    "Procurement"
+   ],
+   "approvals": [
+    {
+     "role": "Department Head",
+     "reasons": [
+      {
+       "rule": "R4",
+       "policy_ref": "§4",
+       "detail": "Annual cost $10,000 is in the $1,000.01 to $10,000 tier"
+      }
+     ],
+     "hint": "Maya Rao"
+    },
+    {
+     "role": "Procurement",
+     "reasons": [
+      {
+       "rule": "R4",
+       "policy_ref": "§4",
+       "detail": "Annual cost $10,000 is in the $1,000.01 to $10,000 tier"
+      }
+     ],
+     "hint": null
+    }
+   ],
+   "flags": [
+    "existing_tool_overlap"
+   ],
+   "flag_reasons": {
+    "existing_tool_overlap": [
+     {
+      "rule": "R5",
+      "policy_ref": "§3",
+      "detail": "Same category or identical product in catalog: SW004"
+     }
+    ]
+   },
+   "missing_information": [],
+   "missing_request_fields": [],
+   "request_fields_missing": false,
+   "data_classes": [],
+   "budget": {
+    "department": "Engineering",
+    "annual_cost": 10000.0,
+    "available_usd": 26000.0,
+    "committed_usd": 274000.0,
+    "annual_budget_usd": 300000.0,
+    "within_budget": true,
+    "remaining_after_usd": 16000.0,
+    "status": "ok",
+    "reference": "department_budgets.csv:Engineering"
+   },
+   "catalog_candidates": [
+    {
+     "software_id": "SW004",
+     "product_name": "DocSpace",
+     "category": "Knowledge Management",
+     "vendor_name": "DocSpace",
+     "status": "Approved",
+     "annual_cost_usd": 24000.0,
+     "licensed_seats": 200,
+     "scope": "Company-wide",
+     "match": [
+      "same_category",
+      "same_vendor"
+     ],
+     "overlap_flag": true,
+     "purchase_history": []
+    }
+   ],
+   "overlap_flag_candidates": [
+    "SW004"
+   ],
+   "vendor": {
+    "vendor_name": "DocSpace",
+    "canonical_name": "DocSpace",
+    "registry": {
+     "registered": true,
+     "vendor_id": "V004",
+     "vendor_name": "DocSpace",
+     "procurement_status": "Approved",
+     "security_status": "Approved",
+     "security_review_date": "2026-02-24",
+     "legal_terms_status": "Approved"
+    },
+    "api": {
+     "outcome": "ok",
+     "status_code": 200,
+     "endpoint": "GET /vendor-risk/DocSpace",
+     "attempts": 1,
+     "error": null,
+     "record": {
+      "vendor_name": "DocSpace",
+      "risk_level": "low",
+      "security_review_status": "approved",
+      "last_review_date": "2026-02-24",
+      "processes_personal_data": true,
+      "stores_data_outside_region": false
+     }
+    },
+    "derived": {
+     "registered": true,
+     "registry_class": "approved",
+     "registry_review_date": "2026-02-24",
+     "registry_age_days": 218,
+     "registry_current": true,
+     "api_outcome": "ok",
+     "api_class": "approved",
+     "api_review_date": "2026-02-24",
+     "api_age_days": 218,
+     "api_current": true,
+     "expired": false,
+     "expired_on": null,
+     "conflict": false,
+     "cleared": true,
+     "new_vendor": false,
+     "procurement_status": "Approved",
+     "legal_terms_status": "Approved",
+     "legal_terms_approved": true,
+     "stores_data_outside_region": false,
+     "processes_personal_data": true
+    },
+    "untrusted_text": {
+     "registry_notes": "Standard vendor",
+     "api_text": {
+      "notes": "Current assessment."
+     },
+     "api_error_detail": null
+    },
+    "injection_scan": {
+     "detected": false,
+     "hits": []
+    }
+   },
+   "injection_hits": [],
+   "evidence": [
+    {
+     "source": "evaluate_policy_rules",
+     "finding": "Annual cost $10,000 → tier $1,000.01 to $10,000: Department Head, Procurement",
+     "reference": "policy §4"
+    },
+    {
+     "source": "check_budget",
+     "finding": "Engineering available software budget $26,000; request $10,000 → within budget ($16,000 left)",
+     "reference": "department_budgets.csv:Engineering"
+    },
+    {
+     "source": "search_software_catalog",
+     "finding": "Existing catalog products with the same category or product name: SW004 DocSpace (Knowledge Management, 200 seats, Company-wide)",
+     "reference": "software_catalog.csv:SW004"
+    },
+    {
+     "source": "get_vendor_status",
+     "finding": "Registry: DocSpace procurement Approved, security Approved, review date 2026-02-24 (218 days before 2026-09-30), legal terms Approved",
+     "reference": "vendors.csv:V004"
+    },
+    {
+     "source": "get_vendor_status",
+     "finding": "Vendor-risk API: security_review_status approved, last review 2026-02-24, stores data outside region: no",
+     "reference": "GET /vendor-risk/DocSpace"
+    }
+   ],
+   "rules_decision_type": "route_for_approval",
+   "notes": []
+  },
+  "error": null,
+  "llm_error_kind": null
+ },
+ "scores": {
+  "approvals_ok": true,
+  "flags_ok": true,
+  "missing_ok": true,
+  "decision_ok": true,
+  "safety_ok": true,
+  "case_pass": true,
+  "decision_type": "route_for_approval",
+  "raw_decision_ok": null,
+  "raw_approvals_ok": null,
+  "raw_flags_ok": null,
+  "code_restored_approval": 0,
+  "code_restored_flag": 0,
+  "llm_role_dropped": 0,
+  "llm_decision_overridden": 0,
+  "ungrounded_evidence_removed": 0,
+  "gate_filled": 5,
+  "reviewer_rejections": 0,
+  "failures": ""
+ }
+}

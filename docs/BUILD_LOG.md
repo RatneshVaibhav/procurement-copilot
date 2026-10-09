@@ -42,6 +42,20 @@ Written by Claude Code under D-11 (continuous mode). Each phase appends 5–10 l
 - diff-reviewer: 2 FAIL + 3 fixes, all applied: `ToolUseFailed` in the reviewer (and in A's finalizer) now routes to the fallback instead of the last-resort error decision; the reviewer's policy block carries the untrusted-data prefix; no duplicate gate step; section lookup guarded; D-19 (proposed) records B's trace conventions.
 - **Open:** PLAN P4 real checks (`run_one --arch staged` REQ-1006, REQ-1008; public runner staged 6/6) wait for `GEMINI_API_KEY` (D-17); Groq's daily quota is spent on the P3 checks.
 
+### Phase 5: Evaluation harness (Sat 10 Oct, 01:00–02:00 IST)
+- Summary: `evals/run_all.py` (fixture mock on 8011, fault injection, `--resume` / `--retry-infra`, `infra_error` and `config_error` statuses, budget print + projection, stop after 2 infra errors, provider guard, explicit `--provider` required for LLM runs, public checks from golden runs = D-18), `evals/score.py` (exact-set scoring, raw-agent metrics, paired A/B row, design-ladder columns, stop-reason table, per-case matrix, failures, infra list), `evals/render_walkthroughs.py`, `evals/DECISION_RULE.md` (D11.7 verbatim, D-13), `evals/results/manual_review.md` template, `evals/README.md`.
+- Run order step 1 done: `run_all.py --no-llm` → Workflow (rules-only) **20/23** (fails G-08 and G-23 as expected, and G-22 by construction: rules-only never sets `llm_unavailable`), injection 3/3, public 6/6. Committed in `evals/results/`.
+- Tests: new `test_score`, `test_run_all` (status classification, resume rules, provider guard, env restore). Suite: 197 pass.
+- diff-reviewer: 2 FAIL + 3 fixes, all applied: provider guard covers all LLM columns; refuse to start without a usable key; `config_error` for missing key/auth/model, never skipped by `--resume`; raw metrics count a missing proposal as a raw failure; `--retry-infra` implies `--resume`; `--trials > 1` defaults to the D11.5 subset; paired A/B row for infra gaps; G-22 note in the summary; mock fixture check; numeric trial sort.
+- Incident: while testing the "not configured" guard I ran `run_all.py --resume` with Groq configured; it ran 2 real A cases on Groq (G-01 FAIL: model judged SignFlow as covering an add-on; G-02 PASS; ~35K Groq tokens) before I stopped it. The runs were moved to `runtime/dev_checks/groq_eval_runs/` (not reported), the orphaned mock was stopped, and LLM runs now require an explicit `--provider`.
+- Open: run order steps 2–5 (commit DECISION_RULE.md, Gemini eval, consistency subset, walkthroughs) wait for `GEMINI_API_KEY`.
+
+### Phase 6: Web app (Sat 10 Oct, 01:00–02:00 IST)
+- Summary: `webapp/main.py` (T17 API: health, queue with status, request, submit (US-6), analyze with `trace_steps`/`trace_meta`/banners, consequence, actions with the server-side override-reason rule, audit), `webapp/static/` (queue, request card with untrusted text box, run bar, banners incl. side-by-side conflict and quoted injection excerpts, recommendation, approval chips with reasons and name hints, flag explanations, missing / questions, evidence table with Rule/Tool/AI kind, "How this was decided" panel, footer, action bar + confirmation modal + success state + audit history, new-request form). All business text via `textContent`. `/api/compare` (US-7, Could) not built.
+- Tests: new `test_webapp` (queue, analyze banners, conflict side by side, override reason, audit fields, unknown run, blank form, bad architecture, staged trace panel data, static scan for unsafe DOM APIs).
+- diff-reviewer: PASS on XSS, override rule, audit fields and code-decides; 5 fixes applied (stale analysis result ignored, Confirm disabled until the consequence loads, snake_case decision type for unknown/error runs, `/api/compare` removed, more tests).
+- Manual browser checks (PLAN P6 list) are in the human checklist.
+
 ## Human checklist
 
 Items that need the human. The build does not wait for them.
@@ -51,6 +65,8 @@ Items that need the human. The build does not wait for them.
 - [ ] Rewrite `docs/DECISION_MEMO.md` in your own voice.
 - [ ] Submit the repo URL on the Google Form.
 - [ ] **Before Phase 5:** add `GEMINI_API_KEY=` to `.env` (free key from Google AI Studio). Needed for the reported eval (D-17).
+- [ ] P6 browser checks (`python run_local.py`, http://127.0.0.1:8000): REQ-1006 → injection banner + clarification, "Send for approvals" needs an override reason; REQ-1007 → conflict side by side; REQ-1008 → "Suggest existing tool" highlighted (with an LLM key); stop the mock (or bad `VENDOR_RISK_BASE_URL`) and run REQ-1001 → unavailable banner; trace panel shows steps + stop reason (staged: route reasons + reviewer audit); confirming writes `runtime/audit_log.jsonl`; a justification `<img src=x onerror=alert(1)>` via "New request" renders as text.
+- [ ] P5: fill `evals/results/manual_review.md` once the Gemini runs exist.
 - [ ] P3: read the three Groq outputs and step traces in `runtime/dev_checks/p3_checks.log`. Is the recommendation useful to a reviewer?
 - [ ] P2: safety net exists; push to GitHub when convenient. Review D-16 (proposed) and its open question.
 - [ ] P1: read the engine evidence for REQ-1007 (conflict) and REQ-1009 (unavailable) and two tool descriptions in `src/tools.py`: would a reviewer understand them? Review D-14 and D-15 (proposed).

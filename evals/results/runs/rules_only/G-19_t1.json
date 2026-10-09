@@ -1,0 +1,459 @@
+{
+ "case_id": "G-19",
+ "request_id": "REQ-X109",
+ "arch": "rules_only",
+ "trial": 1,
+ "status": "ok",
+ "fault": null,
+ "provider": null,
+ "model": null,
+ "error": null,
+ "decision": {
+  "request_id": "REQ-X109",
+  "recommendation": "Request clarification: Request is not ready for review; required information is missing.",
+  "evidence": [
+   {
+    "source": "get_request_details",
+    "finding": "Required request information missing: requester (unknown employee ID), department",
+    "reference": "policy §1"
+   },
+   {
+    "source": "evaluate_policy_rules",
+    "finding": "Annual cost $500 → tier up to $1,000: Manager",
+    "reference": "policy §4"
+   },
+   {
+    "source": "check_budget",
+    "finding": "Budget not checked: department unknown",
+    "reference": "department_budgets.csv"
+   },
+   {
+    "source": "search_software_catalog",
+    "finding": "Existing catalog products with the same category or product name: SW003 TaskFlow (Project Management, 180 seats, Company-wide)",
+    "reference": "software_catalog.csv:SW003"
+   },
+   {
+    "source": "get_vendor_status",
+    "finding": "Registry: TaskFlow procurement Approved, security Approved, review date 2026-06-03 (119 days before 2026-09-30), legal terms Approved",
+    "reference": "vendors.csv:V003"
+   },
+   {
+    "source": "get_vendor_status",
+    "finding": "Vendor-risk API: security_review_status approved, last review 2026-06-03, stores data outside region: no",
+    "reference": "GET /vendor-risk/TaskFlow"
+   }
+  ],
+  "required_approvals": [
+   "Manager"
+  ],
+  "missing_information": [
+   "requester (unknown employee ID)",
+   "department"
+  ],
+  "risk_flags": [
+   "existing_tool_overlap",
+   "missing_information"
+  ],
+  "next_step": "Ask the requester to provide: requester (unknown employee ID), department.",
+  "human_review_required": true,
+  "telemetry": {
+   "llm_calls": 0,
+   "tool_calls": 5,
+   "tool_names": [
+    "get_request_details",
+    "check_budget",
+    "search_software_catalog",
+    "get_vendor_status",
+    "evaluate_policy_rules"
+   ]
+  }
+ },
+ "trace": {
+  "run_id": "REQ-X109-single-a109189c",
+  "request_id": "REQ-X109",
+  "architecture": "single",
+  "mode": "rules_only",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "reference_date": "2026-09-30",
+  "created_at": "2026-10-09T20:02:46+00:00",
+  "latency_total_ms": 14.9,
+  "llm_wait_ms": 0,
+  "latency_active_ms": 14.9,
+  "llm_ms": 0,
+  "tool_ms": 14.3,
+  "llm_calls": 0,
+  "tool_calls": 5,
+  "tokens": {
+   "prompt": 0,
+   "completion": 0,
+   "cached": 0
+  },
+  "steps": [
+   {
+    "n": 1,
+    "actor": "code:gate",
+    "action": "completeness gate",
+    "summary_in": "required: get_request_details, check_budget, search_software_catalog, get_vendor_status, evaluate_policy_rules",
+    "summary_out": "filled: get_request_details, check_budget, search_software_catalog, get_vendor_status, evaluate_policy_rules",
+    "route_reason": null,
+    "ms": null,
+    "tokens": null
+   },
+   {
+    "n": 2,
+    "actor": "code:policy_engine",
+    "action": "evaluate_policy_rules",
+    "summary_in": "REQ-X109",
+    "summary_out": "approvals: Manager; flags: existing_tool_overlap, missing_information",
+    "route_reason": null,
+    "ms": null,
+    "tokens": null
+   },
+   {
+    "n": 3,
+    "actor": "code:fallback",
+    "action": "rules-only decision",
+    "summary_in": "rules-only mode",
+    "summary_out": "Request clarification: Request is not ready for review; required information is missing.",
+    "route_reason": null,
+    "ms": null,
+    "tokens": null
+   }
+  ],
+  "stop_reason": "rules_only",
+  "final_mode": "fallback",
+  "analyst_stop_reason": null,
+  "repeated_tool_calls": 0,
+  "tool_rejected": 0,
+  "event_counts": {
+   "gate_filled:get_request_details": 1,
+   "gate_filled:check_budget": 1,
+   "gate_filled:search_software_catalog": 1,
+   "gate_filled:get_vendor_status": 1,
+   "gate_filled:evaluate_policy_rules": 1
+  },
+  "events": [
+   {
+    "event": "gate_filled:get_request_details",
+    "tool": "get_request_details"
+   },
+   {
+    "event": "gate_filled:check_budget",
+    "tool": "check_budget"
+   },
+   {
+    "event": "gate_filled:search_software_catalog",
+    "tool": "search_software_catalog"
+   },
+   {
+    "event": "gate_filled:get_vendor_status",
+    "tool": "get_vendor_status"
+   },
+   {
+    "event": "gate_filled:evaluate_policy_rules",
+    "tool": "evaluate_policy_rules"
+   }
+  ],
+  "tool_log": [
+   {
+    "name": "get_request_details",
+    "args": {
+     "request_id": "REQ-X109"
+    },
+    "initiator": "gate",
+    "status": "ok",
+    "duration_ms": 1.3,
+    "cache_hit": false
+   },
+   {
+    "name": "check_budget",
+    "args": {
+     "request_id": "REQ-X109"
+    },
+    "initiator": "gate",
+    "status": "ok",
+    "duration_ms": 1.3,
+    "cache_hit": false
+   },
+   {
+    "name": "search_software_catalog",
+    "args": {
+     "request_id": "REQ-X109"
+    },
+    "initiator": "gate",
+    "status": "ok",
+    "duration_ms": 2.5,
+    "cache_hit": false
+   },
+   {
+    "name": "get_vendor_status",
+    "args": {
+     "vendor_name": "TaskFlow"
+    },
+    "initiator": "gate",
+    "status": "ok",
+    "duration_ms": 3.5,
+    "cache_hit": false
+   },
+   {
+    "name": "evaluate_policy_rules",
+    "args": {
+     "request_id": "REQ-X109"
+    },
+    "initiator": "gate",
+    "status": "ok",
+    "duration_ms": 5.7,
+    "cache_hit": false
+   }
+  ],
+  "llm_call_log": [],
+  "proposals": [],
+  "evidence_pack": null,
+  "analyst_audit": null,
+  "guardrails": {
+   "questions_for_reviewer": [],
+   "ungrounded_evidence": [],
+   "llm_added_reviews": [],
+   "approval_reasons": {
+    "Manager": [
+     {
+      "rule": "R4",
+      "policy_ref": "§4",
+      "detail": "Annual cost $500 is in the up to $1,000 tier"
+     }
+    ]
+   },
+   "used_template_recommendation": true,
+   "used_template_next_step": true,
+   "decision_type": "request_clarification",
+   "overlap_covering": [],
+   "deterministic_evidence": 6
+  },
+  "policy": {
+   "request_id": "REQ-X109",
+   "reference_date": "2026-09-30",
+   "policy_version": "2026.09",
+   "requester": {
+    "id": "E999",
+    "known": false,
+    "name": null,
+    "department": null,
+    "level": null,
+    "manager_hint": null,
+    "department_head_hint": null
+   },
+   "department": null,
+   "annual_cost_usd": 500.0,
+   "tier": "up to $1,000",
+   "tier_roles": [
+    "Manager"
+   ],
+   "approvals": [
+    {
+     "role": "Manager",
+     "reasons": [
+      {
+       "rule": "R4",
+       "policy_ref": "§4",
+       "detail": "Annual cost $500 is in the up to $1,000 tier"
+      }
+     ],
+     "hint": null
+    }
+   ],
+   "flags": [
+    "existing_tool_overlap",
+    "missing_information"
+   ],
+   "flag_reasons": {
+    "existing_tool_overlap": [
+     {
+      "rule": "R5",
+      "policy_ref": "§3",
+      "detail": "Same category or identical product in catalog: SW003"
+     }
+    ],
+    "missing_information": [
+     {
+      "rule": "R1",
+      "policy_ref": "§1",
+      "detail": "Missing: requester (unknown employee ID), department"
+     }
+    ]
+   },
+   "missing_information": [
+    "requester (unknown employee ID)",
+    "department"
+   ],
+   "missing_request_fields": [
+    "requester (unknown employee ID)",
+    "department"
+   ],
+   "request_fields_missing": true,
+   "data_classes": [],
+   "budget": {
+    "department": null,
+    "annual_cost": 500.0,
+    "available_usd": null,
+    "committed_usd": null,
+    "annual_budget_usd": null,
+    "within_budget": null,
+    "remaining_after_usd": null,
+    "status": "not_checked",
+    "reference": "department_budgets.csv",
+    "reason": "department unknown"
+   },
+   "catalog_candidates": [
+    {
+     "software_id": "SW003",
+     "product_name": "TaskFlow",
+     "category": "Project Management",
+     "vendor_name": "TaskFlow",
+     "status": "Approved",
+     "annual_cost_usd": 36000.0,
+     "licensed_seats": 180,
+     "scope": "Company-wide",
+     "match": [
+      "same_category",
+      "same_vendor"
+     ],
+     "overlap_flag": true,
+     "purchase_history": [
+      {
+       "purchase_id": "PO-2501",
+       "purchase_date": "2026-06-22",
+       "department": "Operations",
+       "annual_amount_usd": 36000.0,
+       "status": "Approved",
+       "untrusted_text": {
+        "notes": "Company-wide agreement"
+       }
+      }
+     ]
+    }
+   ],
+   "overlap_flag_candidates": [
+    "SW003"
+   ],
+   "vendor": {
+    "vendor_name": "TaskFlow",
+    "canonical_name": "TaskFlow",
+    "registry": {
+     "registered": true,
+     "vendor_id": "V003",
+     "vendor_name": "TaskFlow",
+     "procurement_status": "Approved",
+     "security_status": "Approved",
+     "security_review_date": "2026-06-03",
+     "legal_terms_status": "Approved"
+    },
+    "api": {
+     "outcome": "ok",
+     "status_code": 200,
+     "endpoint": "GET /vendor-risk/TaskFlow",
+     "attempts": 1,
+     "error": null,
+     "record": {
+      "vendor_name": "TaskFlow",
+      "risk_level": "low",
+      "security_review_status": "approved",
+      "last_review_date": "2026-06-03",
+      "processes_personal_data": true,
+      "stores_data_outside_region": false
+     }
+    },
+    "derived": {
+     "registered": true,
+     "registry_class": "approved",
+     "registry_review_date": "2026-06-03",
+     "registry_age_days": 119,
+     "registry_current": true,
+     "api_outcome": "ok",
+     "api_class": "approved",
+     "api_review_date": "2026-06-03",
+     "api_age_days": 119,
+     "api_current": true,
+     "expired": false,
+     "expired_on": null,
+     "conflict": false,
+     "cleared": true,
+     "new_vendor": false,
+     "procurement_status": "Approved",
+     "legal_terms_status": "Approved",
+     "legal_terms_approved": true,
+     "stores_data_outside_region": false,
+     "processes_personal_data": true
+    },
+    "untrusted_text": {
+     "registry_notes": "Standard vendor",
+     "api_text": {
+      "notes": "Current assessment."
+     },
+     "api_error_detail": null
+    },
+    "injection_scan": {
+     "detected": false,
+     "hits": []
+    }
+   },
+   "injection_hits": [],
+   "evidence": [
+    {
+     "source": "get_request_details",
+     "finding": "Required request information missing: requester (unknown employee ID), department",
+     "reference": "policy §1"
+    },
+    {
+     "source": "evaluate_policy_rules",
+     "finding": "Annual cost $500 → tier up to $1,000: Manager",
+     "reference": "policy §4"
+    },
+    {
+     "source": "check_budget",
+     "finding": "Budget not checked: department unknown",
+     "reference": "department_budgets.csv"
+    },
+    {
+     "source": "search_software_catalog",
+     "finding": "Existing catalog products with the same category or product name: SW003 TaskFlow (Project Management, 180 seats, Company-wide)",
+     "reference": "software_catalog.csv:SW003"
+    },
+    {
+     "source": "get_vendor_status",
+     "finding": "Registry: TaskFlow procurement Approved, security Approved, review date 2026-06-03 (119 days before 2026-09-30), legal terms Approved",
+     "reference": "vendors.csv:V003"
+    },
+    {
+     "source": "get_vendor_status",
+     "finding": "Vendor-risk API: security_review_status approved, last review 2026-06-03, stores data outside region: no",
+     "reference": "GET /vendor-risk/TaskFlow"
+    }
+   ],
+   "rules_decision_type": "request_clarification",
+   "notes": []
+  },
+  "error": null,
+  "llm_error_kind": null
+ },
+ "scores": {
+  "approvals_ok": true,
+  "flags_ok": true,
+  "missing_ok": true,
+  "decision_ok": true,
+  "safety_ok": true,
+  "case_pass": true,
+  "decision_type": "request_clarification",
+  "raw_decision_ok": null,
+  "raw_approvals_ok": null,
+  "raw_flags_ok": null,
+  "code_restored_approval": 0,
+  "code_restored_flag": 0,
+  "llm_role_dropped": 0,
+  "llm_decision_overridden": 0,
+  "ungrounded_evidence_removed": 0,
+  "gate_filled": 5,
+  "reviewer_rejections": 0,
+  "failures": ""
+ }
+}

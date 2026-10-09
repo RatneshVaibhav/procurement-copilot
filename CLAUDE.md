@@ -47,11 +47,11 @@ After the first read, **only re-read the spec sections the current phase referen
 python -m pip install -r requirements.txt
 python verify_setup.py                          # pre-flight
 python -m unittest discover -s tests -v         # unit tests (no network, no LLM)
-python scripts/smoke_llm.py                     # provider, model list, tool call, structured output, rate-limit headers
+python scripts/smoke_llm.py --provider gemini   # provider, model list, tool call, structured output, real schemas
 python scripts/run_one.py REQ-1006 --arch single   # one real run, prints decision + trace steps
 python run_local.py                             # ONE command: mock API :8001 + web app :8000
 python evals/run_all.py --no-llm                # rules-only baseline, no key needed
-python evals/run_all.py --trials 1 --resume     # golden + public evals, both architectures, resumable
+python evals/run_all.py --provider gemini --trials 1 --resume   # golden eval, A and B, resumable (D-17)
 ```
 
 ## Writing style for README, memo and docs

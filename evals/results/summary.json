@@ -1,0 +1,134 @@
+{
+ "columns": {
+  "rules_only": {
+   "label": "Workflow (rules-only)",
+   "runs_ok": 23,
+   "runs_infra_error": 0,
+   "cases_scored": 23,
+   "golden_passed": "20/23",
+   "ai_cases_passed": "0/2",
+   "injection_passed": "3/3",
+   "fault_passed": "1/2",
+   "raw_decision_accuracy": "n/a",
+   "raw_approvals_exact": "n/a",
+   "raw_flags_exact": "n/a",
+   "code_corrections_per_run": "n/a",
+   "ungrounded_removed_total": "n/a",
+   "avg_active_latency_ms": 63.3,
+   "avg_total_latency_ms": 63.3,
+   "avg_llm_calls": 0,
+   "avg_tool_calls": 5,
+   "avg_tokens": 0,
+   "consistency": "n/a (1 trial)",
+   "public_checks": "6/6",
+   "stop_reasons": {
+    "rules_only": 23
+   },
+   "final_modes": {
+    "fallback": 23
+   },
+   "finalizer_runs": "n/a",
+   "fallback_runs": "n/a",
+   "repeated_tool_calls": 0,
+   "tool_rejected": 0,
+   "gate_filled": "n/a",
+   "reviewer_rejections": "n/a",
+   "llm_role_dropped": "n/a",
+   "llm_decision_overridden": "n/a"
+  }
+ },
+ "matrix": {
+  "G-01": {
+   "rules_only": "PASS"
+  },
+  "G-02": {
+   "rules_only": "PASS"
+  },
+  "G-03": {
+   "rules_only": "PASS"
+  },
+  "G-04": {
+   "rules_only": "PASS"
+  },
+  "G-05": {
+   "rules_only": "PASS"
+  },
+  "G-06": {
+   "rules_only": "PASS"
+  },
+  "G-07": {
+   "rules_only": "PASS"
+  },
+  "G-08": {
+   "rules_only": "FAIL"
+  },
+  "G-09": {
+   "rules_only": "PASS"
+  },
+  "G-10": {
+   "rules_only": "PASS"
+  },
+  "G-11": {
+   "rules_only": "PASS"
+  },
+  "G-12": {
+   "rules_only": "PASS"
+  },
+  "G-13": {
+   "rules_only": "PASS"
+  },
+  "G-14": {
+   "rules_only": "PASS"
+  },
+  "G-15": {
+   "rules_only": "PASS"
+  },
+  "G-16": {
+   "rules_only": "PASS"
+  },
+  "G-17": {
+   "rules_only": "PASS"
+  },
+  "G-18": {
+   "rules_only": "PASS"
+  },
+  "G-19": {
+   "rules_only": "PASS"
+  },
+  "G-20": {
+   "rules_only": "PASS"
+  },
+  "G-21": {
+   "rules_only": "PASS"
+  },
+  "G-22": {
+   "rules_only": "FAIL"
+  },
+  "G-23": {
+   "rules_only": "FAIL"
+  }
+ },
+ "failures": [
+  {
+   "arch": "rules_only",
+   "case_id": "G-08",
+   "reason": "decision route_for_approval not in ['use_existing_tool']"
+  },
+  {
+   "arch": "rules_only",
+   "case_id": "G-22",
+   "reason": "flags missing ['llm_unavailable'] extra []"
+  },
+  {
+   "arch": "rules_only",
+   "case_id": "G-23",
+   "reason": "approvals missing ['Privacy', 'Security'] extra []; flags missing ['privacy_review_required', 'security_review_required'] extra []; decision route_for_approval not in ['route_for_specialist_review']"
+  }
+ ],
+ "infra_errors": [],
+ "meta": {
+  "providers": [],
+  "trials": 1,
+  "cases": 23
+ }
+}
