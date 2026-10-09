@@ -14,7 +14,8 @@ class TraceTests(unittest.TestCase):
     def assert_trace(self, trace: dict):
         self.assertTrue(trace["steps"])
         self.assertTrue(trace["stop_reason"])
-        self.assertIn(trace["final_mode"], {"tool_call", "finalizer", "fallback"})
+        # D2.6 modes, plus "structured" for B's reviewer (structured output, D2.7)
+        self.assertIn(trace["final_mode"], {"tool_call", "finalizer", "fallback", "structured"})
         for step in trace["steps"]:
             self.assertIn(step["actor"], ACTORS)
             self.assertLessEqual(len(step["summary_in"]), 300)

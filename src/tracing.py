@@ -45,6 +45,7 @@ class Trace:
         self.final_mode: str | None = None
         self.error: str | None = None
         self.llm_error_kind: str | None = None
+        self.analyst_stop_reason: str | None = None
         self.proposals: list[dict] = []
         self.analyst_audit: dict | None = None
         self.evidence_pack: dict | None = None
@@ -106,6 +107,7 @@ class Trace:
             "steps": self.steps,
             "stop_reason": self.stop_reason,
             "final_mode": self.final_mode,
+            "analyst_stop_reason": self.analyst_stop_reason,
             "repeated_tool_calls": counts.get("repeated_tool_call", 0),
             "tool_rejected": counts.get("tool_rejected", 0),
             "event_counts": counts,

@@ -168,6 +168,13 @@ class FailureLabTests(unittest.TestCase):
         self.assertEqual(trace["llm_error_kind"], "rate_limited")
         self.assertEqual(decision.telemetry.tool_calls, 5)  # 1 by the agent + 4 by the gate
 
+    def test_finalizer_tool_use_failed_falls_back(self):
+        rid = "REQ-1002"
+        decision, trace, _ = run(rid, [ToolUseFailed("bad tool call"), ToolUseFailed("bad output")])
+        self.assertEqual(trace["final_mode"], "fallback")
+        self.assertEqual(decision.required_approvals, ["Department Head", "Finance", "Procurement", "Security", "Legal"])
+        self.assertIn("llm_unavailable", decision.risk_flags)
+
     def test_tool_use_failed_goes_to_finalizer(self):
         rid = "REQ-1001"
         decision, trace, _ = run(rid, [ToolUseFailed("bad tool call"), {"structured": proposal(rid)}])

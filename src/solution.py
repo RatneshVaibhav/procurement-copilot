@@ -7,6 +7,7 @@ from src import fallback
 from src.config import get_reference_date, get_settings
 from src.contracts import Architecture, ProcurementDecision
 from src.agents.single_agent import run_single
+from src.agents.staged_agent import run_staged
 from src.llm_client import LLMClient, LLMUnavailable
 from src.tools import RunContext
 from src.tracing import Trace, traceable
@@ -67,8 +68,7 @@ def _run_llm(arch: str, ctx: RunContext, trace: Trace, llm):
         llm = llm if llm is not None else LLMClient()
         if arch == "single":
             return run_single(ctx, trace, llm)
-        # Architecture B arrives in Phase 4; until then it uses the fallback (D-07.9).
-        raise LLMUnavailable("staged architecture not built yet", kind="not_built")
+        return run_staged(ctx, trace, llm)
     except LLMUnavailable as exc:
         trace.error = f"{type(exc).__name__}: {exc}"
         trace.llm_error_kind = exc.kind

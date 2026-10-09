@@ -141,6 +141,10 @@ def finalize(llm, ctx: RunContext, trace, model: type[BaseModel], gate_tools: li
     messages = [{"role": "system", "content": prompts.SYSTEM_FINALIZER}, {"role": "user", "content": user}]
     try:
         proposal, res = llm.chat_structured(messages, model, "submit_recommendation")
+    except ToolUseFailed as exc:
+        ctx.event("tool_use_failed", actor="finalizer", error=str(exc))
+        trace.step("code:finalizer", "structured finalizer", "tool results", "provider rejected the output → fallback")
+        return None
     except InvalidOutput as exc:
         if exc.result is not None:
             record_llm(ctx, trace, "code:finalizer", exc.result)

@@ -26,13 +26,21 @@ Written by Claude Code under D-11 (continuous mode). Each phase appends 5–10 l
 - Deviations (logged): `assemble()` returns `(decision, report)` and takes `extra_flags`/`extra_evidence`; `handle_request_with_trace` has an extra `llm=None` parameter for dependency injection. D-16 (proposed) recorded.
 - Open question: D-16 overlap exclusion (keep narrow, or R12 literal).
 
-### Phase 3 (in progress): LLM client, bounded loop, Architecture A (Fri 9 Oct, 22:10– IST)
-- Done: `src/structured.py`, `src/llm_client.py` (throttle, retries, header-aware waits, `LLMRateLimited`, error kinds for infra vs model failures, `reasoning_effort` drop, structured output + one repair), `tests/fakes.py::ScriptedLLM`, `src/prompts.py` (T16 + D13), `src/agents/loop.py` (D8 + D2.4 finalizer), `src/agents/single_agent.py`, `scripts/run_one.py`. Unit tests: 155 pass in ~2 s (new `test_structured`, `test_llm_client`, `test_failure_lab`).
-- Incident: one unit test (`test_unknown_architecture_still_returns_decision`) ran in `llm` mode with the real `.env` key and made real Groq calls (~1 request's worth). Fixed: `tests/helpers.py` and `tests/fakes.py` blank every provider key at import (settings are read at call time). Suite back to ~2 s.
-- Real runs so far (25 allowed in P3–P4): smoke test (P0), the accidental test run, REQ-1006 on A, one 300-token parallel-tool-call probe.
-- REQ-1006 on A: correct (request_clarification, injection flagged with a verbatim excerpt, no CFO), but 7 LLM calls, stop_reason `max_turns` → finalizer, 17,607 tokens, 56 s of rate-limit waits.
-- Finding: Groq `openai/gpt-oss-20b` returns one tool call per turn even when asked for parallel calls (probe), so A needs at least 6 calls per request.
-- **Budget projection (D-11 rule 3): FAILS.** About 44 golden LLM runs × ~17K tokens ≈ 750K tokens, plus ~200K for the P3/P4 public-runner checks. Groq free tier is 200K tokens/day, about 300K by Sun 12:00 IST. **Paused for the human's provider/budget decision.** Resolved Sat 10 Oct: D-17 (free tiers only: Gemini 2.5 Flash for the reported eval, Groq for development checks).
+### Phase 3: LLM client, bounded loop, Architecture A (Fri 9 Oct 22:10 – Sat 10 Oct 01:30 IST)
+- Summary: `src/structured.py`, `src/llm_client.py` (throttle, retries, header-aware waits, `LLMRateLimited`, error kinds so evals separate infra from model failures, `reasoning_effort` drop, structured output + one repair), `tests/fakes.py::ScriptedLLM`, `src/prompts.py` (T16 + D13), `src/agents/loop.py` (D8 + D2.4 finalizer), `src/agents/single_agent.py`, `scripts/run_one.py` (`--provider`, D-17), smoke test with a real-schema step and `--provider`.
+- Tests: new `test_structured`, `test_llm_client`, `test_failure_lab` (every T0.3 row for A); suite ~3 s, no network.
+- Real checks on Groq `openai/gpt-oss-20b` (dev provider, D-17): REQ-1006 → request_clarification + injection flag (verbatim excerpt), no CFO; REQ-1008 → use_existing_tool (R12 override of the finalizer's route_for_approval); REQ-1009 → vendor-risk 503 surfaced, Security/Privacy/Legal. Public runner single: **6/6** (all real LLM runs, 7 calls each). Logs in `runtime/dev_checks/`.
+- Observation: on Groq every A run used 7 calls (one tool per turn, plus one text-only turn) and ended `max_turns` → finalizer, ~17K tokens and ~2 min of rate-limit waits per run. Not tuned on Groq; Gemini is the eval provider.
+- Incident: a unit test made real Groq calls once (`llm` mode with the real key). Fixed: `tests/helpers.py` and `tests/fakes.py` blank every provider key at import.
+- diff-reviewer: 1 FAIL + 4 fixes, all applied: 400 errors branch on the error code first (a `tool_use_failed` body that mentions "reasoning" no longer drops `reasoning_effort` or retries); `apply_provider()` clears a `MODEL_NAME` from the other provider; real `AgentProposal`/`ReviewerProposal` schemas in the smoke test; `json_validate_failed` keeps wait/attempts; tests for 403/404/timeout.
+- Deviations: SYSTEM_REVIEWER sentence adapted to structured output (D2.7; logged in `docs/architecture.md` → Prompt changes); the completeness gate runs before the finalizer so the finalizer sees all required evidence.
+- Real requests used so far: ~12 of 25 (smoke, the accidental test run, a 300-token parallel-call probe, 3 `run_one`, 6 public).
+
+### Phase 4: Architecture B, sequential specialists (Sat 10 Oct, 00:30–01:45 IST)
+- Summary: `src/agents/staged_agent.py`: `StagedState`, deterministic `supervisor()` (D9 line for line), nodes analyst (5 tools + `submit_evidence_pack`, 5 turns, no finalizer per D7) / gate / policy_engine / reviewer (`chat_structured(ReviewerProposal)`, T16 message, only referenced policy sections) / finalize (`guardrails.assemble`) / fallback (keeps grounded stage-1 evidence). Wired into `solution.py`.
+- Tests: `test_staged` (route reasons in order, invalid pack → fallback, reviewer failure keeps grounded stage-1 evidence, step limit, analyst_audit recorded, analyst scope, reviewer has no tools, code decides, injected text only inside untrusted blocks, reviewer `tool_use_failed`). Suite: 181 pass.
+- diff-reviewer: 2 FAIL + 3 fixes, all applied: `ToolUseFailed` in the reviewer (and in A's finalizer) now routes to the fallback instead of the last-resort error decision; the reviewer's policy block carries the untrusted-data prefix; no duplicate gate step; section lookup guarded; D-19 (proposed) records B's trace conventions.
+- **Open:** PLAN P4 real checks (`run_one --arch staged` REQ-1006, REQ-1008; public runner staged 6/6) wait for `GEMINI_API_KEY` (D-17); Groq's daily quota is spent on the P3 checks.
 
 ## Human checklist
 
@@ -43,6 +51,7 @@ Items that need the human. The build does not wait for them.
 - [ ] Rewrite `docs/DECISION_MEMO.md` in your own voice.
 - [ ] Submit the repo URL on the Google Form.
 - [ ] **Before Phase 5:** add `GEMINI_API_KEY=` to `.env` (free key from Google AI Studio). Needed for the reported eval (D-17).
+- [ ] P3: read the three Groq outputs and step traces in `runtime/dev_checks/p3_checks.log`. Is the recommendation useful to a reviewer?
 - [ ] P2: safety net exists; push to GitHub when convenient. Review D-16 (proposed) and its open question.
 - [ ] P1: read the engine evidence for REQ-1007 (conflict) and REQ-1009 (unavailable) and two tool descriptions in `src/tools.py`: would a reviewer understand them? Review D-14 and D-15 (proposed).
 - [ ] P0: note the model and rate-limit headers (above) in `docs/AGENT_LOG.md`. LLM budget option is fixed by D-12 (Groq free).

@@ -160,3 +160,17 @@ D-01, D-02 and D-04 below were proposed in the kickoff report and are **accepted
 - **Never mixed:** a comparison never combines providers, and a rate-limited run never switches provider mid-run (it falls back to rules only and is recorded as `infra_error`).
 - Scripts take `--provider groq|gemini` (sets `LLM_PROVIDER` for that process); the trace records provider and model.
 - The human adds `GEMINI_API_KEY` to `.env` before Phase 5. If Gemini's free daily request cap proves too low for the eval, pause again (D-11 rule 3).
+
+## D-18 (proposed): Public checks scored from the golden runs (budget)
+
+- T14 step 2 runs `evals/run_public_evals.py` as a subprocess for each architecture. That repeats six requests the golden set already runs (PUB-01..06 = G-01, G-02, G-03, G-05, G-06, G-09), costing 12 extra LLM runs on a free tier that cannot spare them (D-17).
+- **Rule.** `evals/run_all.py` scores the six public cases with the public runner's own `evaluate()` function on the stored golden runs of the same requests (first trial with status ok), and writes `results/public_<arch>.csv` with a `source` column naming the golden run. Scoring logic is the runner's, unchanged.
+- `--public-subprocess` restores the T14 behaviour (runs the public runner itself and saves `public_<arch>.txt`).
+- `run_public_evals.py` is unchanged apart from F1/D-08 and still works on its own.
+
+## D-19 (proposed): Trace conventions for Architecture B
+
+- **`final_mode = "structured"`** for a successful B run: the final proposal comes from the reviewer's structured output (D2.7), which D2.6's `tool_call | finalizer | fallback` does not cover. A and fallbacks keep the D2.6 values. (`tests/test_trace.py` allows the extra value.)
+- **B `stop_reason` values:** `completed` | `step_limit` | `llm_unavailable` | `stage_failed:<node> <reason>` (for example `stage_failed:analyst invalid_output`, `stage_failed:reviewer tool_use_failed`).
+- **`analyst_stop_reason`** trace field: the analyst loop's own stop reason (submitted / max_turns / loop_detected / invalid_output / tool_use_failed).
+- The reviewer's "Policy engine result" block carries the untrusted-data prefix because it quotes request text (injection hits, field values).
