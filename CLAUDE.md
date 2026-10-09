@@ -7,8 +7,9 @@ You are implementing this project from written specs (spec-driven development, C
 1. `docs/SPEC_FUNCTIONAL.md`: what the product does, for whom, acceptance criteria.
 2. `docs/SPEC_TECHNICAL.md`: architecture, tools, rules, prompts, guardrails, evals. Start with **T0** (lecture alignment + failure-mode table).
 3. `docs/SPEC_V2_DELTA.md`: the Class 12/13 changes. **Where it differs from SPEC_TECHNICAL, the delta wins.**
-4. `PLAN.md`: phased tasks. Work one phase at a time (`/phase N`).
-5. `data/procurement_policy.md`: the policy source of truth. If the specs and the policy disagree, stop and ask.
+4. `docs/DECISIONS.md`: the human's rulings on the kickoff report (D-01 to D-10). **Where it differs from any spec file, the decision wins.** Re-read it at the start of every phase.
+5. `PLAN.md`: phased tasks. Work one phase at a time (`/phase N`).
+6. `data/procurement_policy.md`: the policy source of truth. If the specs and the policy disagree, stop and ask.
 
 After the first read, **only re-read the spec sections the current phase references** (PLAN lists them). Do not re-read whole specs every phase; it wastes context.
 
