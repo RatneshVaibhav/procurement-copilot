@@ -7,8 +7,8 @@ You are implementing this project from written specs (spec-driven development, C
 1. `docs/SPEC_FUNCTIONAL.md`: what the product does, for whom, acceptance criteria.
 2. `docs/SPEC_TECHNICAL.md`: architecture, tools, rules, prompts, guardrails, evals. Start with **T0** (lecture alignment + failure-mode table).
 3. `docs/SPEC_V2_DELTA.md`: the Class 12/13 changes. **Where it differs from SPEC_TECHNICAL, the delta wins.**
-4. `docs/DECISIONS.md`: the human's rulings on the kickoff report (D-01 to D-10). **Where it differs from any spec file, the decision wins.** Re-read it at the start of every phase.
-5. `PLAN.md`: phased tasks. Work one phase at a time (`/phase N`).
+4. `docs/DECISIONS.md`: the human's rulings on the kickoff report and working mode (D-01 to D-13, plus any "D-1x (proposed)"). **Where it differs from any spec file, the decision wins.** Re-read it at the start of every phase.
+5. `PLAN.md`: phased tasks. Work one phase at a time, continuously from Phase 0 to 7 (D-11).
 6. `data/procurement_policy.md`: the policy source of truth. If the specs and the policy disagree, stop and ask.
 
 After the first read, **only re-read the spec sections the current phase references** (PLAN lists them). Do not re-read whole specs every phase; it wastes context.
@@ -17,8 +17,8 @@ After the first read, **only re-read the spec sections the current phase referen
 1. Inspect before changing: list the files you will touch and why.
 2. Implement **one task at a time**. Write or update its test, run it, then move on.
 3. At the end of the phase run the phase checks, then invoke the `diff-reviewer` subagent on the phase diff.
-4. **STOP** and print: summary of changes, files touched, test output, diff-reviewer findings, deviations from spec and why, open questions. Wait for the human to say "continue".
-5. If a spec item is ambiguous, choose the most conservative option (more human review, never less), record it under "Open questions", and keep going. Do not stall.
+4. Commit, append 5–10 lines to `docs/BUILD_LOG.md` (summary, tests, reviewer verdict, deviations, open questions) and continue straight into the next phase (D-11). Pause only for the four D-11 reasons: an uncovered business-rule question with no clear conservative choice; a check still failing after 3 honest attempts; LLM provider/key errors or a budget projection that misses Sun 12:00 IST; anything needing secrets or a `git push`. Human-only items go in the "Human checklist" at the end of `docs/BUILD_LOG.md`.
+5. If a spec item is ambiguous, choose the most conservative option (more human review, never less), record it in `docs/DECISIONS.md` as "D-1x (proposed)", and keep going. Do not stall.
 6. Never weaken a test to make it pass. If a golden label looks wrong, say so and leave it unchanged. (The golden labels were re-derived independently from rules R1–R12 and all 23 agree with the spec.)
 7. Never invent fields, APIs, library functions or model IDs. If unsure an SDK parameter exists, check the installed package or say so.
 
@@ -39,7 +39,7 @@ After the first read, **only re-read the spec sections the current phase referen
 
 ## LLM budget rules (free tiers are tight; see D4)
 - Unit tests never call a real LLM. Use `ScriptedLLM`.
-- Real LLM calls only in: `scripts/smoke_llm.py`, `scripts/run_one.py`, and `evals/run_all.py`. Ask before running more than 4 real requests outside the eval.
+- Real LLM calls only in: `scripts/smoke_llm.py`, `scripts/run_one.py`, and `evals/run_all.py`. Real runs are allowed without asking: up to 25 real requests across Phases 3–4, then the planned eval runs (D-10). Run evals in the background with `nohup` and `--resume`.
 - Never re-run evals just to re-derive numbers that are already in `evals/results/`. Read the files.
 
 ## Commands (keep this list accurate as you build)

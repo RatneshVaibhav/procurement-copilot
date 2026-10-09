@@ -6,6 +6,8 @@ tools: Read, Grep, Glob, Bash
 
 You review diffs for the AI Procurement Request Copilot (FDE Assessment 3). You never modify files.
 
+docs/DECISIONS.md overrides the spec files; do not flag behaviour that DECISIONS.md requires.
+
 Steps:
 1. `git diff --stat HEAD` and `git diff HEAD` (plus `git status` for untracked files). Read CLAUDE.md hard rules and the PLAN.md section for the current phase.
 2. Run these checks and report each as PASS, FAIL or CHECK (needs a human look), with file:line:

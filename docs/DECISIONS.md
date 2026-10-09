@@ -16,10 +16,15 @@ Recorded 9 Oct 2026, before Phase 0. These rulings answer the kickoff report (F1
 | D-04 | Spec gap | LLM-added `prompt_injection_detected` needs a verbatim excerpt | P2 | T11 step 2 |
 | D-05 | F5, X5 | Mock API `EXTRA_DATA_DIR` merge in Phase 0, per-request load, canonical name | P0 | T2 F5, T4.1 |
 | D-06 | Setup | `pip install openai langsmith` into `.venv` is allowed | P0 | PLAN P0 task 3 |
-| D-07 | Ambiguities | All proposed defaults and spec-vs-spec resolutions accepted | All | Various |
+| D-07.1–D-07.11 | Ambiguities | Proposed defaults and spec-vs-spec resolutions, listed one by one | All | Various |
 | D-08 | X3 | `run_public_evals.py` exits non-zero on any fail or error | P0 | T2 F1 |
 | D-09 | X6 | Leave `README.md` until Phase 7 | P7 | PLAN P7 |
-| D-10 | Budget | Ask before the 6-run public-runner checks in P3 and P4 | P3, P4 | PLAN P3, P4 checks |
+| D-10 | Budget | Real LLM runs allowed without asking (replaced; see D-11) | P3–P5 | PLAN P3, P4 checks |
+| D-11 | Working mode | Run Phases 0–7 continuously; pause only for the four listed reasons | All | CLAUDE.md, PLAN.md, /phase skill |
+| D-12 | Provider | Groq, `openai/gpt-oss-20b`, free tier, `reasoning_effort=low`, both architectures | P0–P5 | D1, D4 |
+| D-13 | Decision rule | D11.7 default rule as written, committed before the first LLM eval | P5 | D11.7 |
+
+D-01, D-02 and D-04 below were proposed in the kickoff report and are **accepted as written** (9 Oct 2026).
 
 ## D-01 (Q1): Vendor-risk 404 for a registered vendor
 
@@ -60,11 +65,24 @@ Recorded 9 Oct 2026, before Phase 0. These rulings answer the kickoff report (F1
 
 - Allowed: `pip install openai langsmith` into `.venv`. In `requirements.txt`, set their lower bounds to the installed versions, as PLAN Phase 0 task 3 says.
 
-## D-07: Proposed defaults accepted
+## D-07: Proposed defaults (numbered)
 
-- All defaults proposed under "Ambiguities" in the kickoff report, and all its spec-vs-spec resolutions, are accepted as written.
-- **Known limitation:** the AC-2.2 status-grounding gap. List it under known limitations in the README in Phase 7.
-- **Gap in this record:** the kickoff report was not saved to the repo, so its individual defaults are not listed here. Until they are added, apply CLAUDE.md "How to work" rule 5 (most conservative option) to any ambiguity and record the choice under "Open questions".
+- **D-07.1 Reference date.** If the T3 regex fails on `data/README.md`, use a second regex matched to its wording.
+- **D-07.2 Public runner output.** `evals/run_public_evals.py` writes `evals/results/public_<arch>.csv` and auto-starts the mock API only when the URL host is local.
+- **D-07.3 Smoke test.** `scripts/smoke_llm.py` warns when the resolved model ID is not in the provider's model list.
+- **D-07.4 Registry review date.** Registry "Approved" with a blank or future review date counts as not current: add Security, but do not set `vendor_review_expired`.
+- **D-07.5 API outcomes.** API unavailable: add both evidence-gap items. API 404: add `"vendor-risk record (not found)"`.
+- **D-07.6 `--no-llm`.** `evals/run_all.py --no-llm` runs rules-only mode only; the summary merges it with stored LLM results.
+- **D-07.7 Grounding.** Implement the T11 grounding check as written (numbers, dates, IDs). List the AC-2.2 status-grounding gap under known limitations in the README in Phase 7.
+- **D-07.8 Unknown request.** An unknown `request_id` returns a valid `request_clarification` decision instead of raising.
+- **D-07.9 Phase 2 fallback.** In Phase 2, before the agents exist, the fallback adds `llm_unavailable`.
+- **D-07.10 Python.** Run Python with `.venv/bin/python`; documented commands stay `python ...`.
+- **D-07.11 Spec-vs-spec.**
+  - Forced `tool_choice` is removed (D1/D8/D9).
+  - The Analyst has 5 tools (D5), not 4 (T18 diagram).
+  - Use the D11.1 design-ladder column names.
+  - Commit messages follow PLAN.
+  - F1 changes only the public runner's startup, output path and exit code (D-08); scoring and CLI stay unchanged.
 
 ## D-08 (X3): Public runner exit code
 
@@ -75,7 +93,33 @@ Recorded 9 Oct 2026, before Phase 0. These rulings answer the kickoff report (F1
 
 - Do not edit `README.md` before Phase 7.
 
-## D-10: Real-LLM runs for the public runner
+## D-10: Real-LLM runs (replaced 9 Oct 2026)
 
-- Ask the human before running the 6-run public-runner checks in Phase 3 (single) and Phase 4 (staged).
-- This adds to the CLAUDE.md budget rule (ask before more than 4 real requests outside the eval).
+- Real LLM runs are allowed without asking.
+- Up to 25 real requests across Phases 3–4 (smoke test, `run_one`, public runners), then the planned eval runs (PLAN Phase 5 run order).
+- This replaces the CLAUDE.md rule "ask before more than 4 real requests outside the eval".
+
+## D-11: Continuous working mode
+
+- Run Phases 0 to 7 continuously. For each phase, follow the `/phase` procedure: tasks, tests, checks, `diff-reviewer`, commit. Then append 5–10 lines to `docs/BUILD_LOG.md` (summary, tests, reviewer verdict, deviations, open questions) and continue straight into the next phase.
+- **Pause only for:**
+  1. a business-rule or policy question that DECISIONS.md does not cover, where the conservative choice is unclear;
+  2. a failing check that cannot be fixed in 3 honest attempts (never weaken a test);
+  3. LLM provider or key errors, or a budget projection showing the full eval cannot finish by Sun 11 Oct 12:00 IST;
+  4. anything that needs secrets or a `git push`.
+- For everything else: choose the most conservative option, record it here as "D-1x (proposed)", and keep going.
+- Run long commands (evals) in the background, e.g. `nohup .venv/bin/python evals/run_all.py --trials 1 --resume > runtime/eval_run.log 2>&1 &`. Continue with the next phase while they run, check the log between tasks, and re-run with `--resume` / `--retry-infra` after rate-limit stops.
+- Prompts freeze before the full LLM eval. After that, do not change prompts or agent code unless both architectures are re-run.
+- After a context compaction: re-read CLAUDE.md, `docs/DECISIONS.md` and `docs/BUILD_LOG.md`, then continue from the next unfinished task.
+- Human-only items (browser UI checks, pushing to GitHub, AGENT_LOG, rewriting the memo in the human's voice, submission) go in the "Human checklist" at the end of `docs/BUILD_LOG.md`. Do not wait for them.
+- Stop only when Phase 7 is complete (excluding the push), with one final summary: eval headline numbers and the human checklist.
+
+## D-12: LLM provider
+
+- Groq, `openai/gpt-oss-20b`, free tier, `LLM_REASONING_EFFORT=low`.
+- The same provider and model for both architectures.
+- If the budget projection fails, pause (D-11 rule 3).
+
+## D-13: Decision rule
+
+- Use the D11.7 default rule as written. Write it to `evals/DECISION_RULE.md` and commit it before the first LLM eval run.

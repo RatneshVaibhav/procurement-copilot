@@ -4,7 +4,7 @@
 
 **Docs.** `docs/SPEC_FUNCTIONAL.md` (F), `docs/SPEC_TECHNICAL.md` (T), `docs/SPEC_V2_DELTA.md` (D, wins over T where they differ), rules in `CLAUDE.md`.
 
-**Rule.** Each phase ends with checks, a `diff-reviewer` pass and a **STOP**. The human reviews, then runs `/phase N` (or says "continue with Phase N").
+**Rule (D-11, replaces the per-phase STOP).** Each phase ends with checks, a `diff-reviewer` pass, a commit and 5–10 lines in `docs/BUILD_LOG.md`; then work continues straight into the next phase. Pause only for the four D-11 reasons (see `docs/DECISIONS.md`). Every "Human:" step below goes into the "Human checklist" at the end of `docs/BUILD_LOG.md` and is not waited for. Stop only when Phase 7 is complete (excluding the push).
 
 ---
 
@@ -74,7 +74,7 @@ Do not modify any file until I reply "go".
 
 **Checks:** `python verify_setup.py` → PRE-FLIGHT PASSED. Starter tests pass. Start `run_local.py`, curl `/` and the mock `/health`, then stop it.
 **Human:** `cp .env.example .env`, add your key, run `python scripts/smoke_llm.py`. Note the model and rate-limit headers in `docs/AGENT_LOG.md`. Decide the LLM budget option.
-**STOP.**
+**Log to BUILD_LOG and continue (D-11).**
 
 ## Phase 1: Deterministic core (≈2 h 45)
 **Spec:** T4, T5, T6.1–T6.4, D5.
@@ -92,7 +92,7 @@ Do not modify any file until I reply "go".
 
 **Checks:** all tests pass; the T5 expected-output table is reproduced exactly.
 **Human:** read the engine's evidence strings for REQ-1007 (conflict) and REQ-1009 (unavailable), and two tool descriptions. Would a reviewer understand them?
-**STOP.**
+**Log to BUILD_LOG and continue (D-11).**
 
 ## Phase 2: Guardrails, fallback, trace, adapter (≈1 h 15) → safety net
 **Spec:** T11, T12, T13, D10.
@@ -107,7 +107,7 @@ Do not modify any file until I reply "go".
 
 **Checks:** with `LLM_SIMULATE_OUTAGE=1`, `python evals/run_public_evals.py --architecture single` → **6/6**, same for staged.
 **Human:** create the GitHub repo and push. A valid, honest, AI-less product now exists; everything after this improves it.
-**STOP.**
+**Log to BUILD_LOG and continue (D-11).**
 
 ## Phase 3: LLM client, bounded loop, Architecture A (≈2 h 45)
 **Spec:** T7, T8, T9, T16, D1–D4, D7, D8, D12, D13.
@@ -128,7 +128,7 @@ Do not modify any file until I reply "go".
 - Public runner, single → 6/6.
 
 **Human:** read the 3 outputs and step traces. Is the recommendation useful to a reviewer? Tune prompts only for a concrete problem and log each change in `docs/architecture.md` → "Prompt changes".
-**STOP.**
+**Log to BUILD_LOG and continue (D-11).**
 
 ## Phase 4: Architecture B, sequential specialists (≈1 h 45)
 **Spec:** T10, D6, D7, D9, D13.
@@ -139,7 +139,7 @@ Do not modify any file until I reply "go".
 3. `tests/test_staged.py` (D12).
 
 **Checks:** unit tests pass. `run_one.py --arch staged` on REQ-1006 and 1008 (2 real runs); the trace shows supervisor route reasons in order. Public runner, staged → 6/6.
-**STOP.**
+**Log to BUILD_LOG and continue (D-11).**
 
 ## Phase 5: Evaluation harness (≈2 h 15) → prompts frozen
 **Spec:** T14, D11.
@@ -148,18 +148,18 @@ Do not modify any file until I reply "go".
 1. `evals/run_all.py` and `evals/score.py` (T14 + D11): rules-only column, per-case matrix, `--resume`, `--retry-infra`, `infra_error`, budget print, new summary rows, design-ladder column names, `summary.md` / `summary.json`.
 2. `evals/render_walkthroughs.py` (D11.8).
 3. `evals/results/manual_review.md` template: 5 runs per architecture (REQ-1002, 1004, 1006, 1007, 1008 + one fault case); columns: recommendation sensible / evidence checks out / anything misleading / tone.
-4. Draft `evals/DECISION_RULE.md` from D11.7. **Human edits and commits it before step 3 of the run order.**
+4. Write `evals/DECISION_RULE.md` from D11.7 as written (D-13) and commit it before step 3 of the run order.
 5. Update `evals/README.md`.
 
 **Run order**
 1. `python evals/run_all.py --no-llm`
-2. Human: commit `DECISION_RULE.md`; confirm prompts are frozen.
+2. Commit `DECISION_RULE.md` (D-13); prompts are frozen from here (D-11).
 3. `python evals/run_all.py --trials 1 --resume` (repeat with `--resume` / `--retry-infra` until no rows are missing or infra errors).
 4. If budget allows: `python evals/run_all.py --trials 3 --cases G-02,G-06,G-07,G-08,G-17,G-23 --resume`.
 5. `python evals/render_walkthroughs.py`. Commit `evals/results/`.
 
 **Human:** read `summary.md` and every failure line. Fill `manual_review.md` while runs proceed. Remember D11.9: a change after the full run means re-running both architectures, or documenting it instead.
-**STOP.**
+**Log to BUILD_LOG and continue (D-11).**
 
 ## Phase 6: Web app (≈3 h)
 **Spec:** T17, D14, F §5 (US-1 to US-5).
@@ -177,7 +177,7 @@ Do not modify any file until I reply "go".
 5. Trace panel shows ordered steps and a stop reason; for staged, supervisor route reasons and the reviewer audit.
 6. Confirming an action writes an audit-log line.
 7. XSS: a justification of `<img src=x onerror=alert(1)>` renders as plain text.
-**STOP.**
+**Log to BUILD_LOG and continue (D-11).**
 
 ## Phase 7: Docs and clean-environment test (≈3 h 30; Claude Code drafts, you review in P8)
 **Spec:** T18, D15, F §8–9.
@@ -200,7 +200,7 @@ Do not modify any file until I reply "go".
 5. **Secret scan:** `git log -p | grep -iE "api[_-]?key|AIza|gsk_|lsv2_"` finds nothing beyond `.env.example` placeholders; `git ls-files .env` prints nothing.
 
 **Human:** push and make the repository **public**.
-**STOP. Code freeze Sun 16:00.**
+**End of build (D-11): final summary with eval headline numbers and the human checklist. Code freeze Sun 16:00.**
 
 ## Phase 8: Human only (Sun 16:00–21:00)
 | Time | Task |
