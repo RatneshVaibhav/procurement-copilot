@@ -20,7 +20,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from mock_api import launcher  # noqa: E402
-from src.config import get_settings  # noqa: E402
+from src.config import apply_provider, get_settings  # noqa: E402
 from src.solution import handle_request_with_trace  # noqa: E402
 
 TRACE_DIR = ROOT / "runtime" / "traces"
@@ -43,7 +43,7 @@ def main() -> None:
     parser.add_argument("--provider", choices=["groq", "gemini"], help="override LLM_PROVIDER for this run (D-17)")
     args = parser.parse_args()
     if args.provider:
-        os.environ["LLM_PROVIDER"] = args.provider
+        apply_provider(args.provider)
 
     proc = ensure_mock()
     try:

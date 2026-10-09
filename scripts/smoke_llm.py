@@ -8,6 +8,7 @@ Exits non-zero with a clear message on any failure.
 """
 from __future__ import annotations
 
+import argparse
 import json
 import sys
 import time
@@ -20,7 +21,9 @@ if str(ROOT) not in sys.path:
 import openai  # noqa: E402
 from openai import OpenAI  # noqa: E402
 
-from src.config import get_settings  # noqa: E402
+from src.config import apply_provider, get_settings  # noqa: E402
+from src.schemas import AgentProposal, ReviewerProposal  # noqa: E402
+from src.structured import strict_schema  # noqa: E402
 
 DUMMY_TOOL = {
     "type": "function",
@@ -81,6 +84,11 @@ def create(client: OpenAI, settings, effort: str | None, **kwargs):
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--provider", choices=["groq", "gemini"], help="override LLM_PROVIDER (D-17)")
+    cli = parser.parse_args()
+    if cli.provider:
+        apply_provider(cli.provider)
     s = get_settings()
     print("LLM smoke test")
     print(f"  provider: {s.llm_provider}")
@@ -158,6 +166,40 @@ def main() -> None:
     if set(parsed) != {"colour", "count", "note"}:
         fail(f"Structured output has the wrong keys: {parsed}")
     print(f"  parsed: {parsed}")
+
+    print("\n4. Real agent schemas (submit tool parameters + response_format)")
+    submit_tool = {"type": "function", "function": {
+        "name": "submit_recommendation", "description": "Submit the final recommendation.",
+        "parameters": strict_schema(AgentProposal)}}
+    try:
+        raw, ms = create(client, s, effort, tools=[submit_tool], tool_choice="auto", messages=[{"role": "user", "content":
+            "Test only. Call submit_recommendation with decision_type route_for_approval, one approval "
+            "(role Manager, reason 'test'), empty lists elsewhere, injection_observed false, injection_excerpt null."}])
+        completion = show_call(raw, ms)
+        calls = completion.choices[0].message.tool_calls or []
+        if calls:
+            AgentProposal.model_validate_json(calls[0].function.arguments or "{}")
+            print("  submit tool: schema accepted, arguments validate")
+        else:
+            print("  WARNING: schema accepted but the model replied without calling the tool")
+    except openai.APIError as exc:
+        fail(f"Provider rejected the AgentProposal tool schema: {type(exc).__name__}: {exc}")
+    except ValueError as exc:
+        print(f"  WARNING: tool arguments did not validate ({exc}); the loop's repair step handles this")
+    try:
+        raw, ms = create(client, s, effort, messages=[{"role": "user", "content":
+            "Test only. Return a recommendation object for a $500 request with decision_type route_for_approval, "
+            "Manager approval, empty lists, injection_observed false, injection_excerpt null, and an analyst_audit "
+            "with empty lists and agrees_with_overlap_assessment true."}],
+            response_format={"type": "json_schema", "json_schema": {"name": "submit_recommendation", "strict": strict,
+                                                                   "schema": strict_schema(ReviewerProposal)}})
+        completion = show_call(raw, ms)
+        ReviewerProposal.model_validate_json(completion.choices[0].message.content or "")
+        print("  response_format: ReviewerProposal schema accepted, output validates")
+    except openai.APIError as exc:
+        fail(f"Provider rejected the ReviewerProposal response_format: {type(exc).__name__}: {exc}")
+    except ValueError as exc:
+        print(f"  WARNING: structured output did not validate ({exc}); chat_structured repairs once")
 
     print("\nSMOKE TEST PASSED")
 

@@ -179,3 +179,15 @@ def __getattr__(name: str):
     if name == "POLICY_VERSION":
         return get_policy_version()
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+
+def apply_provider(provider: str) -> None:
+    """Select a provider for this process (D-17). A MODEL_NAME that belongs to the other
+    provider is cleared (with a warning) so the provider default is used instead of
+    sending, say, a Groq model ID to Gemini."""
+    os.environ["LLM_PROVIDER"] = provider
+    model = _env("MODEL_NAME")
+    if model and (model.startswith("gemini") != (provider == "gemini")):
+        log.warning("MODEL_NAME=%r does not belong to provider %r; using the provider default instead.", model, provider)
+        print(f"WARNING: MODEL_NAME={model!r} does not belong to {provider}; using {PROVIDERS[provider]['default_model']}.")
+        os.environ["MODEL_NAME"] = ""

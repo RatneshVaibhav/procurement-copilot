@@ -205,7 +205,7 @@ class LLMClient:
             return self._call(params)
         except _JsonValidateFailed as exc:  # provider-side schema failure: hand back the text for repair
             return ChatResult(message={"role": "assistant", "content": exc.text}, content=exc.text,
-                              attempts=1, calls=1)
+                              wait_ms=exc.wait_s * 1000, attempts=exc.attempts, calls=1)
 
     def _check_available(self) -> None:
         s = self.settings
@@ -259,16 +259,19 @@ class LLMClient:
                 delay = delay if delay is not None else self._backoff(attempts)
             except openai.BadRequestError as exc:
                 text = str(exc)
-                if "reasoning" in text.casefold() and "reasoning_effort" in body:
+                code = getattr(exc, "code", None) or ""
+                # Branch on the error code first: the body may echo model output ("failed_generation")
+                # that happens to contain any word, including "reasoning".
+                if code == "tool_use_failed" or (not code and "tool_use_failed" in text):
+                    raise ToolUseFailed(_short(exc)) from exc
+                if code == "json_validate_failed" or (not code and "json_validate_failed" in text):
+                    raise _JsonValidateFailed(_failed_generation(exc), wait_s, attempts) from exc
+                if "reasoning_effort" in body and _names_reasoning_effort(exc):
                     _ProcessState.drop_reasoning_effort = True
                     if not _ProcessState.warned:
                         log.warning("Provider rejected reasoning_effort; dropping it for this process.")
                         _ProcessState.warned = True
                     continue
-                if "tool_use_failed" in text:
-                    raise ToolUseFailed(_short(exc)) from exc
-                if "json_validate_failed" in text:
-                    raise _JsonValidateFailed(_failed_generation(exc)) from exc
                 raise LLMUnavailable(f"bad request: {_short(exc)}", kind="bad_request") from exc
             except (openai.AuthenticationError, openai.PermissionDeniedError) as exc:
                 raise LLMUnavailable(f"authentication failed: {_short(exc)}", kind="auth") from exc
@@ -321,9 +324,19 @@ class LLMClient:
 
 
 class _JsonValidateFailed(Exception):
-    def __init__(self, text: str):
+    def __init__(self, text: str, wait_s: float = 0.0, attempts: int = 1):
         super().__init__("json_validate_failed")
-        self.text = text
+        self.text, self.wait_s, self.attempts = text, wait_s, attempts
+
+
+def _names_reasoning_effort(exc) -> bool:
+    """True only when the 400 itself is about the reasoning_effort parameter (D1)."""
+    if getattr(exc, "param", None) == "reasoning_effort":
+        return True
+    body = exc.body if isinstance(getattr(exc, "body", None), dict) else {}
+    err = body.get("error") if isinstance(body.get("error"), dict) else body
+    message = str(err.get("message", "")) if isinstance(err, dict) else ""
+    return "reasoning_effort" in message or (not body and "reasoning_effort" in str(exc))
 
 
 def _failed_generation(exc) -> str:

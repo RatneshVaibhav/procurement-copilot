@@ -106,8 +106,8 @@ class LLMClientTests(unittest.TestCase):
         self.assertEqual(sdk.bodies, [])
 
     def test_reasoning_effort_dropped_after_400(self):
-        bad = err(openai.BadRequestError, 400, body={"error": {"message": "reasoning_effort is not supported"}})
-        bad = openai.BadRequestError("reasoning_effort is not supported", response=bad.response, body=bad.body)
+        bad = openai.BadRequestError("reasoning_effort is not supported", response=httpx2.Response(400, request=REQ),
+                                     body={"message": "reasoning_effort is not supported", "param": "reasoning_effort"})
         c, sdk = self.client([bad, completion(content="a"), completion(content="b")])
         c.chat([{"role": "user", "content": "1"}])
         c.chat([{"role": "user", "content": "2"}])
@@ -141,6 +141,40 @@ class LLMClientTests(unittest.TestCase):
         with self.assertRaises(ToolUseFailed):
             c.chat([{"role": "user", "content": "hi"}], tools=[{"type": "function"}])
         self.assertEqual(len(sdk.bodies), 1)
+
+    def test_tool_use_failed_body_mentioning_reasoning_is_not_a_reasoning_error(self):
+        body = {"error": {"message": "Tool call validation failed", "type": "invalid_request_error",
+                          "code": "tool_use_failed", "failed_generation": "my reasoning: call the tool"}}
+        bad = openai.BadRequestError("Error code: 400 - " + json.dumps(body),
+                                     response=httpx2.Response(400, request=REQ), body=body["error"])
+        c, sdk = self.client([bad])
+        with self.assertRaises(ToolUseFailed):
+            c.chat([{"role": "user", "content": "hi"}], tools=[{"type": "function"}])
+        self.assertEqual(len(sdk.bodies), 1)
+        self.assertFalse(llm_client._ProcessState.drop_reasoning_effort)
+
+    def test_other_400_is_not_retried_and_keeps_reasoning_effort(self):
+        bad = openai.BadRequestError("context too long", response=httpx2.Response(400, request=REQ),
+                                     body={"message": "context too long; reasoning budget exceeded"})
+        c, sdk = self.client([bad])
+        with self.assertRaises(LLMUnavailable) as ctx:
+            c.chat([{"role": "user", "content": "hi"}])
+        self.assertEqual(ctx.exception.kind, "bad_request")
+        self.assertFalse(ctx.exception.infra)
+        self.assertFalse(llm_client._ProcessState.drop_reasoning_effort)
+
+    def test_403_and_404_fail_immediately(self):
+        for cls, status, kind in [(openai.PermissionDeniedError, 403, "auth"), (openai.NotFoundError, 404, "not_found")]:
+            c, sdk = self.client([err(cls, status)])
+            with self.assertRaises(LLMUnavailable) as ctx:
+                c.chat([{"role": "user", "content": "hi"}])
+            self.assertEqual(ctx.exception.kind, kind)
+            self.assertEqual(len(sdk.bodies), 1)
+
+    def test_timeout_backs_off_then_succeeds(self):
+        c, _ = self.client([openai.APITimeoutError(request=REQ), completion(content="ok")])
+        self.assertEqual(c.chat([{"role": "user", "content": "hi"}]).content, "ok")
+        self.assertGreaterEqual(self.sleeps[0], 2.0)
 
     def test_header_aware_wait(self):
         headers = {"x-ratelimit-remaining-tokens": "1500", "x-ratelimit-reset-tokens": "4.5s"}

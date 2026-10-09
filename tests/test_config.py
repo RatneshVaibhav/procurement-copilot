@@ -49,6 +49,15 @@ class SettingsTests(unittest.TestCase):
         with mock.patch.dict(os.environ, {"LLM_PROVIDER": "nope", "GROQ_API_KEY": "x"}):
             self.assertFalse(get_settings().llm_configured)
 
+    def test_apply_provider_clears_foreign_model(self):
+        from src.config import apply_provider
+        with mock.patch.dict(os.environ, {"LLM_PROVIDER": "groq", "MODEL_NAME": "openai/gpt-oss-20b"}):
+            apply_provider("gemini")
+            self.assertEqual(get_settings().model_name, "gemini-2.5-flash")
+        with mock.patch.dict(os.environ, {"LLM_PROVIDER": "groq", "MODEL_NAME": "openai/gpt-oss-120b"}):
+            apply_provider("groq")
+            self.assertEqual(get_settings().model_name, "openai/gpt-oss-120b")
+
     def test_blank_reasoning_effort_is_not_sent(self):
         with mock.patch.dict(os.environ, {"LLM_REASONING_EFFORT": ""}):
             self.assertIsNone(get_settings().llm_reasoning_effort)
