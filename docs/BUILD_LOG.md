@@ -32,7 +32,7 @@ Written by Claude Code under D-11 (continuous mode). Each phase appends 5–10 l
 - Real runs so far (25 allowed in P3–P4): smoke test (P0), the accidental test run, REQ-1006 on A, one 300-token parallel-tool-call probe.
 - REQ-1006 on A: correct (request_clarification, injection flagged with a verbatim excerpt, no CFO), but 7 LLM calls, stop_reason `max_turns` → finalizer, 17,607 tokens, 56 s of rate-limit waits.
 - Finding: Groq `openai/gpt-oss-20b` returns one tool call per turn even when asked for parallel calls (probe), so A needs at least 6 calls per request.
-- **Budget projection (D-11 rule 3): FAILS.** About 44 golden LLM runs × ~17K tokens ≈ 750K tokens, plus ~200K for the P3/P4 public-runner checks. Groq free tier is 200K tokens/day, about 300K by Sun 12:00 IST. **Paused for the human's provider/budget decision.**
+- **Budget projection (D-11 rule 3): FAILS.** About 44 golden LLM runs × ~17K tokens ≈ 750K tokens, plus ~200K for the P3/P4 public-runner checks. Groq free tier is 200K tokens/day, about 300K by Sun 12:00 IST. **Paused for the human's provider/budget decision.** Resolved Sat 10 Oct: D-17 (free tiers only: Gemini 2.5 Flash for the reported eval, Groq for development checks).
 
 ## Human checklist
 
@@ -42,6 +42,7 @@ Items that need the human. The build does not wait for them.
 - [ ] Write `docs/AGENT_LOG.md` (Class 10 evidence).
 - [ ] Rewrite `docs/DECISION_MEMO.md` in your own voice.
 - [ ] Submit the repo URL on the Google Form.
+- [ ] **Before Phase 5:** add `GEMINI_API_KEY=` to `.env` (free key from Google AI Studio). Needed for the reported eval (D-17).
 - [ ] P2: safety net exists; push to GitHub when convenient. Review D-16 (proposed) and its open question.
 - [ ] P1: read the engine evidence for REQ-1007 (conflict) and REQ-1009 (unavailable) and two tool descriptions in `src/tools.py`: would a reviewer understand them? Review D-14 and D-15 (proposed).
 - [ ] P0: note the model and rate-limit headers (above) in `docs/AGENT_LOG.md`. LLM budget option is fixed by D-12 (Groq free).

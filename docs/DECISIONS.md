@@ -23,6 +23,7 @@ Recorded 9 Oct 2026, before Phase 0. These rulings answer the kickoff report (F1
 | D-11 | Working mode | Run Phases 0–7 continuously; pause only for the four listed reasons | All | CLAUDE.md, PLAN.md, /phase skill |
 | D-12 | Provider | Groq, `openai/gpt-oss-20b`, free tier, `reasoning_effort=low`, both architectures | P0–P5 | D1, D4 |
 | D-13 | Decision rule | D11.7 default rule as written, committed before the first LLM eval | P5 | D11.7 |
+| D-17 | Budget | Free tiers only: Gemini 2.5 Flash for the reported eval, Groq gpt-oss-20b for development checks (amends D-12) | P3–P5 | D1, D4, D11 |
 
 D-01, D-02 and D-04 below were proposed in the kickoff report and are **accepted as written** (9 Oct 2026).
 
@@ -150,3 +151,12 @@ D-01, D-02 and D-04 below were proposed in the kickoff report and are **accepted
 - **Specialist flags follow accepted roles.** When an LLM-added Security/Privacy/Legal role is accepted, its flag is added even if the proposal forgot to list it (R11: the specialist flags follow the roles).
 - **Injection excerpt minimum.** D-04's verbatim check also requires at least 8 non-space characters, so a trivial excerpt cannot match by accident. The `injection_observed = true` field counts as proposing `prompt_injection_detected`.
 - **Wording filters.** Proposal `recommendation` / `next_step` longer than 400 characters, or matching an R10 injection pattern as well as the T11 output filter, fall back to the template.
+
+## D-17: Two free providers, one per job (human decision, Sat 10 Oct 2026; amends D-12)
+
+- The human does not want to pay for an LLM plan. The Groq free tier (200K tokens/day) cannot fit the full eval: gpt-oss-20b on Groq makes one tool call per turn, so a run takes 6–7 calls and ~17K tokens (BUILD_LOG, Phase 3).
+- **Reported eval:** Gemini 2.5 Flash, free tier, for **both** architectures. Every number in `evals/results/summary.md`, the README and the memo comes from this one provider and model.
+- **Development checks:** Groq `openai/gpt-oss-20b`, free tier, `reasoning_effort=low`, for the P3/P4 real runs (`run_one`, public runner). Optionally, a secondary A-vs-B run on a small case subset, both on Groq, reported as a separate, clearly labelled table.
+- **Never mixed:** a comparison never combines providers, and a rate-limited run never switches provider mid-run (it falls back to rules only and is recorded as `infra_error`).
+- Scripts take `--provider groq|gemini` (sets `LLM_PROVIDER` for that process); the trace records provider and model.
+- The human adds `GEMINI_API_KEY` to `.env` before Phase 5. If Gemini's free daily request cap proves too low for the eval, pause again (D-11 rule 3).
