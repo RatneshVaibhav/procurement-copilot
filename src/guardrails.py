@@ -66,8 +66,16 @@ def _join(items: list[str]) -> str:
 
 
 # ---------------------------------------------------------------- grounding (T11 step 7, D-07.7)
+def _canonical(token: str) -> str:
+    """$8,000.00 → 8000 and 1,000.50 → 1000.5, so a reformatted number still matches 8000.0 in the tool JSON."""
+    token = token.replace("$", "").replace(",", "")
+    if re.fullmatch(r"\d+\.\d+", token):
+        token = token.rstrip("0").rstrip(".")
+    return token
+
+
 def grounding_tokens(finding: str) -> list[str]:
-    return [m.group(0).replace("$", "").replace(",", "") for m in GROUNDING_TOKEN.finditer(finding)]
+    return [_canonical(m.group(0)) for m in GROUNDING_TOKEN.finditer(finding)]
 
 
 def _token_in(token: str, corpus: str) -> bool:

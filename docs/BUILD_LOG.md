@@ -62,6 +62,14 @@ Written by Claude Code under D-11 (continuous mode). Each phase appends 5–10 l
 - Secret scan: no key-shaped strings (`AIza`, `gsk_`, `lsv2_`, `sk-`) in the git history or working tree; `.env` untracked.
 - **Paused (D-11 rules 3 and 4): `GEMINI_API_KEY` is not in `.env`.** Remaining: Gemini smoke test; P4 real checks (`run_one --arch staged` REQ-1006, REQ-1008; public staged); full Gemini eval (A and B); consistency subset if budget allows; walkthroughs; README sections 7–9; `docs/DECISION_MEMO.md`; architecture.md handoff example; final Phase 7 diff review.
 
+### Gemini checks and a second budget pause (Sat 10 Oct, 02:30–03:00 IST)
+- `GEMINI_API_KEY` added. Gemini smoke test PASSED (tool call, structured output, real AgentProposal/ReviewerProposal schemas). Gemini makes parallel tool calls: A ≈ 3 calls / ~10K tokens, B ≈ 4 calls / ~12K tokens.
+- P4 checks on Gemini: REQ-1006 staged → request_clarification, injection flagged, no CFO (correct). REQ-1008 staged → wrong at first (both agents read "no credible gap" backwards); after a prompt clarification → use_existing_tool (correct). REQ-1001 single then over-corrected (assumed spare seats) → the clarification was rewritten to separate expansions (add-on, seats, module) from a new product/tier for a need already served. Both changes are logged in `docs/architecture.md` → Prompt changes. The final wording is not yet verified (see next point).
+- Also fixed: the grounding check rejected "$8,000.00" against `8000.0` in the tool JSON (number formatting); decimal tokens now drop trailing zeros before matching. 429 messages are now logged.
+- **Gemini 2.5 Flash free tier is 20 requests/day on this project** (`GenerateRequestsPerDayPerProjectPerModel-FreeTier`, limit 20), not "a few hundred". Used up by the smoke test and checks; the full eval needs ~150. D-17 cannot work.
+- Groq models available to this account: `openai/gpt-oss-20b`, `openai/gpt-oss-120b`, `qwen/qwen3.8-27b`. `qwen/qwen3.8-27b`: parallel tool calls (probe), 1,000 requests/day, 8K tokens/min (headers); smoke test PASSED incl. real schemas. Its daily token cap is not in the headers.
+- **Paused (D-11 rule 3) for the human's provider/model decision.**
+
 ## Human checklist
 
 Items that need the human. The build does not wait for them.

@@ -253,6 +253,7 @@ class LLMClient:
                 completion = raw.parse()
                 return self._result(completion, latency_ms, wait_s * 1000, attempts)
             except openai.RateLimitError as exc:
+                log.warning("429 from %s (attempt %d): %s", s.llm_provider, attempts, _short(exc))
                 delay = self._retry_after(exc)
                 if attempts > s.llm_max_retries or (delay is not None and delay > s.llm_retry_after_cap_seconds):
                     raise LLMRateLimited(f"rate limited after {attempts} attempt(s): {_short(exc)}") from exc

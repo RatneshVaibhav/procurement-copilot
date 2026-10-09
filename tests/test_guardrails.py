@@ -160,6 +160,8 @@ class EvidenceTests(unittest.TestCase):
             "Security review completed on 2025-09-30": False,  # pieces exist, the date does not
             "Registry review date 2025-07-01 is 456 days old": True,
             "Engineering has $26,000 available": True,
+            "Engineering has $26,000.00 available for a $24,000.00 request": True,  # formatting only
+            "Engineering has $26,000.50 available": False,
         }
         for finding, expected in cases.items():
             with self.subTest(finding=finding):
@@ -175,6 +177,7 @@ class EvidenceTests(unittest.TestCase):
 
     def test_grounding_tokens(self):
         self.assertEqual(guardrails.grounding_tokens("$12,000 on 2026-09-30 for SW001"), ["12000", "2026", "09", "30", "SW001"])
+        self.assertEqual(guardrails.grounding_tokens("$8,000.00 and $1,000.50"), ["8000", "1000.5"])
 
 
 class PrecedenceTests(unittest.TestCase):
