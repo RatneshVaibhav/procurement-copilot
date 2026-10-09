@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python *)",
+      "Bash(python3 *)",
+      "Bash(.venv/bin/python *)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git show*)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git ls-files*)",
+      "Bash(git check-ignore*)",
+      "Bash(curl -s http://127.0.0.1*)"
+    ],
+    "ask": [
+      "Bash(python scripts/smoke_llm.py*)",
+      "Bash(python scripts/run_one.py*)",
+      "Bash(python evals/run_all.py*)",
+      "Bash(python evals/run_public_evals.py*)",
+      "Bash(.venv/bin/python scripts/smoke_llm.py*)",
+      "Bash(.venv/bin/python scripts/run_one.py*)",
+      "Bash(.venv/bin/python evals/run_all.py*)",
+      "Bash(.venv/bin/python evals/run_public_evals.py*)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Bash(cat .env*)",
+      "Bash(git push*)"
+    ]
+  }
+}
