@@ -12,6 +12,13 @@ Written by Claude Code under D-11 (continuous mode). Each phase appends 5–10 l
 - Deviations: Starlette's TestClient double-decodes `%25` in paths, so the percent-sign test was dropped (real uvicorn decodes once; checked with curl). Vendor API 4xx other than 404 → `unavailable`, no retry (T6.4 silent; conservative).
 - Open questions: none. Note for P5: `run_all.py` must pass `EXTRA_DATA_DIR` to the mock via `env=`.
 
+### Phase 1: Deterministic core (Fri 9 Oct, 20:25–21:20 IST)
+- Summary: `src/normalize.py` (T4.2), `src/data_access.py` (`EXTRA_DATA_DIR`, runtime submissions, `norm_key`, `find_vendor`, `find_employee`), `src/injection.py` (R10), `src/schemas.py` (PolicyResult, VendorStatus, T8 + D6), `src/policy_engine.py` (R0–R12 with D-01, D-02, D-07.4, D-07.5), `src/tools.py` (6 tools, D5 descriptions, allowlists A=6 / analyst=5 / reviewer=0, rejection, cache, tool log, evidence corpus, T6.3 gate, compact policy view).
+- Tests: 93 pass (new: `test_policy_engine` incl. the T5 table, `test_injection`, `test_vendor_tool`, `test_tools`, `test_golden_deterministic` = all 23 golden cases, deterministic aspects). No hardcoded names or `date.today()` in `src`.
+- diff-reviewer: PASS; 5 fixes applied: server error text kept out of engine output (untrusted + scanned); `execute(..., actor=...)` now required (no fail-open scope); R7 fallback whole tokens; `get_request_details` "does not" sentence, purchase notes under `untrusted_text`, `run_gate` str(); compact policy view for the LLM.
+- Deviations: D-14 (proposed: 404 or missing residency + sensitive data → Privacy) and D-15 (proposed: small conservative choices) recorded in DECISIONS.md.
+- Open questions: registry `security_status = Expired` does not set `vendor_review_expired` (R6 literal; Security is still added). Left as written.
+
 ## Human checklist
 
 Items that need the human. The build does not wait for them.
@@ -20,4 +27,5 @@ Items that need the human. The build does not wait for them.
 - [ ] Write `docs/AGENT_LOG.md` (Class 10 evidence).
 - [ ] Rewrite `docs/DECISION_MEMO.md` in your own voice.
 - [ ] Submit the repo URL on the Google Form.
+- [ ] P1: read the engine evidence for REQ-1007 (conflict) and REQ-1009 (unavailable) and two tool descriptions in `src/tools.py`: would a reviewer understand them? Review D-14 and D-15 (proposed).
 - [ ] P0: note the model and rate-limit headers (above) in `docs/AGENT_LOG.md`. LLM budget option is fixed by D-12 (Groq free).

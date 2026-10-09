@@ -123,3 +123,21 @@ D-01, D-02 and D-04 below were proposed in the kickoff report and are **accepted
 ## D-13: Decision rule
 
 - Use the D11.7 default rule as written. Write it to `evals/DECISION_RULE.md` and commit it before the first LLM eval run.
+
+## D-14 (proposed): Vendor-risk 404 with sensitive data → Privacy
+
+- R8 covers API `ok` (cross-region) and API `unavailable` (residency unverified), but is silent on API `not_found`. A 404 gives no residency information either, so policy §6 ("may be stored outside the region") and §10 ("do not infer a favorable status") point to Privacy.
+- **Rule.** If the API returns 404, **or** returns a record without a boolean `stores_data_outside_region`, and the request involves PII or confidential documents → add **Privacy** with the reason "Data residency unverified (...)" (§6, §10). No Legal from this rule (no cross-region issue is identified).
+- Golden impact: none (G-15 already requires Privacy through customer PII).
+
+## D-15 (proposed): Smaller conservative choices in the deterministic core
+
+- R1 `"product or vendor name"` is listed when **either** the product name or the vendor name is missing.
+- A missing vendor name skips the vendor-risk API call (`outcome = not_checked`); the vendor is not cleared, so Security and Legal (terms unknown) are added.
+- Unknown `data_access_level` keyword fallback (R7) collects **every** matching class, not just the first.
+- The R10 scan also covers every free-text field of the vendor-risk API record and the purchase-history notes of catalog candidates (superset of R10).
+- Tools that take `request_id` refuse any ID other than the request being analysed (error result, not executed).
+- R5 agent keywords shorter than 3 characters are ignored (a 1–2 letter keyword would match every catalog row); at most 5 are used.
+- R7 unknown-level keyword fallback matches whole tokens (plurals allowed), so `product_usage` is not `prod` and `reporting` is not `repo`; such values stay `unrecognized_data_access_level` (Security).
+- Vendor-risk API error text written by the server is untrusted: engine reasons and evidence use only code-derived text (`HTTP 503`, `timeout`, `connection error`); the server's detail is kept under `untrusted_text` and scanned (R10).
+- The `evaluate_policy_rules` tool returns a compact view to the LLM (approvals with reasons, flags, missing information, tier, data classes, vendor summary, rules decision); the full `PolicyResult` stays in the run context for guardrails and the UI (token budget, D4).
