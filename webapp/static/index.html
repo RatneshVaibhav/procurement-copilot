@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Procurement Request Copilot</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1>Procurement Request Copilot</h1>
+    <div class="health">
+      <span class="dot" id="dot-vendor"></span><span id="health-vendor">Vendor API</span>
+      <span class="dot" id="dot-llm"></span><span id="health-llm">LLM</span>
+    </div>
+    <button id="btn-new" class="secondary">New request</button>
+  </header>
+
+  <main class="layout">
+    <section class="queue" aria-label="Review queue">
+      <h2>Review queue</h2>
+      <div id="queue-state" class="muted">Loading requests…</div>
+      <ul id="queue" class="queue-list"></ul>
+    </section>
+
+    <section class="detail" id="detail" aria-live="polite">
+      <div id="detail-empty" class="empty">Select a request from the queue.</div>
+      <div id="detail-body" hidden>
+        <article class="card" id="request-card">
+          <h2 id="req-title"></h2>
+          <dl id="req-fields" class="fields"></dl>
+          <div class="untrusted">
+            <div class="label">Requester text (untrusted)</div>
+            <blockquote id="req-justification"></blockquote>
+          </div>
+        </article>
+
+        <div class="runbar card">
+          <fieldset class="arch">
+            <legend>Architecture</legend>
+            <label><input type="radio" name="arch" value="single" checked> Single (A: bounded agent)</label>
+            <label><input type="radio" name="arch" value="staged"> Staged (B: analyst → reviewer)</label>
+          </fieldset>
+          <button id="btn-analyze" class="primary">Analyse</button>
+          <span id="run-state" class="muted"></span>
+        </div>
+
+        <div id="result" hidden>
+          <div id="banners"></div>
+
+          <article class="card" id="rec-card">
+            <div class="rec-head"><span id="rec-badge" class="badge"></span></div>
+            <p id="rec-text" class="rec-text"></p>
+            <p class="next"><strong>Next step: </strong><span id="next-text"></span></p>
+          </article>
+
+          <div class="grid2">
+            <article class="card">
+              <h3>Approvals required</h3>
+              <ul id="approvals" class="chips"></ul>
+              <p class="hint muted">Click a role to see why it is required.</p>
+            </article>
+            <article class="card">
+              <h3>Risk flags</h3>
+              <ul id="flags" class="flag-list"></ul>
+            </article>
+          </div>
+
+          <div class="grid2">
+            <article class="card">
+              <h3>Missing information / could not verify</h3>
+              <ul id="missing" class="plain"></ul>
+            </article>
+            <article class="card">
+              <h3>Questions for the reviewer</h3>
+              <ul id="questions" class="plain"></ul>
+            </article>
+          </div>
+
+          <article class="card">
+            <h3>Evidence</h3>
+            <table class="table">
+              <thead><tr><th>Source</th><th>Finding</th><th>Reference</th><th>Kind</th></tr></thead>
+              <tbody id="evidence"></tbody>
+            </table>
+          </article>
+
+          <details class="card" id="how">
+            <summary><h3>How this was decided</h3></summary>
+            <p id="how-meta" class="muted"></p>
+            <table class="table">
+              <thead><tr><th>Step</th><th>Actor</th><th>Action</th><th>Summary</th><th>Route reason / ms</th></tr></thead>
+              <tbody id="steps"></tbody>
+            </table>
+            <h4>Guardrail corrections</h4>
+            <ul id="corrections" class="plain"></ul>
+            <div id="audit-box" hidden>
+              <h4>Reviewer's audit of the analyst (B)</h4>
+              <ul id="analyst-audit" class="plain"></ul>
+            </div>
+          </details>
+
+          <p id="footer-line" class="footer-line muted"></p>
+
+          <article class="card actions">
+            <h3>Choose an action</h3>
+            <div id="action-buttons" class="action-buttons"></div>
+            <p class="muted small">Routing is simulated: actions are recorded in the audit log only.</p>
+            <div id="action-success" class="success" hidden></div>
+            <h4>Audit history</h4>
+            <ul id="audit-history" class="plain small"></ul>
+          </article>
+        </div>
+        <div id="result-error" class="error" hidden>
+          <span id="result-error-text"></span> <button id="btn-retry-analyze" class="secondary">Retry</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="confirm">
+    <form method="dialog" id="confirm-form">
+      <h3 id="confirm-title">Confirm action</h3>
+      <p id="confirm-consequence"></p>
+      <p id="confirm-override" class="warn" hidden>This differs from the copilot's recommendation. A reason is required.</p>
+      <label for="confirm-reason">Reason <span id="reason-hint" class="muted">(optional)</span></label>
+      <textarea id="confirm-reason" rows="3"></textarea>
+      <p id="confirm-error" class="error-text" hidden></p>
+      <div class="dialog-buttons">
+        <button type="button" id="confirm-cancel" class="secondary">Cancel</button>
+        <button type="button" id="confirm-ok" class="primary">Confirm</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="new-request">
+    <form method="dialog" id="new-form">
+      <h3>New purchase request</h3>
+      <p class="muted small">Every field may be left blank; the copilot will ask for anything missing.</p>
+      <div class="form-grid" id="new-fields"></div>
+      <p id="new-error" class="error-text" hidden></p>
+      <div class="dialog-buttons">
+        <button type="button" id="new-cancel" class="secondary">Cancel</button>
+        <button type="button" id="new-submit" class="primary">Submit</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

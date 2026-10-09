@@ -300,6 +300,7 @@ def assemble(policy: PolicyResult, proposal: AgentProposal | None, ctx, extra_fl
         seen.add(_norm_space(item.finding))
         evidence.append(EvidenceItem(source=item.source, finding=item.finding, reference=item.reference))
     evidence = evidence[:EVIDENCE_CAP]
+    report["deterministic_evidence"] = min(len(policy.evidence), EVIDENCE_CAP)
 
     decision_obj = ProcurementDecision(
         request_id=policy.request_id,
