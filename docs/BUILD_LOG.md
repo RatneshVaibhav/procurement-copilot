@@ -56,11 +56,17 @@ Written by Claude Code under D-11 (continuous mode). Each phase appends 5–10 l
 - diff-reviewer: PASS on XSS, override rule, audit fields and code-decides; 5 fixes applied (stale analysis result ignored, Confirm disabled until the consequence loads, snake_case decision type for unknown/error runs, `/api/compare` removed, more tests).
 - Manual browser checks (PLAN P6 list) are in the human checklist.
 
+### Phase 7 (partial): Docs and clean-environment test (Sat 10 Oct, 02:00–02:30 IST)
+- Done: `docs/architecture.md` (all D15 sections; the handoff example is filled from a real B run after the eval), `README.md` (10 sections; sections 7–9 hold the rules-only numbers and say "pending" for A/B).
+- Clean-environment test: fresh clone → new venv → `pip install -r requirements.txt` OK → PRE-FLIGHT PASSED → 197 tests OK → `run_all.py --no-llm` (temp results dir) 20/23 → `run_local.py` served `/` (200) and the queue → stopped.
+- Secret scan: no key-shaped strings (`AIza`, `gsk_`, `lsv2_`, `sk-`) in the git history or working tree; `.env` untracked.
+- **Paused (D-11 rules 3 and 4): `GEMINI_API_KEY` is not in `.env`.** Remaining: Gemini smoke test; P4 real checks (`run_one --arch staged` REQ-1006, REQ-1008; public staged); full Gemini eval (A and B); consistency subset if budget allows; walkthroughs; README sections 7–9; `docs/DECISION_MEMO.md`; architecture.md handoff example; final Phase 7 diff review.
+
 ## Human checklist
 
 Items that need the human. The build does not wait for them.
 
-- [ ] Push to GitHub (never done by Claude Code).
+- [ ] Push to GitHub and make the repository **public** (check in a private window). Never done by Claude Code.
 - [ ] Write `docs/AGENT_LOG.md` (Class 10 evidence).
 - [ ] Rewrite `docs/DECISION_MEMO.md` in your own voice.
 - [ ] Submit the repo URL on the Google Form.
