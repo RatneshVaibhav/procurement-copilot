@@ -13,6 +13,11 @@ from fastapi.testclient import TestClient
 from mock_api.app import app as mock_app
 
 ROOT = Path(__file__).resolve().parents[1]
+
+# Unit tests never call a real LLM: blank every provider key. Settings are read at call
+# time, so this holds even if src/__init__.py already loaded .env.
+for _key in ("GROQ_API_KEY", "GEMINI_API_KEY", "GOOGLE_API_KEY", "LANGSMITH_API_KEY", "LANGSMITH_TRACING"):
+    os.environ[_key] = ""
 GOLDEN = json.loads((ROOT / "evals" / "golden_cases.json").read_text(encoding="utf-8"))
 DOWN_URL = "http://127.0.0.1:9"  # closed port: connection refused
 

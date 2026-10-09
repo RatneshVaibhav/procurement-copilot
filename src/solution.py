@@ -6,6 +6,8 @@ from src import data_access as da
 from src import fallback
 from src.config import get_reference_date, get_settings
 from src.contracts import Architecture, ProcurementDecision
+from src.agents.single_agent import run_single
+from src.llm_client import LLMClient, LLMUnavailable
 from src.tools import RunContext
 from src.tracing import Trace, traceable
 
@@ -60,8 +62,15 @@ def handle_request_with_trace(request_id: str, architecture: Architecture = "sin
 
 
 def _run_llm(arch: str, ctx: RunContext, trace: Trace, llm):
-    # Phase 2: the agents do not exist yet, so both architectures use the rules-only
-    # fallback and say so with llm_unavailable (D-07.9).
-    trace.error = "LLMUnavailable: agents not built yet"
-    trace.stop_reason, trace.final_mode = "llm_unavailable", "fallback"
-    return fallback.rules_only(ctx, trace, llm_failed=True)
+    """Run the chosen architecture; any LLM unavailability falls back to rules only (T12)."""
+    try:
+        llm = llm if llm is not None else LLMClient()
+        if arch == "single":
+            return run_single(ctx, trace, llm)
+        # Architecture B arrives in Phase 4; until then it uses the fallback (D-07.9).
+        raise LLMUnavailable("staged architecture not built yet", kind="not_built")
+    except LLMUnavailable as exc:
+        trace.error = f"{type(exc).__name__}: {exc}"
+        trace.llm_error_kind = exc.kind
+        trace.stop_reason, trace.final_mode = "llm_unavailable", "fallback"
+        return fallback.rules_only(ctx, trace, llm_failed=True)

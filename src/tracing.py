@@ -44,6 +44,7 @@ class Trace:
         self.stop_reason: str | None = None
         self.final_mode: str | None = None
         self.error: str | None = None
+        self.llm_error_kind: str | None = None
         self.proposals: list[dict] = []
         self.analyst_audit: dict | None = None
         self.evidence_pack: dict | None = None
@@ -117,6 +118,7 @@ class Trace:
             "guardrails": self.guardrails,
             "policy": policy.model_dump() if policy is not None else None,
             "error": self.error,
+            "llm_error_kind": self.llm_error_kind,
         }
 
 

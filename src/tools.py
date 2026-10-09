@@ -274,6 +274,11 @@ def normalize_args(name: str, args: dict) -> dict:
     return {"request_id": str(args.get("request_id", "")).strip()}
 
 
+def is_cached(name: str, args: dict | None, ctx: RunContext) -> bool:
+    args = args if isinstance(args, dict) else {}
+    return (name, json.dumps(normalize_args(name, args), sort_keys=True)) in ctx.cache
+
+
 def execute(name: str, args: dict | None, ctx: RunContext, *, actor: str, initiator: str = "agent") -> dict:
     """Run one tool call. Out-of-scope or unknown names are rejected, not executed (D5)."""
     if name not in TOOLS or name not in ALLOWLISTS.get(actor, []):

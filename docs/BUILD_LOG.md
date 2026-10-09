@@ -26,6 +26,14 @@ Written by Claude Code under D-11 (continuous mode). Each phase appends 5–10 l
 - Deviations (logged): `assemble()` returns `(decision, report)` and takes `extra_flags`/`extra_evidence`; `handle_request_with_trace` has an extra `llm=None` parameter for dependency injection. D-16 (proposed) recorded.
 - Open question: D-16 overlap exclusion (keep narrow, or R12 literal).
 
+### Phase 3 (in progress): LLM client, bounded loop, Architecture A (Fri 9 Oct, 22:10– IST)
+- Done: `src/structured.py`, `src/llm_client.py` (throttle, retries, header-aware waits, `LLMRateLimited`, error kinds for infra vs model failures, `reasoning_effort` drop, structured output + one repair), `tests/fakes.py::ScriptedLLM`, `src/prompts.py` (T16 + D13), `src/agents/loop.py` (D8 + D2.4 finalizer), `src/agents/single_agent.py`, `scripts/run_one.py`. Unit tests: 155 pass in ~2 s (new `test_structured`, `test_llm_client`, `test_failure_lab`).
+- Incident: one unit test (`test_unknown_architecture_still_returns_decision`) ran in `llm` mode with the real `.env` key and made real Groq calls (~1 request's worth). Fixed: `tests/helpers.py` and `tests/fakes.py` blank every provider key at import (settings are read at call time). Suite back to ~2 s.
+- Real runs so far (25 allowed in P3–P4): smoke test (P0), the accidental test run, REQ-1006 on A, one 300-token parallel-tool-call probe.
+- REQ-1006 on A: correct (request_clarification, injection flagged with a verbatim excerpt, no CFO), but 7 LLM calls, stop_reason `max_turns` → finalizer, 17,607 tokens, 56 s of rate-limit waits.
+- Finding: Groq `openai/gpt-oss-20b` returns one tool call per turn even when asked for parallel calls (probe), so A needs at least 6 calls per request.
+- **Budget projection (D-11 rule 3): FAILS.** About 44 golden LLM runs × ~17K tokens ≈ 750K tokens, plus ~200K for the P3/P4 public-runner checks. Groq free tier is 200K tokens/day, about 300K by Sun 12:00 IST. **Paused for the human's provider/budget decision.**
+
 ## Human checklist
 
 Items that need the human. The build does not wait for them.
