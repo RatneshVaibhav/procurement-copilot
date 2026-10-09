@@ -2,6 +2,7 @@
 
     python scripts/run_one.py REQ-1006 --arch single
     python scripts/run_one.py REQ-1006 --arch staged --mode rules_only
+    python scripts/run_one.py REQ-1008 --arch single --provider gemini
 
 Starts the mock vendor-risk API if it is local and not running. Saves the trace to
 runtime/traces/<run_id>.json.
@@ -10,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -38,7 +40,10 @@ def main() -> None:
     parser.add_argument("request_id")
     parser.add_argument("--arch", choices=["single", "staged"], default="single")
     parser.add_argument("--mode", choices=["llm", "rules_only"], default="llm")
+    parser.add_argument("--provider", choices=["groq", "gemini"], help="override LLM_PROVIDER for this run (D-17)")
     args = parser.parse_args()
+    if args.provider:
+        os.environ["LLM_PROVIDER"] = args.provider
 
     proc = ensure_mock()
     try:
