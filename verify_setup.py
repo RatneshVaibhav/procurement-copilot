@@ -15,8 +15,8 @@ REQUIRED_MODULES = [
     "pandas",
     "requests",
     "dotenv",
-    "streamlit",
     "httpx",
+    "openai",
 ]
 
 
