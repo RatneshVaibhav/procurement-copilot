@@ -19,6 +19,13 @@ Written by Claude Code under D-11 (continuous mode). Each phase appends 5–10 l
 - Deviations: D-14 (proposed: 404 or missing residency + sensitive data → Privacy) and D-15 (proposed: small conservative choices) recorded in DECISIONS.md.
 - Open questions: registry `security_status = Expired` does not set `vendor_review_expired` (R6 literal; Security is still added). Left as written.
 
+### Phase 2: Guardrails, fallback, trace, adapter (Fri 9 Oct, 21:20–22:10 IST): safety net
+- Summary: `src/guardrails.py` (T11 merge, output filter, grounding, T11.1 templates, D-03, D-04), `src/fallback.py` (T12, D-07.8 unknown request, last-resort error decision), `src/tracing.py` (D10 step trace, no-op LangSmith shim), `src/solution.py` (`handle_request_with_trace`; both architectures use the fallback with `llm_unavailable` until agents exist, D-07.9).
+- Tests: 124 pass (new `test_guardrails`, `test_solution_rules_only` = all 23 golden cases on both architectures under LLM outage, `test_trace`). Public runner with `LLM_SIMULATE_OUTAGE=1`: 6/6 single, 6/6 staged.
+- diff-reviewer: 2 FAIL + 3 fixes, all applied: setup failures and odd IDs can no longer make `handle_request` raise; grounding holes closed (whole tokens, whole dates, no self-grounding from echoed agent args); D-16 overlap exclusion narrowed to `related_not_substitute` (G-08 risk); `run_id` path-safe; unknown-request telemetry 0 tools; error decision flags `missing_information`; D-04 excerpt search includes request facts.
+- Deviations (logged): `assemble()` returns `(decision, report)` and takes `extra_flags`/`extra_evidence`; `handle_request_with_trace` has an extra `llm=None` parameter for dependency injection. D-16 (proposed) recorded.
+- Open question: D-16 overlap exclusion (keep narrow, or R12 literal).
+
 ## Human checklist
 
 Items that need the human. The build does not wait for them.
@@ -27,5 +34,6 @@ Items that need the human. The build does not wait for them.
 - [ ] Write `docs/AGENT_LOG.md` (Class 10 evidence).
 - [ ] Rewrite `docs/DECISION_MEMO.md` in your own voice.
 - [ ] Submit the repo URL on the Google Form.
+- [ ] P2: safety net exists; push to GitHub when convenient. Review D-16 (proposed) and its open question.
 - [ ] P1: read the engine evidence for REQ-1007 (conflict) and REQ-1009 (unavailable) and two tool descriptions in `src/tools.py`: would a reviewer understand them? Review D-14 and D-15 (proposed).
 - [ ] P0: note the model and rate-limit headers (above) in `docs/AGENT_LOG.md`. LLM budget option is fixed by D-12 (Groq free).

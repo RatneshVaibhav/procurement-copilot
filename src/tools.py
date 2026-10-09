@@ -300,9 +300,27 @@ def execute(name: str, args: dict | None, ctx: RunContext, *, actor: str, initia
     ctx.cache[key] = result
     ctx.tool_log.append({"name": name, "args": args, "initiator": initiator, "status": status,
                          "duration_ms": duration, "cache_hit": False})
-    ctx.corpus_parts.append(json.dumps(result, ensure_ascii=False, default=str))
+    ctx.corpus_parts.append(json.dumps(_grounding_view(name, args, result, ctx), ensure_ascii=False, default=str))
     if status == "ok":
         ctx.results.append({"tool": name, "args": args, "result": result})
+    return result
+
+
+def _grounding_view(name: str, args: dict, result: dict, ctx: RunContext) -> dict:
+    """The part of a tool result that may ground evidence: values the agent chose itself
+    (catalog keywords, a vendor name other than the request's) are left out."""
+    if name == "search_software_catalog":
+        view = {k: v for k, v in result.items() if k != "keywords_used"}
+        view["candidates"] = [{**c, "match": [m for m in c.get("match", []) if not m.startswith("keyword:")]}
+                              for c in result.get("candidates", [])]
+        return view
+    if name == "get_vendor_status":
+        try:
+            requested = str(da.get_request(ctx.request_id).get("vendor_name") or "")
+        except KeyError:
+            requested = ""
+        if da.norm_key(args.get("vendor_name", "")) != da.norm_key(requested):
+            return {}
     return result
 
 
