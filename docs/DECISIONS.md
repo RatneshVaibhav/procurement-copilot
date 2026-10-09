@@ -23,6 +23,7 @@ Recorded 9 Oct 2026, before Phase 0. These rulings answer the kickoff report (F1
 | D-11 | Working mode | Run Phases 0–7 continuously; pause only for the four listed reasons | All | CLAUDE.md, PLAN.md, /phase skill |
 | D-12 | Provider | Groq, `openai/gpt-oss-20b`, free tier, `reasoning_effort=low`, both architectures | P0–P5 | D1, D4 |
 | D-13 | Decision rule | D11.7 default rule as written, committed before the first LLM eval | P5 | D11.7 |
+| D-20 | Provider | Reported eval on Groq `qwen/qwen3.8-27b` (free), both architectures (replaces D-17's Gemini) | P5 | D1, D4 |
 | D-17 | Budget | Free tiers only: Gemini 2.5 Flash for the reported eval, Groq gpt-oss-20b for development checks (amends D-12) | P3–P5 | D1, D4, D11 |
 
 D-01, D-02 and D-04 below were proposed in the kickoff report and are **accepted as written** (9 Oct 2026).
@@ -174,3 +175,11 @@ D-01, D-02 and D-04 below were proposed in the kickoff report and are **accepted
 - **B `stop_reason` values:** `completed` | `step_limit` | `llm_unavailable` | `stage_failed:<node> <reason>` (for example `stage_failed:analyst invalid_output`, `stage_failed:reviewer tool_use_failed`).
 - **`analyst_stop_reason`** trace field: the analyst loop's own stop reason (submitted / max_turns / loop_detected / invalid_output / tool_use_failed).
 - The reviewer's "Policy engine result" block carries the untrusted-data prefix because it quotes request text (injection hits, field values).
+
+## D-20: Reported eval on Groq qwen/qwen3.8-27b (human decision, Sat 10 Oct 2026; replaces D-17's eval provider)
+
+- Gemini 2.5 Flash free tier on this project is 20 requests/day; the eval needs ~150. Groq gpt-oss models make one tool call per turn (~17K tokens/run, 200K/day).
+- `qwen/qwen3.8-27b` on Groq (free): parallel tool calls, 1,000 requests/day, 8K tokens/min; smoke test passed including the real schemas.
+- Both architectures use this one model for every reported number. Groq gpt-oss-20b and Gemini runs stay development checks only.
+- `LLM_REASONING_EFFORT=none` for this model: Groq limits qwen to 1,000 output tokens per minute and the submit calls with reasoning produced 1,372–1,763 output tokens (rejected as "request too large" or long waits). Without reasoning the JSON fits, and runs use fewer tokens.
+- Command: `python evals/run_all.py --provider groq --model qwen/qwen3.8-27b --trials 1 --resume` with `LLM_REASONING_EFFORT=none` (the scripts take `--reasoning-effort none`).

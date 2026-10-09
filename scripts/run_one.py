@@ -41,9 +41,15 @@ def main() -> None:
     parser.add_argument("--arch", choices=["single", "staged"], default="single")
     parser.add_argument("--mode", choices=["llm", "rules_only"], default="llm")
     parser.add_argument("--provider", choices=["groq", "gemini"], help="override LLM_PROVIDER for this run (D-17)")
+    parser.add_argument("--model", help="override MODEL_NAME for this run (D-20)")
+    parser.add_argument("--reasoning-effort", help="override LLM_REASONING_EFFORT (e.g. none, low)")
     args = parser.parse_args()
     if args.provider:
         apply_provider(args.provider)
+    if args.model:
+        os.environ["MODEL_NAME"] = args.model
+    if args.reasoning_effort:
+        os.environ["LLM_REASONING_EFFORT"] = args.reasoning_effort
 
     proc = ensure_mock()
     try:
