@@ -51,7 +51,7 @@ python scripts/smoke_llm.py --provider gemini   # provider, model list, tool cal
 python scripts/run_one.py REQ-1006 --arch single   # one real run, prints decision + trace steps
 python run_local.py                             # ONE command: mock API :8001 + web app :8000
 python evals/run_all.py --no-llm                # rules-only baseline, no key needed
-python evals/run_all.py --provider gemini --trials 1 --resume   # golden eval, A and B, resumable (D-17)
+python evals/run_all.py --provider groq --model qwen/qwen3.8-27b --reasoning-effort none --trials 1 --resume --interleave   # reported eval (D-20)
 ```
 
 ## Writing style for README, memo and docs

@@ -16,16 +16,17 @@ python verify_setup.py      # pre-flight
 python run_local.py         # ONE command: mock vendor-risk API :8001 + web app :8000
 ```
 
-Copy `.env.example` to `.env` and add `GEMINI_API_KEY` (the evaluated provider) and/or `GROQ_API_KEY`. Then open http://127.0.0.1:8000. Without an API key the app still works and shows the rule-based result with the banner "AI analysis unavailable".
+Copy `.env.example` to `.env` and add `GROQ_API_KEY` (free at console.groq.com). To use the evaluated model, also set `MODEL_NAME=qwen/qwen3.8-27b` and `LLM_REASONING_EFFORT=none` (D-20); the default model is `openai/gpt-oss-20b`. Then open http://127.0.0.1:8000. Without an API key the app still works and shows the rule-based result with the banner "AI analysis unavailable".
 
 Other commands:
 
 ```bash
 python -m unittest discover -s tests -v              # unit tests (no network, no LLM)
-python scripts/smoke_llm.py --provider gemini        # provider, model, tool call, structured output
+python scripts/smoke_llm.py --provider groq          # provider, model, tool call, structured output, real schemas
 python scripts/run_one.py REQ-1006 --arch single     # one real run; prints decision and trace
 python evals/run_all.py --no-llm                     # rules-only baseline (no key needed)
-python evals/run_all.py --trials 1 --resume --provider gemini   # golden eval, both architectures
+python evals/run_all.py --provider groq --model qwen/qwen3.8-27b --reasoning-effort none --trials 1 --resume --interleave
+python evals/run_all.py --summary-only                # rebuild summary.md from stored runs (no LLM)
 python evals/render_walkthroughs.py                  # A vs B traces for 5 scenarios
 ```
 
@@ -41,6 +42,12 @@ Employee submits a request (form or data file)
   → Confirmation shows the consequence; a reason is required when overriding the copilot
   → Entry appended to runtime/audit_log.jsonl (who-when-what-why, recommendation, override yes/no)
 ```
+
+What makes the reviewer's job easier:
+- **"How this was decided"** panel: every agent turn, tool call, supervisor route reason, stop reason and guardrail correction for the run.
+- **Compare both** (US-7): runs A and B on the same request and lists the differences in decision, approvals, flags and cost.
+- **Evidence pack** download (Markdown): exactly what approvers would receive, with each approval's rule and policy section.
+- **Evaluation** tab: the golden-case results, the pre-registered decision rule applied in code, a per-case matrix you can click into (stored runs and their traces), and the A vs B walkthroughs.
 
 Degraded states are explicit: vendor-risk service unavailable, registry vs vendor-risk conflict (both values side by side), expired review (review date and expiry date), LLM unavailable, and prompt injection (quoted as data).
 
@@ -136,8 +143,8 @@ Further judgement calls made during the build are recorded in `docs/DECISIONS.md
 
 ```bash
 python evals/run_all.py --no-llm                                 # rules-only column
-python evals/run_all.py --provider gemini --trials 1 --resume    # A and B
-python evals/run_all.py --provider gemini --retry-infra          # after rate-limit stops
+python evals/run_all.py --provider groq --model qwen/qwen3.8-27b --reasoning-effort none --trials 1 --resume --interleave   # A and B
+python evals/run_all.py --provider groq --model qwen/qwen3.8-27b --reasoning-effort none --retry-infra --interleave   # after rate-limit stops
 python evals/render_walkthroughs.py
 ```
 
