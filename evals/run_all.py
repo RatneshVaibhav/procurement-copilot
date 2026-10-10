@@ -241,6 +241,8 @@ def main() -> None:
     parser.add_argument("--model", help="override MODEL_NAME for this run (D-20)")
     parser.add_argument("--reasoning-effort", help="override LLM_REASONING_EFFORT (e.g. none, low)")
     parser.add_argument("--results-dir", default=str(ROOT / "evals" / "results"))
+    parser.add_argument("--interleave", action="store_true",
+                        help="case-major order (A and B per case) so a budget stop leaves paired results")
     parser.add_argument("--max-infra-streak", type=int, default=2, help="stop after this many consecutive infra errors")
     parser.add_argument("--daily-token-limit", type=int)
     parser.add_argument("--daily-request-limit", type=int)
@@ -287,7 +289,10 @@ def main() -> None:
     request_limit = args.daily_request_limit or limits.get("requests")
     try:
         with EnvPatch(VENDOR_RISK_BASE_URL=base, EXTRA_DATA_DIR=FIXTURES):
-            plan = [(arch, case, t) for arch in archs for case in cases for t in range(1, args.trials + 1)]
+            if args.interleave:
+                plan = [(arch, case, t) for case in cases for t in range(1, args.trials + 1) for arch in archs]
+            else:
+                plan = [(arch, case, t) for arch in archs for case in cases for t in range(1, args.trials + 1)]
             used_tokens = used_calls = llm_runs = infra_streak = 0
             for i, (arch, case, trial) in enumerate(plan, 1):
                 path = run_path(results, arch, case["case_id"], trial)
