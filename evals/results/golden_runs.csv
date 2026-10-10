@@ -1,24 +1,47 @@
 arch,case_id,request_id,trial,status,provider,model,case_pass,approvals_ok,flags_ok,missing_ok,decision_ok,safety_ok,decision_type,raw_decision_ok,raw_approvals_ok,raw_flags_ok,code_restored_approval,code_restored_flag,llm_role_dropped,llm_decision_overridden,ungrounded_evidence_removed,gate_filled,reviewer_rejections,stop_reason,final_mode,llm_calls,tool_calls,tokens_prompt,tokens_completion,tokens_cached,latency_active_ms,latency_total_ms,failures
-rules_only,G-01,REQ-1001,1,ok,,,True,True,True,True,True,True,route_for_approval,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,23.0,23.0,
-rules_only,G-02,REQ-1002,1,ok,,,True,True,True,True,True,True,route_for_specialist_review,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,19.7,19.7,
-rules_only,G-03,REQ-1003,1,ok,,,True,True,True,True,True,True,route_for_specialist_review,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,19.5,19.5,
-rules_only,G-04,REQ-1004,1,ok,,,True,True,True,True,True,True,route_for_specialist_review,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,20.0,20.0,
-rules_only,G-05,REQ-1005,1,ok,,,True,True,True,True,True,True,route_for_specialist_review,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,19.7,19.7,
-rules_only,G-06,REQ-1006,1,ok,,,True,True,True,True,True,True,request_clarification,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,17.9,17.9,
-rules_only,G-07,REQ-1007,1,ok,,,True,True,True,True,True,True,route_for_specialist_review,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,20.6,20.6,
-rules_only,G-08,REQ-1008,1,ok,,,False,True,True,True,False,True,route_for_approval,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,20.4,20.4,decision route_for_approval not in ['use_existing_tool']
-rules_only,G-09,REQ-1009,1,ok,,,True,True,True,True,True,True,route_for_specialist_review,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,521.7,521.7,
-rules_only,G-10,REQ-1010,1,ok,,,True,True,True,True,True,True,route_for_approval,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,19.4,19.4,
-rules_only,G-11,REQ-X101,1,ok,,,True,True,True,True,True,True,route_for_approval,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,19.8,19.8,
-rules_only,G-12,REQ-X102,1,ok,,,True,True,True,True,True,True,route_for_approval,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,19.9,19.9,
-rules_only,G-13,REQ-X103,1,ok,,,True,True,True,True,True,True,route_for_approval,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,20.2,20.2,
-rules_only,G-14,REQ-X104,1,ok,,,True,True,True,True,True,True,route_for_specialist_review,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,19.8,19.8,
-rules_only,G-15,REQ-X105,1,ok,,,True,True,True,True,True,True,route_for_specialist_review,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,19.4,19.4,
-rules_only,G-16,REQ-X106,1,ok,,,True,True,True,True,True,True,route_for_approval,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,20.8,20.8,
-rules_only,G-17,REQ-X107,1,ok,,,True,True,True,True,True,True,route_for_specialist_review,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,21.1,21.1,
-rules_only,G-18,REQ-X108,1,ok,,,True,True,True,True,True,True,route_for_specialist_review,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,19.7,19.7,
-rules_only,G-19,REQ-X109,1,ok,,,True,True,True,True,True,True,request_clarification,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,14.9,14.9,
-rules_only,G-20,REQ-X110,1,ok,,,True,True,True,True,True,True,route_for_specialist_review,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,19.6,19.6,
-rules_only,G-21,REQ-1001,1,ok,,,True,True,True,True,True,True,route_for_approval,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,520.0,520.0,
-rules_only,G-22,REQ-1002,1,ok,,,False,True,False,True,True,True,route_for_specialist_review,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,20.2,20.2,flags missing ['llm_unavailable'] extra []
-rules_only,G-23,REQ-X111,1,ok,,,False,False,False,True,False,True,route_for_approval,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,19.0,19.0,"approvals missing ['Privacy', 'Security'] extra []; flags missing ['privacy_review_required', 'security_review_required'] extra []; decision route_for_approval not in ['route_for_specialist_review']"
+rules_only,G-01,REQ-1001,1,ok,,,True,True,True,True,True,True,route_for_approval,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,47.1,47.1,
+rules_only,G-02,REQ-1002,1,ok,,,True,True,True,True,True,True,route_for_specialist_review,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,42.6,42.6,
+rules_only,G-03,REQ-1003,1,ok,,,True,True,True,True,True,True,route_for_specialist_review,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,44.2,44.2,
+rules_only,G-04,REQ-1004,1,ok,,,True,True,True,True,True,True,route_for_specialist_review,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,44.2,44.2,
+rules_only,G-05,REQ-1005,1,ok,,,True,True,True,True,True,True,route_for_specialist_review,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,45.0,45.0,
+rules_only,G-06,REQ-1006,1,ok,,,True,True,True,True,True,True,request_clarification,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,41.9,41.9,
+rules_only,G-07,REQ-1007,1,ok,,,True,True,True,True,True,True,route_for_specialist_review,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,43.5,43.5,
+rules_only,G-08,REQ-1008,1,ok,,,False,True,True,True,False,True,route_for_approval,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,44.7,44.7,decision route_for_approval not in ['use_existing_tool']
+rules_only,G-09,REQ-1009,1,ok,,,True,True,True,True,True,True,route_for_specialist_review,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,547.8,547.8,
+rules_only,G-10,REQ-1010,1,ok,,,True,True,True,True,True,True,route_for_approval,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,47.0,47.0,
+rules_only,G-11,REQ-X101,1,ok,,,True,True,True,True,True,True,route_for_approval,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,46.1,46.1,
+rules_only,G-12,REQ-X102,1,ok,,,True,True,True,True,True,True,route_for_approval,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,41.9,41.9,
+rules_only,G-13,REQ-X103,1,ok,,,True,True,True,True,True,True,route_for_approval,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,42.7,42.7,
+rules_only,G-14,REQ-X104,1,ok,,,True,True,True,True,True,True,route_for_specialist_review,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,41.4,41.4,
+rules_only,G-15,REQ-X105,1,ok,,,True,True,True,True,True,True,route_for_specialist_review,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,47.1,47.1,
+rules_only,G-16,REQ-X106,1,ok,,,True,True,True,True,True,True,route_for_approval,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,41.9,41.9,
+rules_only,G-17,REQ-X107,1,ok,,,True,True,True,True,True,True,route_for_specialist_review,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,47.7,47.7,
+rules_only,G-18,REQ-X108,1,ok,,,True,True,True,True,True,True,route_for_specialist_review,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,45.4,45.4,
+rules_only,G-19,REQ-X109,1,ok,,,True,True,True,True,True,True,request_clarification,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,34.5,34.5,
+rules_only,G-20,REQ-X110,1,ok,,,True,True,True,True,True,True,route_for_specialist_review,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,44.4,44.4,
+rules_only,G-21,REQ-1001,1,ok,,,True,True,True,True,True,True,route_for_approval,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,543.1,543.1,
+rules_only,G-22,REQ-1002,1,ok,,,False,True,False,True,True,True,route_for_specialist_review,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,53.1,53.1,flags missing ['llm_unavailable'] extra []
+rules_only,G-23,REQ-X111,1,ok,,,False,False,False,True,False,True,route_for_approval,,,,0,0,0,0,0,5,0,rules_only,fallback,0,5,0,0,0,44.5,44.5,"approvals missing ['Privacy', 'Security'] extra []; flags missing ['privacy_review_required', 'security_review_required'] extra []; decision route_for_approval not in ['route_for_specialist_review']"
+single,G-01,REQ-1001,1,ok,groq,qwen/qwen3.8-27b,True,True,True,True,True,True,route_for_approval,True,True,True,0,0,0,0,0,0,0,submitted,tool_call,3,5,10837,974,0,4616.2,86556.2,
+single,G-02,REQ-1002,1,ok,groq,qwen/qwen3.8-27b,True,True,True,True,True,True,use_existing_tool,True,True,True,0,0,0,1,0,0,0,submitted,tool_call,3,5,11197,1295,0,6258.5,177476.4,
+single,G-03,REQ-1003,1,ok,groq,qwen/qwen3.8-27b,True,True,True,True,True,True,route_for_specialist_review,True,True,True,0,0,0,0,0,0,0,submitted,tool_call,3,5,11211,1199,0,5606.3,122959.7,
+single,G-04,REQ-1004,1,ok,groq,qwen/qwen3.8-27b,True,True,True,True,True,True,route_for_specialist_review,True,True,True,0,0,0,0,0,0,0,submitted,tool_call,3,5,11291,1289,0,5051.2,136410.1,
+single,G-05,REQ-1005,1,ok,groq,qwen/qwen3.8-27b,True,True,True,True,True,True,route_for_specialist_review,True,True,True,0,0,0,0,0,0,0,submitted,tool_call,3,5,11090,1095,0,7028.4,185416.8,
+single,G-06,REQ-1006,1,ok,groq,qwen/qwen3.8-27b,True,True,True,True,True,True,request_clarification,True,True,True,0,0,0,0,0,0,0,submitted,tool_call,3,5,11116,1116,0,4864.7,106423.8,
+single,G-07,REQ-1007,1,ok,groq,qwen/qwen3.8-27b,True,True,True,True,True,True,route_for_specialist_review,True,True,True,0,0,0,0,0,0,0,submitted,tool_call,3,5,11139,1267,0,35341.4,158393.1,
+single,G-08,REQ-1008,1,ok,groq,qwen/qwen3.8-27b,True,True,True,True,True,True,use_existing_tool,True,True,True,0,0,0,0,0,0,0,submitted,tool_call,3,5,10903,1001,0,4654.4,146812.7,
+single,G-09,REQ-1009,1,ok,groq,qwen/qwen3.8-27b,True,True,True,True,True,True,route_for_specialist_review,True,True,True,0,0,0,0,0,0,0,submitted,tool_call,3,5,10983,1098,0,5115.0,109369.7,
+single,G-10,REQ-1010,1,ok,groq,qwen/qwen3.8-27b,True,True,True,True,True,True,route_for_approval,True,True,True,0,0,0,0,0,0,0,submitted,tool_call,3,5,10820,893,0,4040.8,115080.9,
+single,G-11,REQ-X101,1,infra_error,groq,qwen/qwen3.8-27b,False,True,False,True,True,True,route_for_approval,False,False,False,0,0,0,0,0,4,0,llm_unavailable,fallback,1,5,3111,31,0,59935.4,62506.7,flags missing [] extra ['llm_unavailable']
+single,G-12,REQ-X102,1,infra_error,groq,qwen/qwen3.8-27b,False,True,False,True,True,True,route_for_approval,False,False,False,0,0,0,0,0,5,0,llm_unavailable,fallback,0,5,0,0,0,2462.4,2462.4,flags missing [] extra ['llm_unavailable']
+single,G-17,REQ-X107,1,infra_error,groq,qwen/qwen3.8-27b,False,True,False,True,True,True,route_for_specialist_review,False,False,False,0,0,0,0,0,0,0,llm_unavailable,fallback,2,5,6465,180,0,55061.0,56800.2,flags missing [] extra ['llm_unavailable']
+single,G-22,REQ-1002,1,ok,groq,qwen/qwen3.8-27b,True,True,True,True,True,True,route_for_specialist_review,,,,0,0,0,0,0,5,0,llm_unavailable,fallback,0,5,0,0,0,23.8,23.8,
+single,G-23,REQ-X111,1,ok,groq,qwen/qwen3.8-27b,False,False,False,True,True,True,route_for_specialist_review,True,False,False,0,0,0,0,0,0,0,submitted,tool_call,4,6,15376,1129,0,7375.8,159155.2,approvals missing ['Security'] extra []; flags missing ['security_review_required'] extra []
+staged,G-01,REQ-1001,1,ok,groq,qwen/qwen3.8-27b,True,True,True,True,True,True,route_for_approval,True,True,True,0,0,0,0,1,0,0,completed,structured,4,5,12415,1939,0,6678.7,81477.0,
+staged,G-02,REQ-1002,1,ok,groq,qwen/qwen3.8-27b,True,True,True,True,True,True,use_existing_tool,True,True,True,0,0,0,1,0,0,0,completed,structured,4,5,13169,2313,0,7143.5,109356.3,
+staged,G-06,REQ-1006,1,ok,groq,qwen/qwen3.8-27b,True,True,True,True,True,True,request_clarification,True,True,True,0,0,0,0,2,0,0,completed,structured,4,5,13138,2157,0,8588.8,167106.3,
+staged,G-07,REQ-1007,1,ok,groq,qwen/qwen3.8-27b,False,True,True,True,False,True,use_existing_tool,True,True,True,0,0,0,1,1,0,0,completed,structured,4,5,12951,2304,0,8307.5,164495.8,decision use_existing_tool not in ['route_for_specialist_review']
+staged,G-08,REQ-1008,1,ok,groq,qwen/qwen3.8-27b,True,True,True,True,True,True,use_existing_tool,True,True,True,0,0,0,0,1,0,0,completed,structured,4,5,12501,2015,0,14555.5,195999.0,
+staged,G-17,REQ-X107,1,infra_error,groq,qwen/qwen3.8-27b,False,True,False,True,True,True,route_for_specialist_review,False,False,False,0,0,0,0,0,4,0,llm_unavailable,fallback,1,5,2552,31,0,2674.7,4891.7,flags missing [] extra ['llm_unavailable']
+staged,G-22,REQ-1002,1,ok,groq,qwen/qwen3.8-27b,True,True,True,True,True,True,route_for_specialist_review,,,,0,0,0,0,0,5,0,llm_unavailable,fallback,0,5,0,0,0,20.1,20.1,
+staged,G-23,REQ-X111,1,ok,groq,qwen/qwen3.8-27b,False,False,False,True,False,True,route_for_approval,True,False,False,0,0,0,1,0,0,0,completed,structured,4,5,12153,1802,0,6141.5,139359.9,"approvals missing ['Privacy', 'Security'] extra []; flags missing ['privacy_review_required', 'security_review_required'] extra []; decision route_for_approval not in ['route_for_specialist_review']"

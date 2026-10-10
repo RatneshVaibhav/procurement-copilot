@@ -115,18 +115,22 @@ Further judgement calls made during the build are recorded in `docs/DECISIONS.md
 
 **Method.** 23 hand-labelled golden cases (`evals/golden_cases.json`): the 10 official requests, 11 eval-only fixtures (threshold boundaries, name casing, unregistered vendor, injection in the product name and in vendor-API notes, HR integration, unknown requester, PII implied only by text) and 2 fault cases (vendor-risk API down, LLM down). Scoring uses exact-set semantics, so over-escalation fails a case: approvals and flags must satisfy required ⊆ final ⊆ required ∪ optional, plus missing-information groups, the accepted decision types and a safety check (human review, no forbidden approver, no "approved" claim). Raw-agent metrics score the LLM's proposal before guardrails, which shows how much code corrected. The three columns are the design-ladder rungs: Workflow (rules-only), A: bounded agent, B: sequential specialists. Both LLM columns use the same provider and model; runs that hit provider rate limits are recorded as `infra_error`, re-run, and never counted as model failures. Full details: `evals/README.md`.
 
-**Results** (from `evals/results/summary.md`):
+**Results** (from `evals/results/summary.md`; provider Groq `qwen/qwen3.8-27b`, free tier, 1 trial, D-20):
 
 | Metric | A: bounded agent | B: sequential specialists | Workflow (rules-only) |
 |---|---:|---:|---:|
-| Golden cases passed (final output) | _pending Gemini run_ | _pending Gemini run_ | 20/23 |
-| Cases only the AI can get right (G-08, G-23) | _pending_ | _pending_ | 0/2 |
-| Injection cases passed (3) | _pending_ | _pending_ | 3/3 |
-| Fault cases passed (2) | _pending_ | _pending_ | 1/2 |
-| Avg tool calls / run | _pending_ | _pending_ | 5 |
-| Public runner minimum checks | _pending_ | _pending_ | 6/6 |
+| Golden cases passed (final output) | 11/12 | 5/7 | 20/23 |
+| Golden cases passed, paired A/B cases only | 6/7 | 5/7 | n/a |
+| Cases only the AI can get right (G-08, G-23) | 1/2 | 1/2 | 0/2 |
+| Raw agent decision accuracy | 11/11 | 6/6 | n/a |
+| Ungrounded evidence items removed (total) | 0 | 5 | n/a |
+| Avg active latency (ms) | 7498.0 | 7347.9 | 87.9 |
+| Avg LLM calls / run | 2.8 | 3.4 | 0 |
+| Avg tokens / run | 11526.6 | 12693.9 | 0 |
+| Public runner minimum checks | 6/6 | 3/3 | 6/6 |
+| Infra errors excluded (runs) | 3 | 1 | 0 |
 
-Rules-only fails G-08 and G-23, as designed (they need judgement), and G-22 by construction (rules-only mode never calls an LLM, so it never sets `llm_unavailable`).
+**Coverage (important).** The free-tier daily token cap (200K tokens/day per model on Groq) stopped the LLM eval before all 22 LLM cases ran for both architectures. A completed 12 cases and B 7; the 7 paired cases (G-01, G-02, G-06, G-07, G-08, G-22, G-23) include the existing-tool, injection, conflict, LLM-outage and PII-in-text scenarios. Rules-only covers all 23. Failures: A missed G-23 (did not add Security for customer PII implied by the text); B missed G-07 (judged the existing tool as covering an "Advanced" tier with a stated new capability) and G-23 (added no review). Every failure with its reason is listed in `summary.md`.
 
 **Reproduce.**
 
@@ -147,10 +151,12 @@ Step-by-step A vs B traces for five representative scenarios (overlap + new vend
 
 Pre-registered rule (`evals/DECISION_RULE.md`, committed before the first LLM run): ship B only if B passes at least 2 more golden cases than A on final output, or fixes a `safety_ok` failure that A has, **and** B's average active latency is at most 2× A's; otherwise ship A.
 
-_Applied to the Gemini results once they exist._
+**Applied:** on the 7 paired cases A passes 6 and B passes 5, so clause (a) fails (B is not 2 or more cases ahead and fixes no `safety_ok` failure). **Ship A.** A also beats the rules-only workflow on the same 7 cases (per-case matrix in `summary.md`: rules-only fails G-08, G-22 and G-23 there). B's independent reviewer removed 5 ungrounded evidence items that A never produced, but it added calls and tokens without improving the final decisions on this sample. The sample is small; with more quota we would re-run all 22 LLM cases for both architectures (`--resume`).
 
 ## 10. Known limitations
 
 - F §9 open questions (budget shortfall blocking, SSO, Department Head without a Director, limited-use AI tools).
 - AC-2.2 status grounding gap (D-07.7): the grounding check verifies numbers, dates and IDs, not status words.
-- Free-tier rate limits; small eval set (23 cases); single trial unless stated; no real integrations.
+- Partial LLM coverage: free-tier daily token caps stopped the eval at 12 cases for A and 7 for B (paired comparison on 7 cases); single trial, so no consistency figure.
+- G-23 shows the agents do not reliably add Security/Privacy for personal data implied only by free text.
+- Free-tier rate limits make runs slow (about 2 minutes per run including waits); small eval set; no real integrations.

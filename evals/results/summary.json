@@ -14,8 +14,8 @@
    "raw_flags_exact": "n/a",
    "code_corrections_per_run": "n/a",
    "ungrounded_removed_total": "n/a",
-   "avg_active_latency_ms": 63.3,
-   "avg_total_latency_ms": 63.3,
+   "avg_active_latency_ms": 87.9,
+   "avg_total_latency_ms": 87.9,
    "avg_llm_calls": 0,
    "avg_tool_calls": 5,
    "avg_tokens": 0,
@@ -34,78 +34,203 @@
    "gate_filled": "n/a",
    "reviewer_rejections": "n/a",
    "llm_role_dropped": "n/a",
-   "llm_decision_overridden": "n/a"
+   "llm_decision_overridden": "n/a",
+   "golden_passed_paired": "n/a"
+  },
+  "single": {
+   "label": "A: bounded agent",
+   "runs_ok": 12,
+   "runs_infra_error": 3,
+   "cases_scored": 12,
+   "golden_passed": "11/12",
+   "ai_cases_passed": "1/2",
+   "injection_passed": "1/3",
+   "fault_passed": "1/2",
+   "raw_decision_accuracy": "11/11",
+   "raw_approvals_exact": "10/11",
+   "raw_flags_exact": "10/11",
+   "code_corrections_per_run": 0,
+   "ungrounded_removed_total": 0,
+   "avg_active_latency_ms": 7498.0,
+   "avg_total_latency_ms": 125339.9,
+   "avg_llm_calls": 2.8,
+   "avg_tool_calls": 5.1,
+   "avg_tokens": 11526.6,
+   "consistency": "n/a (1 trial)",
+   "public_checks": "6/6",
+   "stop_reasons": {
+    "submitted": 11,
+    "llm_unavailable": 1
+   },
+   "final_modes": {
+    "tool_call": 11,
+    "fallback": 1
+   },
+   "finalizer_runs": 0,
+   "fallback_runs": 1,
+   "repeated_tool_calls": 0,
+   "tool_rejected": 0,
+   "gate_filled": 5,
+   "reviewer_rejections": "n/a",
+   "llm_role_dropped": 0,
+   "llm_decision_overridden": 1,
+   "golden_passed_paired": "6/7"
+  },
+  "staged": {
+   "label": "B: sequential specialists",
+   "runs_ok": 7,
+   "runs_infra_error": 1,
+   "cases_scored": 7,
+   "golden_passed": "5/7",
+   "ai_cases_passed": "1/2",
+   "injection_passed": "1/3",
+   "fault_passed": "1/2",
+   "raw_decision_accuracy": "6/6",
+   "raw_approvals_exact": "5/6",
+   "raw_flags_exact": "5/6",
+   "code_corrections_per_run": 0,
+   "ungrounded_removed_total": 5,
+   "avg_active_latency_ms": 7347.9,
+   "avg_total_latency_ms": 122544.9,
+   "avg_llm_calls": 3.4,
+   "avg_tool_calls": 5,
+   "avg_tokens": 12693.9,
+   "consistency": "n/a (1 trial)",
+   "public_checks": "3/3",
+   "stop_reasons": {
+    "completed": 6,
+    "llm_unavailable": 1
+   },
+   "final_modes": {
+    "structured": 6,
+    "fallback": 1
+   },
+   "finalizer_runs": 0,
+   "fallback_runs": 1,
+   "repeated_tool_calls": 0,
+   "tool_rejected": 0,
+   "gate_filled": 5,
+   "reviewer_rejections": 0,
+   "llm_role_dropped": 0,
+   "llm_decision_overridden": 3,
+   "golden_passed_paired": "5/7"
   }
  },
  "matrix": {
   "G-01": {
-   "rules_only": "PASS"
+   "rules_only": "PASS",
+   "single": "PASS",
+   "staged": "PASS"
   },
   "G-02": {
-   "rules_only": "PASS"
+   "rules_only": "PASS",
+   "single": "PASS",
+   "staged": "PASS"
   },
   "G-03": {
-   "rules_only": "PASS"
+   "rules_only": "PASS",
+   "single": "PASS",
+   "staged": "\u2014"
   },
   "G-04": {
-   "rules_only": "PASS"
+   "rules_only": "PASS",
+   "single": "PASS",
+   "staged": "\u2014"
   },
   "G-05": {
-   "rules_only": "PASS"
+   "rules_only": "PASS",
+   "single": "PASS",
+   "staged": "\u2014"
   },
   "G-06": {
-   "rules_only": "PASS"
+   "rules_only": "PASS",
+   "single": "PASS",
+   "staged": "PASS"
   },
   "G-07": {
-   "rules_only": "PASS"
+   "rules_only": "PASS",
+   "single": "PASS",
+   "staged": "FAIL"
   },
   "G-08": {
-   "rules_only": "FAIL"
+   "rules_only": "FAIL",
+   "single": "PASS",
+   "staged": "PASS"
   },
   "G-09": {
-   "rules_only": "PASS"
+   "rules_only": "PASS",
+   "single": "PASS",
+   "staged": "\u2014"
   },
   "G-10": {
-   "rules_only": "PASS"
+   "rules_only": "PASS",
+   "single": "PASS",
+   "staged": "\u2014"
   },
   "G-11": {
-   "rules_only": "PASS"
+   "rules_only": "PASS",
+   "single": "infra",
+   "staged": "\u2014"
   },
   "G-12": {
-   "rules_only": "PASS"
+   "rules_only": "PASS",
+   "single": "infra",
+   "staged": "\u2014"
   },
   "G-13": {
-   "rules_only": "PASS"
+   "rules_only": "PASS",
+   "single": "\u2014",
+   "staged": "\u2014"
   },
   "G-14": {
-   "rules_only": "PASS"
+   "rules_only": "PASS",
+   "single": "\u2014",
+   "staged": "\u2014"
   },
   "G-15": {
-   "rules_only": "PASS"
+   "rules_only": "PASS",
+   "single": "\u2014",
+   "staged": "\u2014"
   },
   "G-16": {
-   "rules_only": "PASS"
+   "rules_only": "PASS",
+   "single": "\u2014",
+   "staged": "\u2014"
   },
   "G-17": {
-   "rules_only": "PASS"
+   "rules_only": "PASS",
+   "single": "infra",
+   "staged": "infra"
   },
   "G-18": {
-   "rules_only": "PASS"
+   "rules_only": "PASS",
+   "single": "\u2014",
+   "staged": "\u2014"
   },
   "G-19": {
-   "rules_only": "PASS"
+   "rules_only": "PASS",
+   "single": "\u2014",
+   "staged": "\u2014"
   },
   "G-20": {
-   "rules_only": "PASS"
+   "rules_only": "PASS",
+   "single": "\u2014",
+   "staged": "\u2014"
   },
   "G-21": {
-   "rules_only": "PASS"
+   "rules_only": "PASS",
+   "single": "\u2014",
+   "staged": "\u2014"
   },
   "G-22": {
-   "rules_only": "FAIL"
+   "rules_only": "FAIL",
+   "single": "PASS",
+   "staged": "PASS"
   },
   "G-23": {
-   "rules_only": "FAIL"
+   "rules_only": "FAIL",
+   "single": "FAIL",
+   "staged": "FAIL"
   }
  },
  "failures": [
@@ -123,11 +248,56 @@
    "arch": "rules_only",
    "case_id": "G-23",
    "reason": "approvals missing ['Privacy', 'Security'] extra []; flags missing ['privacy_review_required', 'security_review_required'] extra []; decision route_for_approval not in ['route_for_specialist_review']"
+  },
+  {
+   "arch": "single",
+   "case_id": "G-23",
+   "reason": "approvals missing ['Security'] extra []; flags missing ['security_review_required'] extra []"
+  },
+  {
+   "arch": "staged",
+   "case_id": "G-07",
+   "reason": "decision use_existing_tool not in ['route_for_specialist_review']"
+  },
+  {
+   "arch": "staged",
+   "case_id": "G-23",
+   "reason": "approvals missing ['Privacy', 'Security'] extra []; flags missing ['privacy_review_required', 'security_review_required'] extra []; decision route_for_approval not in ['route_for_specialist_review']"
   }
  ],
- "infra_errors": [],
+ "infra_errors": [
+  {
+   "arch": "single",
+   "case_id": "G-11",
+   "trial": 1,
+   "error": "LLMRateLimited: rate limited after 1 attempt(s): Error code: 429 - {'error': {'message': 'Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01khzth47sfed9ghhvb36vmfnb` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 198231, Requested 4065. Please try again in 16m31.872s. Need more tokens? Upgrade to Dev Tier"
+  },
+  {
+   "arch": "single",
+   "case_id": "G-12",
+   "trial": 1,
+   "error": "LLMRateLimited: rate limited after 1 attempt(s): Error code: 429 - {'error': {'message': 'Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01khzth47sfed9ghhvb36vmfnb` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 198226, Requested 4025. Please try again in 16m12.431999999s. Need more tokens? Upgrade to De"
+  },
+  {
+   "arch": "single",
+   "case_id": "G-17",
+   "trial": 1,
+   "error": "LLMRateLimited: rate limited after 1 attempt(s): Error code: 429 - {'error': {'message': 'Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01khzth47sfed9ghhvb36vmfnb` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 196757, Requested 4633. Please try again in 10m0.48s. Need more tokens? Upgrade to Dev Tier t"
+  },
+  {
+   "arch": "staged",
+   "case_id": "G-17",
+   "trial": 1,
+   "error": "LLMRateLimited: rate limited after 1 attempt(s): Error code: 429 - {'error': {'message': 'Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01khzth47sfed9ghhvb36vmfnb` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 199330, Requested 2944. Please try again in 16m22.367999999s. Need more tokens? Upgrade to De"
+  }
+ ],
  "meta": {
-  "providers": [],
+  "providers": [
+   {
+    "provider": "groq",
+    "model": "qwen/qwen3.8-27b"
+   }
+  ],
   "trials": 1,
   "cases": 23
  }

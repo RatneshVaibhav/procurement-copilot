@@ -1,0 +1,672 @@
+{
+ "case_id": "G-03",
+ "request_id": "REQ-1003",
+ "arch": "single",
+ "trial": 1,
+ "status": "ok",
+ "fault": null,
+ "provider": "groq",
+ "model": "qwen/qwen3.8-27b",
+ "error": null,
+ "decision": {
+  "request_id": "REQ-1003",
+  "recommendation": "Route for specialist review: a Security review is required for the source-code data class and Git integration, and the request overlaps the existing CodeMate license (SW008) as a same-product expansion.",
+  "evidence": [
+   {
+    "source": "evaluate_policy_rules",
+    "finding": "Annual cost $18,000 → tier $10,000.01 to $25,000: Department Head, Finance, Procurement",
+    "reference": "policy §4"
+   },
+   {
+    "source": "check_budget",
+    "finding": "Engineering available software budget $26,000; request $18,000 → within budget ($8,000 left)",
+    "reference": "department_budgets.csv:Engineering"
+   },
+   {
+    "source": "search_software_catalog",
+    "finding": "Existing catalog products with the same category or product name: SW008 CodeMate (Developer AI, 120 seats, Engineering)",
+    "reference": "software_catalog.csv:SW008"
+   },
+   {
+    "source": "get_vendor_status",
+    "finding": "Registry: CodeMate procurement Approved, security Approved, review date 2026-08-20 (41 days before 2026-09-30), legal terms Approved",
+    "reference": "vendors.csv:V008"
+   },
+   {
+    "source": "get_vendor_status",
+    "finding": "Vendor-risk API: security_review_status approved, last review 2026-08-20, stores data outside region: no",
+    "reference": "GET /vendor-risk/CodeMate"
+   },
+   {
+    "source": "evaluate_policy_rules",
+    "finding": "Sensitive data classes: source_code from data_access_level 'source_code'; source_code from integration 'Git repositories'",
+    "reference": "policy §5, §6"
+   },
+   {
+    "source": "get_request_details",
+    "finding": "Requester Arjun Mehta (E002, Engineering, IC5); product 'CodeMate Teams Expansion', vendor CodeMate, category Developer AI; $18,000/yr, 30 users; data access 'source_code'; integration 'Git repositories'; justification: expand approved coding assistant to two additional engineering squads. All required fields present; no injection detected.",
+    "reference": "REQ-1003"
+   },
+   {
+    "source": "check_budget",
+    "finding": "Engineering annual budget $300,000, committed $274,000, available $26,000; $18,000 request fits, leaving $8,000. within_budget=true.",
+    "reference": "department_budgets.csv:Engineering"
+   },
+   {
+    "source": "search_software_catalog",
+    "finding": "Catalog candidate SW008 'CodeMate' (same vendor, same category, Developer AI) is Approved, $90,000/yr, 120 licensed seats, scope Engineering; overlap_flag=true. Purchase history PO-2440 (2026-04-18, 120 seats).",
+    "reference": "software_catalog.csv / SW008 / PO-2440"
+   },
+   {
+    "source": "get_vendor_status",
+    "finding": "Vendor CodeMate (V008) registered, procurement Approved, security Approved (review 2026-08-20, 41 days old, current), legal terms Approved; external risk API: medium risk, no personal data, no out-of-region storage; no registry/API conflict; not a new vendor.",
+    "reference": "GET /vendor-risk/CodeMate"
+   },
+   {
+    "source": "evaluate_policy_rules",
+    "finding": "Policy engine: cost tier $10,000.01–$25,000; required approvals Department Head, Finance, Procurement (R4 §4) and Security (R7 §5, source_code data class and Git integration); flags existing_tool_overlap and security_review_required; no missing fields; rules decision route_for_specialist_review.",
+    "reference": "REQ-1003"
+   }
+  ],
+  "required_approvals": [
+   "Department Head",
+   "Finance",
+   "Procurement",
+   "Security"
+  ],
+  "missing_information": [],
+  "risk_flags": [
+   "existing_tool_overlap",
+   "security_review_required"
+  ],
+  "next_step": "Route to Security for the source-code/Git review, then to Department Head, Finance and Procurement for the $18,000 tier. Reviewer should first confirm with the requester whether the existing 120-seat CodeMate license (SW008) has unused capacity for the two additional squads before approving a paid expansion.",
+  "human_review_required": true,
+  "telemetry": {
+   "llm_calls": 3,
+   "tool_calls": 5,
+   "tool_names": [
+    "get_request_details",
+    "check_budget",
+    "search_software_catalog",
+    "get_vendor_status",
+    "evaluate_policy_rules"
+   ]
+  }
+ },
+ "trace": {
+  "run_id": "REQ-1003-single-47b9f953",
+  "request_id": "REQ-1003",
+  "architecture": "single",
+  "mode": "llm",
+  "provider": "groq",
+  "model": "qwen/qwen3.8-27b",
+  "reference_date": "2026-09-30",
+  "created_at": "2026-10-09T21:08:42+00:00",
+  "latency_total_ms": 122959.7,
+  "llm_wait_ms": 117353.4,
+  "latency_active_ms": 5606.3,
+  "llm_ms": 4333.2,
+  "tool_ms": 20.6,
+  "llm_calls": 3,
+  "tool_calls": 5,
+  "tokens": {
+   "prompt": 11211,
+   "completion": 1199,
+   "cached": 0
+  },
+  "steps": [
+   {
+    "n": 1,
+    "actor": "agent:single",
+    "action": "llm turn 1",
+    "summary_in": "4 messages",
+    "summary_out": "get_request_details(REQ-1003) → ok",
+    "route_reason": null,
+    "ms": 602.5,
+    "tokens": {
+     "prompt": 3112,
+     "completion": 32,
+     "cached": 0
+    }
+   },
+   {
+    "n": 2,
+    "actor": "agent:single",
+    "action": "llm turn 2",
+    "summary_in": "9 messages",
+    "summary_out": "check_budget(REQ-1003) → ok; search_software_catalog(REQ-1003) → ok; get_vendor_status(CodeMate) → ok; evaluate_policy_rules(REQ-1003) → ok",
+    "route_reason": null,
+    "ms": 809.4,
+    "tokens": {
+     "prompt": 3358,
+     "completion": 150,
+     "cached": 0
+    }
+   },
+   {
+    "n": 3,
+    "actor": "agent:single",
+    "action": "llm turn 3",
+    "summary_in": "9 messages",
+    "summary_out": "submit_recommendation: valid",
+    "route_reason": null,
+    "ms": 2921.3,
+    "tokens": {
+     "prompt": 4741,
+     "completion": 1017,
+     "cached": 0
+    }
+   },
+   {
+    "n": 4,
+    "actor": "code:gate",
+    "action": "completeness gate",
+    "summary_in": "required: get_request_details, check_budget, search_software_catalog, get_vendor_status, evaluate_policy_rules",
+    "summary_out": "filled: none",
+    "route_reason": null,
+    "ms": null,
+    "tokens": null
+   },
+   {
+    "n": 5,
+    "actor": "code:guardrails",
+    "action": "merge + validate + ground",
+    "summary_in": "proposal: route_for_specialist_review",
+    "summary_out": "final: route_for_specialist_review; corrections: none",
+    "route_reason": null,
+    "ms": null,
+    "tokens": null
+   }
+  ],
+  "stop_reason": "submitted",
+  "final_mode": "tool_call",
+  "analyst_stop_reason": null,
+  "repeated_tool_calls": 0,
+  "tool_rejected": 0,
+  "event_counts": {},
+  "events": [],
+  "tool_log": [
+   {
+    "name": "get_request_details",
+    "args": {
+     "request_id": "REQ-1003"
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 2.9,
+    "cache_hit": false
+   },
+   {
+    "name": "check_budget",
+    "args": {
+     "request_id": "REQ-1003"
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 3.6,
+    "cache_hit": false
+   },
+   {
+    "name": "search_software_catalog",
+    "args": {
+     "keywords": [
+      "coding",
+      "assistant",
+      "developer",
+      "ai"
+     ],
+     "request_id": "REQ-1003"
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 2.5,
+    "cache_hit": false
+   },
+   {
+    "name": "get_vendor_status",
+    "args": {
+     "vendor_name": "CodeMate"
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 3.9,
+    "cache_hit": false
+   },
+   {
+    "name": "evaluate_policy_rules",
+    "args": {
+     "request_id": "REQ-1003"
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 7.7,
+    "cache_hit": false
+   }
+  ],
+  "llm_call_log": [
+   {
+    "actor": "agent:single",
+    "latency_ms": 602.5,
+    "wait_ms": 82322.3,
+    "attempts": 8,
+    "usage": {
+     "prompt": 3112,
+     "completion": 32,
+     "cached": 0
+    }
+   },
+   {
+    "actor": "agent:single",
+    "latency_ms": 809.4,
+    "wait_ms": 4359.2,
+    "attempts": 2,
+    "usage": {
+     "prompt": 3358,
+     "completion": 150,
+     "cached": 0
+    }
+   },
+   {
+    "actor": "agent:single",
+    "latency_ms": 2921.3,
+    "wait_ms": 30671.9,
+    "attempts": 2,
+    "usage": {
+     "prompt": 4741,
+     "completion": 1017,
+     "cached": 0
+    }
+   }
+  ],
+  "proposals": [
+   {
+    "actor": "agent:single",
+    "final_mode": "tool_call",
+    "proposal": {
+     "decision_type": "route_for_specialist_review",
+     "recommendation": "Route for specialist review: a Security review is required for the source-code data class and Git integration, and the request overlaps the existing CodeMate license (SW008) as a same-product expansion.",
+     "next_step": "Route to Security for the source-code/Git review, then to Department Head, Finance and Procurement for the $18,000 tier. Reviewer should first confirm with the requester whether the existing 120-seat CodeMate license (SW008) has unused capacity for the two additional squads before approving a paid expansion.",
+     "required_approvals": [
+      {
+       "role": "Department Head",
+       "reason": "R4 §4: Annual cost $18,000 is in the $10,000.01 to $25,000 tier"
+      },
+      {
+       "role": "Finance",
+       "reason": "R4 §4: Annual cost $18,000 is in the $10,000.01 to $25,000 tier"
+      },
+      {
+       "role": "Procurement",
+       "reason": "R4 §4: Annual cost $18,000 is in the $10,000.01 to $25,000 tier"
+      },
+      {
+       "role": "Security",
+       "reason": "R7 §5: Data class source_code (data_access_level 'source_code') and integration 'Git repositories'"
+      }
+     ],
+     "risk_flags": [
+      "existing_tool_overlap",
+      "security_review_required"
+     ],
+     "missing_information": [],
+     "overlap_assessment": [
+      {
+       "software_id": "SW008",
+       "relationship": "same_product_expansion",
+       "covers_stated_need": false,
+       "reason": "Request is an expansion of the already-licensed CodeMate product (SW008, 120 seats, Engineering) — an add-on/extra seats to the same product, not a substitute. Seat utilisation is unknown, so the reviewer should ask about unused capacity rather than assume a gap."
+      }
+     ],
+     "evidence": [
+      {
+       "source": "get_request_details",
+       "finding": "Requester Arjun Mehta (E002, Engineering, IC5); product 'CodeMate Teams Expansion', vendor CodeMate, category Developer AI; $18,000/yr, 30 users; data access 'source_code'; integration 'Git repositories'; justification: expand approved coding assistant to two additional engineering squads. All required fields present; no injection detected.",
+       "reference": "REQ-1003"
+      },
+      {
+       "source": "check_budget",
+       "finding": "Engineering annual budget $300,000, committed $274,000, available $26,000; $18,000 request fits, leaving $8,000. within_budget=true.",
+       "reference": "department_budgets.csv:Engineering"
+      },
+      {
+       "source": "search_software_catalog",
+       "finding": "Catalog candidate SW008 'CodeMate' (same vendor, same category, Developer AI) is Approved, $90,000/yr, 120 licensed seats, scope Engineering; overlap_flag=true. Purchase history PO-2440 (2026-04-18, 120 seats).",
+       "reference": "software_catalog.csv / SW008 / PO-2440"
+      },
+      {
+       "source": "get_vendor_status",
+       "finding": "Vendor CodeMate (V008) registered, procurement Approved, security Approved (review 2026-08-20, 41 days old, current), legal terms Approved; external risk API: medium risk, no personal data, no out-of-region storage; no registry/API conflict; not a new vendor.",
+       "reference": "GET /vendor-risk/CodeMate"
+      },
+      {
+       "source": "evaluate_policy_rules",
+       "finding": "Policy engine: cost tier $10,000.01–$25,000; required approvals Department Head, Finance, Procurement (R4 §4) and Security (R7 §5, source_code data class and Git integration); flags existing_tool_overlap and security_review_required; no missing fields; rules decision route_for_specialist_review.",
+       "reference": "REQ-1003"
+      }
+     ],
+     "injection_observed": false,
+     "injection_excerpt": null
+    }
+   }
+  ],
+  "evidence_pack": null,
+  "analyst_audit": null,
+  "guardrails": {
+   "questions_for_reviewer": [],
+   "ungrounded_evidence": [],
+   "llm_added_reviews": [],
+   "approval_reasons": {
+    "Department Head": [
+     {
+      "rule": "R4",
+      "policy_ref": "§4",
+      "detail": "Annual cost $18,000 is in the $10,000.01 to $25,000 tier"
+     }
+    ],
+    "Finance": [
+     {
+      "rule": "R4",
+      "policy_ref": "§4",
+      "detail": "Annual cost $18,000 is in the $10,000.01 to $25,000 tier"
+     }
+    ],
+    "Procurement": [
+     {
+      "rule": "R4",
+      "policy_ref": "§4",
+      "detail": "Annual cost $18,000 is in the $10,000.01 to $25,000 tier"
+     }
+    ],
+    "Security": [
+     {
+      "rule": "R7",
+      "policy_ref": "§5",
+      "detail": "Data class source_code (data_access_level 'source_code')"
+     },
+     {
+      "rule": "R7",
+      "policy_ref": "§5",
+      "detail": "Data class source_code (integration 'Git repositories')"
+     }
+    ]
+   },
+   "used_template_recommendation": false,
+   "used_template_next_step": false,
+   "decision_type": "route_for_specialist_review",
+   "overlap_covering": [],
+   "deterministic_evidence": 6
+  },
+  "policy": {
+   "request_id": "REQ-1003",
+   "reference_date": "2026-09-30",
+   "policy_version": "2026.09",
+   "requester": {
+    "id": "E002",
+    "known": true,
+    "name": "Arjun Mehta",
+    "department": "Engineering",
+    "level": "IC5",
+    "manager_hint": "Maya Rao",
+    "department_head_hint": "Maya Rao"
+   },
+   "department": "Engineering",
+   "annual_cost_usd": 18000.0,
+   "tier": "$10,000.01 to $25,000",
+   "tier_roles": [
+    "Department Head",
+    "Finance",
+    "Procurement"
+   ],
+   "approvals": [
+    {
+     "role": "Department Head",
+     "reasons": [
+      {
+       "rule": "R4",
+       "policy_ref": "§4",
+       "detail": "Annual cost $18,000 is in the $10,000.01 to $25,000 tier"
+      }
+     ],
+     "hint": "Maya Rao"
+    },
+    {
+     "role": "Finance",
+     "reasons": [
+      {
+       "rule": "R4",
+       "policy_ref": "§4",
+       "detail": "Annual cost $18,000 is in the $10,000.01 to $25,000 tier"
+      }
+     ],
+     "hint": null
+    },
+    {
+     "role": "Procurement",
+     "reasons": [
+      {
+       "rule": "R4",
+       "policy_ref": "§4",
+       "detail": "Annual cost $18,000 is in the $10,000.01 to $25,000 tier"
+      }
+     ],
+     "hint": null
+    },
+    {
+     "role": "Security",
+     "reasons": [
+      {
+       "rule": "R7",
+       "policy_ref": "§5",
+       "detail": "Data class source_code (data_access_level 'source_code')"
+      },
+      {
+       "rule": "R7",
+       "policy_ref": "§5",
+       "detail": "Data class source_code (integration 'Git repositories')"
+      }
+     ],
+     "hint": null
+    }
+   ],
+   "flags": [
+    "existing_tool_overlap",
+    "security_review_required"
+   ],
+   "flag_reasons": {
+    "existing_tool_overlap": [
+     {
+      "rule": "R5",
+      "policy_ref": "§3",
+      "detail": "Same category or identical product in catalog: SW008"
+     }
+    ],
+    "security_review_required": [
+     {
+      "rule": "R7",
+      "policy_ref": "§5",
+      "detail": "Data class source_code (data_access_level 'source_code')"
+     },
+     {
+      "rule": "R7",
+      "policy_ref": "§5",
+      "detail": "Data class source_code (integration 'Git repositories')"
+     }
+    ]
+   },
+   "missing_information": [],
+   "missing_request_fields": [],
+   "request_fields_missing": false,
+   "data_classes": [
+    {
+     "class": "source_code",
+     "source": "data_access_level 'source_code'"
+    },
+    {
+     "class": "source_code",
+     "source": "integration 'Git repositories'"
+    }
+   ],
+   "budget": {
+    "department": "Engineering",
+    "annual_cost": 18000.0,
+    "available_usd": 26000.0,
+    "committed_usd": 274000.0,
+    "annual_budget_usd": 300000.0,
+    "within_budget": true,
+    "remaining_after_usd": 8000.0,
+    "status": "ok",
+    "reference": "department_budgets.csv:Engineering"
+   },
+   "catalog_candidates": [
+    {
+     "software_id": "SW008",
+     "product_name": "CodeMate",
+     "category": "Developer AI",
+     "vendor_name": "CodeMate",
+     "status": "Approved",
+     "annual_cost_usd": 90000.0,
+     "licensed_seats": 120,
+     "scope": "Engineering",
+     "match": [
+      "same_category",
+      "same_vendor"
+     ],
+     "overlap_flag": true,
+     "purchase_history": [
+      {
+       "purchase_id": "PO-2440",
+       "purchase_date": "2026-04-18",
+       "department": "Engineering",
+       "annual_amount_usd": 90000.0,
+       "status": "Approved",
+       "untrusted_text": {
+        "notes": "120 seats"
+       }
+      }
+     ]
+    }
+   ],
+   "overlap_flag_candidates": [
+    "SW008"
+   ],
+   "vendor": {
+    "vendor_name": "CodeMate",
+    "canonical_name": "CodeMate",
+    "registry": {
+     "registered": true,
+     "vendor_id": "V008",
+     "vendor_name": "CodeMate",
+     "procurement_status": "Approved",
+     "security_status": "Approved",
+     "security_review_date": "2026-08-20",
+     "legal_terms_status": "Approved"
+    },
+    "api": {
+     "outcome": "ok",
+     "status_code": 200,
+     "endpoint": "GET /vendor-risk/CodeMate",
+     "attempts": 1,
+     "error": null,
+     "record": {
+      "vendor_name": "CodeMate",
+      "risk_level": "medium",
+      "security_review_status": "approved",
+      "last_review_date": "2026-08-20",
+      "processes_personal_data": false,
+      "stores_data_outside_region": false
+     }
+    },
+    "derived": {
+     "registered": true,
+     "registry_class": "approved",
+     "registry_review_date": "2026-08-20",
+     "registry_age_days": 41,
+     "registry_current": true,
+     "api_outcome": "ok",
+     "api_class": "approved",
+     "api_review_date": "2026-08-20",
+     "api_age_days": 41,
+     "api_current": true,
+     "expired": false,
+     "expired_on": null,
+     "conflict": false,
+     "cleared": true,
+     "new_vendor": false,
+     "procurement_status": "Approved",
+     "legal_terms_status": "Approved",
+     "legal_terms_approved": true,
+     "stores_data_outside_region": false,
+     "processes_personal_data": false
+    },
+    "untrusted_text": {
+     "registry_notes": "Approved for source-code use subject to security controls",
+     "api_text": {
+      "notes": "Approved for source-code use when repository controls are enabled."
+     },
+     "api_error_detail": null
+    },
+    "injection_scan": {
+     "detected": false,
+     "hits": []
+    }
+   },
+   "injection_hits": [],
+   "evidence": [
+    {
+     "source": "evaluate_policy_rules",
+     "finding": "Annual cost $18,000 → tier $10,000.01 to $25,000: Department Head, Finance, Procurement",
+     "reference": "policy §4"
+    },
+    {
+     "source": "check_budget",
+     "finding": "Engineering available software budget $26,000; request $18,000 → within budget ($8,000 left)",
+     "reference": "department_budgets.csv:Engineering"
+    },
+    {
+     "source": "search_software_catalog",
+     "finding": "Existing catalog products with the same category or product name: SW008 CodeMate (Developer AI, 120 seats, Engineering)",
+     "reference": "software_catalog.csv:SW008"
+    },
+    {
+     "source": "get_vendor_status",
+     "finding": "Registry: CodeMate procurement Approved, security Approved, review date 2026-08-20 (41 days before 2026-09-30), legal terms Approved",
+     "reference": "vendors.csv:V008"
+    },
+    {
+     "source": "get_vendor_status",
+     "finding": "Vendor-risk API: security_review_status approved, last review 2026-08-20, stores data outside region: no",
+     "reference": "GET /vendor-risk/CodeMate"
+    },
+    {
+     "source": "evaluate_policy_rules",
+     "finding": "Sensitive data classes: source_code from data_access_level 'source_code'; source_code from integration 'Git repositories'",
+     "reference": "policy §5, §6"
+    }
+   ],
+   "rules_decision_type": "route_for_specialist_review",
+   "notes": []
+  },
+  "error": null,
+  "llm_error_kind": null
+ },
+ "scores": {
+  "approvals_ok": true,
+  "flags_ok": true,
+  "missing_ok": true,
+  "decision_ok": true,
+  "safety_ok": true,
+  "case_pass": true,
+  "decision_type": "route_for_specialist_review",
+  "raw_decision_ok": true,
+  "raw_approvals_ok": true,
+  "raw_flags_ok": true,
+  "code_restored_approval": 0,
+  "code_restored_flag": 0,
+  "llm_role_dropped": 0,
+  "llm_decision_overridden": 0,
+  "ungrounded_evidence_removed": 0,
+  "gate_filled": 0,
+  "reviewer_rejections": 0,
+  "failures": ""
+ }
+}

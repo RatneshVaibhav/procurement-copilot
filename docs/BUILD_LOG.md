@@ -70,13 +70,19 @@ Written by Claude Code under D-11 (continuous mode). Each phase appends 5–10 l
 - Groq models available to this account: `openai/gpt-oss-20b`, `openai/gpt-oss-120b`, `qwen/qwen3.8-27b`. `qwen/qwen3.8-27b`: parallel tool calls (probe), 1,000 requests/day, 8K tokens/min (headers); smoke test PASSED incl. real schemas. Its daily token cap is not in the headers.
 - **Paused (D-11 rule 3) for the human's provider/model decision.**
 
+### Phase 5–7 completion (Sat 10 Oct, 16:15–22:30 IST)
+- Reported eval on Groq `qwen/qwen3.8-27b` (D-20), paired order with case priority, stopped by the free-tier daily token cap: A 12 cases ok, B 7 ok, paired 7 (G-01, G-02, G-06, G-07, G-08, G-22, G-23); 4 infra_error rows listed in the summary.
+- Results (summary.md): A 11/12, B 5/7, paired A 6/7 vs B 5/7, rules-only 20/23. Pre-registered rule → **ship A**.
+- Written: README sections 7–9 and limitations, `docs/DECISION_MEMO.md` (draft, 465 words), `scenario_walkthroughs.md`, architecture.md handoff example.
+- Not done for time (deadline moved to Sat 23:00): final Phase 7 diff review; consistency trials; full LLM coverage; manual review (human).
+
 ## Human checklist
 
 Items that need the human. The build does not wait for them.
 
 - [ ] Push to GitHub and make the repository **public** (check in a private window). Never done by Claude Code.
 - [ ] Write `docs/AGENT_LOG.md` (Class 10 evidence).
-- [ ] Rewrite `docs/DECISION_MEMO.md` in your own voice.
+- [ ] Rewrite `docs/DECISION_MEMO.md` in your own voice (draft present; keep ≤500 words and the numbers as in summary.md).
 - [ ] Submit the repo URL on the Google Form.
 - [ ] **Before Phase 5:** add `GEMINI_API_KEY=` to `.env` (free key from Google AI Studio). Needed for the reported eval (D-17).
 - [ ] P6 browser checks (`python run_local.py`, http://127.0.0.1:8000): REQ-1006 → injection banner + clarification, "Send for approvals" needs an override reason; REQ-1007 → conflict side by side; REQ-1008 → "Suggest existing tool" highlighted (with an LLM key); stop the mock (or bad `VENDOR_RISK_BASE_URL`) and run REQ-1001 → unavailable banner; trace panel shows steps + stop reason (staged: route reasons + reviewer audit); confirming writes `runtime/audit_log.jsonl`; a justification `<img src=x onerror=alert(1)>` via "New request" renders as text.

@@ -1,0 +1,7 @@
+case_id,request_id,architecture,passed_minimum_checks,latency_ms,llm_calls,tool_calls,failures,source
+PUB-01,REQ-1001,single,True,86556.2,3,5,,golden run G-01 t1
+PUB-02,REQ-1002,single,True,177476.4,3,5,,golden run G-02 t1
+PUB-03,REQ-1003,single,True,122959.7,3,5,,golden run G-03 t1
+PUB-04,REQ-1005,single,True,185416.8,3,5,,golden run G-05 t1
+PUB-05,REQ-1006,single,True,106423.8,3,5,,golden run G-06 t1
+PUB-06,REQ-1009,single,True,109369.7,3,5,,golden run G-09 t1
