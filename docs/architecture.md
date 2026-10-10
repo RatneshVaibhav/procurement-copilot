@@ -108,7 +108,77 @@ No tool can approve, purchase, notify, edit a budget or accept terms. A call to 
 
 The structured handoff is `EvidencePack` (`src/schemas.py`): `need_summary`, `data_classes_implied`, `overlap_assessment`, `vendor_observations`, `uncertainties`, `injection_observed`, `injection_excerpt`, `evidence`, `gaps`, `unsupported_or_unverified`. It is validated with pydantic (one repair, then fallback); prose is never passed between agents. The reviewer also receives the raw tool results, the policy-engine result and only the policy sections the engine cited, and returns a `ReviewerProposal` with an `analyst_audit` (issues found, rejected claims, agreement with the overlap assessment).
 
-Real example: _filled in from `evals/results/runs/staged/` after the evaluation run._
+Real example (`evals/results/runs/staged/G-02_t1.json`, REQ-1002, provider Groq `qwen/qwen3.8-27b`), lightly trimmed:
+
+```json
+{
+ "need_summary": "Marketing wants a design tool for fast campaign-template creation that non-designers can use, at 25 users and $12,000/yr.",
+ "data_classes_implied": [
+  "internal_marketing",
+  "personal_data (vendor processes personal data per vendor-risk service)"
+ ],
+ "overlap_assessment": [
+  {
+   "software_id": "SW001",
+   "relationship": "substitute_could_meet_need",
+   "covers_stated_need": true,
+   "reason": "PixelCraft Pro is an approved, company-wide design/prototyping license (65 seats) in the same category. The justification only says it is 'too specialist for non-designers' and names no specific missing capability (e.g., a template feature), so the stated gap is not credible on its face. A higher/Enterprise tier of an existing licensed product would also fall here. Human reviewer should confirm with the requester which capability is missing."
+  },
+  {
+   "software_id": "SW002",
+   "relationship": "substitute_could_meet_need",
+   "covers_stated_need": true,
+   "reason": "CreativeSuite is an approved Marketing-scoped creative production suite (40 seats) in the same category. The justification does not name a capability it lacks for campaign-template creation, so the stated gap is not credible on its face. Human reviewer should confirm with the requester."
+  }
+ ],
+ "vendor_observations": [
+  "BrandBoard is a NEW vendor (procurement status New, onboarding incomplete).",
+  "Security review is Pending in the registry and not_completed in the vendor-risk API — no review date, so it is missing, not merely stale.",
+  "Legal terms are Draft and not approved.",
+  "Vendor-risk API rates risk as medium.",
+  "Vendor processes personal data (true) but does not store data outside the region (false).",
+  "No registry/API conflict detected; both agree the vendor is pending."
+ ],
+ "gaps": [
+  "No security review exists for BrandBoard (registry Pending, API not_completed) — required before any approval.",
+  "Legal terms are Draft, not approved, for a new vendor with $12,000 annual spend (≥$10,000 threshold).",
+  "Justification does not name a specific missing capability in PixelCraft Pro or CreativeSuite beyond 'too specialist for non-designers'.",
+  "No evidence of unused capacity in the two existing design licenses (65 + 40 seats).",
+  "Data access level is internal_marketing, but vendor processes personal data — scope of PII access by BrandBoard is unspecified."
+ ],
+ "unsupported_or_unverified": [
+  "Claim that PixelCraft is 'too specialist for non-designers' — no tool evidence either way.",
+  "BrandBoard's suitability for campaign-template creation — no product evaluation on file.",
+  "Vendor onboarding completion — registry and API both say incomplete, no completion date."
+ ],
+ "injection_observed": false,
+ "evidence": [
+  {
+   "source": "get_request_details",
+   "finding": "Requester Sarah Lee (E001, Marketing, IC4); product BrandBoard Enterprise, vendor BrandBoard, category Design & Creative; annual cost $12,000; 25 users; data access level internal_marketing; integration SSO; urgency normal; no missing fields.",
+   "reference": "REQ-1002"
+  },
+  {
+   "source": "check_budget",
+   "finding": "Marketing annual budget $180,000; committed $165,000; available $15,000; request $12,000 is within budget, leaving $3,000.",
+   "reference": "department_budgets.csv:Marketing"
+  },
+  {
+   "...": "4 more items"
+  }
+ ]
+}
+```
+
+Reviewer's `analyst_audit` for the same run:
+
+```json
+{
+ "issues_found": [],
+ "rejected_claims": [],
+ "agrees_with_overlap_assessment": true
+}
+```
 
 ## 7. Stop and escalation conditions
 

@@ -262,7 +262,8 @@ def main() -> None:
     if args.trials > 1 and not wanted:
         wanted = CONSISTENCY_SUBSET
         print(f"--trials {args.trials} without --cases: using the D11.5 subset {', '.join(wanted)}")
-    cases = [c for c in golden if not wanted or c["case_id"] in wanted]
+    by_id = {c["case_id"]: c for c in golden}
+    cases = [by_id[c] for c in wanted if c in by_id] if wanted else golden  # --cases order = run priority
     archs = ["rules_only"] if args.no_llm else [a.strip() for a in args.architectures.split(",") if a.strip()]
     settings = get_settings()
     stored = load_records(results)
