@@ -241,6 +241,7 @@ def main() -> None:
     parser.add_argument("--model", help="override MODEL_NAME for this run (D-20)")
     parser.add_argument("--reasoning-effort", help="override LLM_REASONING_EFFORT (e.g. none, low)")
     parser.add_argument("--results-dir", default=str(ROOT / "evals" / "results"))
+    parser.add_argument("--summary-only", action="store_true", help="rebuild summary/CSV from stored runs; run nothing")
     parser.add_argument("--interleave", action="store_true",
                         help="case-major order (A and B per case) so a budget stop leaves paired results")
     parser.add_argument("--max-infra-streak", type=int, default=2, help="stop after this many consecutive infra errors")
@@ -258,6 +259,9 @@ def main() -> None:
     results = Path(args.results_dir)
     results.mkdir(parents=True, exist_ok=True)
     golden = json.loads(GOLDEN_PATH.read_text(encoding="utf-8"))
+    if args.summary_only:
+        write_outputs(load_records(results), golden, results, {} if args.skip_public else None)
+        return
     wanted = [c.strip() for c in args.cases.split(",") if c.strip()]
     if args.trials > 1 and not wanted:
         wanted = CONSISTENCY_SUBSET
@@ -341,6 +345,12 @@ def main() -> None:
     finally:
         launcher.stop(proc)
 
+    write_outputs(records, golden, results, public)
+
+
+def write_outputs(records: list[dict], golden: list[dict], results: Path, public: dict | None) -> None:
+    if public is None:
+        public = public_from_golden(records, golden, results)
     rows = [row_of(r) for r in records]
     write_csv(rows, results / "golden_runs.csv")
     summary = score.summarise(rows, golden, public)

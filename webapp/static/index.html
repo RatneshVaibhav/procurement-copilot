@@ -13,10 +13,14 @@
       <span class="dot" id="dot-vendor"></span><span id="health-vendor">Vendor API</span>
       <span class="dot" id="dot-llm"></span><span id="health-llm">LLM</span>
     </div>
+    <nav class="views">
+      <button id="nav-review" class="tab active">Review</button>
+      <button id="nav-eval" class="tab">Evaluation</button>
+    </nav>
     <button id="btn-new" class="secondary">New request</button>
   </header>
 
-  <main class="layout">
+  <main class="layout" id="view-review">
     <section class="queue" aria-label="Review queue">
       <h2>Review queue</h2>
       <div id="queue-state" class="muted">Loading requests…</div>
@@ -42,8 +46,20 @@
             <label><input type="radio" name="arch" value="staged"> Staged (B: analyst → reviewer)</label>
           </fieldset>
           <button id="btn-analyze" class="primary">Analyse</button>
+          <button id="btn-compare" class="secondary" title="Runs both architectures (2 analyses)">Compare both</button>
           <span id="run-state" class="muted"></span>
         </div>
+
+        <article class="card" id="compare-card" hidden>
+          <h3>A vs B on this request</h3>
+          <table class="table">
+            <thead><tr><th></th><th>A: bounded agent</th><th>B: sequential specialists</th></tr></thead>
+            <tbody id="compare-body"></tbody>
+          </table>
+          <h4>Differences</h4>
+          <ul id="compare-diff" class="plain"></ul>
+          <p class="muted small">Each column is a full analysis; the detailed view below shows B. Its trace panel shows the supervisor's route reasons.</p>
+        </article>
 
         <div id="result" hidden>
           <div id="banners"></div>
@@ -105,7 +121,8 @@
           <article class="card actions">
             <h3>Choose an action</h3>
             <div id="action-buttons" class="action-buttons"></div>
-            <p class="muted small">Routing is simulated: actions are recorded in the audit log only.</p>
+            <p class="muted small">Routing is simulated: actions are recorded in the audit log only.
+              <button id="btn-pack" class="link">Download evidence pack (Markdown)</button></p>
             <div id="action-success" class="success" hidden></div>
             <h4>Audit history</h4>
             <ul id="audit-history" class="plain small"></ul>
@@ -115,6 +132,33 @@
           <span id="result-error-text"></span> <button id="btn-retry-analyze" class="secondary">Retry</button>
         </div>
       </div>
+    </section>
+  </main>
+
+  <main class="eval-view" id="view-eval" hidden>
+    <section class="card">
+      <h2>Evaluation: three rungs of the design ladder on 23 golden cases</h2>
+      <p id="eval-meta" class="muted"></p>
+      <div id="eval-rule" class="rule-box"></div>
+    </section>
+    <section class="card">
+      <h3>Metrics</h3>
+      <table class="table"><thead id="eval-head"></thead><tbody id="eval-metrics"></tbody></table>
+    </section>
+    <section class="card">
+      <h3>Per-case results</h3>
+      <p class="muted small">Click a result to inspect that stored run. "—" means the run is not in the results (free-tier quota), "infra" means a provider rate limit.</p>
+      <table class="table matrix"><thead id="matrix-head"></thead><tbody id="matrix-body"></tbody></table>
+    </section>
+    <section class="card" id="eval-run" hidden>
+      <h3 id="eval-run-title"></h3>
+      <p id="eval-run-outcome"></p>
+      <table class="table"><thead><tr><th>Step</th><th>Actor</th><th>Action</th><th>Summary</th><th>Route reason</th></tr></thead><tbody id="eval-run-steps"></tbody></table>
+    </section>
+    <section class="card">
+      <h3>Scenario walkthroughs (A vs B)</h3>
+      <button id="btn-walk" class="secondary">Show walkthroughs</button>
+      <pre id="walkthroughs" class="walk" hidden></pre>
     </section>
   </main>
 

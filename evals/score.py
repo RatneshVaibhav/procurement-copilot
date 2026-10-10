@@ -183,6 +183,7 @@ def summarise(rows: list[dict], cases: list[dict], public: dict) -> dict:
             summary["columns"][arch]["golden_passed_paired"] = f"{n}/{len(paired)}"
         if "rules_only" in summary["columns"]:
             summary["columns"]["rules_only"]["golden_passed_paired"] = "n/a"
+    summary["decision_rule"] = decision_rule(rows, summary, case_ids)
     providers = sorted({(r.get("provider"), r.get("model")) for r in rows if r["arch"] != "rules_only" and r["status"] == "ok"})
     if len(providers) > 1:
         summary["warnings"] = [f"MIXED PROVIDERS {providers}: this comparison is invalid (D-17)."]
@@ -243,6 +244,16 @@ def render_markdown(summary: dict, cases: list[dict]) -> str:
               "only cases with an ok run in both A and B. Rules-only fails G-22 by construction: rules-only mode never "
               "calls an LLM, so it never sets `llm_unavailable` (T12); that case measures the LLM fallback. "
               "Raw-agent rows count a run whose LLM path produced no proposal as a raw failure."]
+    rule = summary.get("decision_rule")
+    if rule:
+        lines += ["", "## Decision rule (pre-registered, evals/DECISION_RULE.md), applied in code", "",
+                  f"- Paired cases (ok in both A and B): {rule['paired_cases']} ({', '.join(rule['paired_case_ids'])})",
+                  f"- Passed on paired cases: A {rule['a_passed']}/{rule['paired_cases']}, B {rule['b_passed']}/{rule['paired_cases']}"
+                  + (f", rules-only {rule['rules_only_passed_on_paired']}/{rule['paired_cases']}" if rule["rules_only_passed_on_paired"] is not None else ""),
+                  f"- B minus A: {rule['b_minus_a']}; safety failures of A fixed by B: {rule['safety_fixes'] or 'none'}",
+                  f"- Avg active latency on paired cases (ms): A {rule['a_avg_active_latency_ms_paired']}, B {rule['b_avg_active_latency_ms_paired']}, ratio B/A {rule['latency_ratio_b_over_a']}",
+                  f"- Clause (a) B at least 2 more passes or fixes a safety failure: {rule['clause_a']}; clause (b) latency at most 2x: {rule['clause_b']}",
+                  f"- **Ship {rule['ship']}.** A beats rules-only on the paired cases: {rule['a_beats_rules_only_on_paired']}"]
     lines += ["", "## Stop reasons", "", "| Column | stop_reason counts | final_mode counts |", "|---|---|---|"]
     for a in cols:
         lines.append(f"| {c[a]['label']} | {json.dumps(c[a]['stop_reasons'])} | {json.dumps(c[a]['final_modes'])} |")
@@ -269,3 +280,32 @@ def _meta_line(summary: dict) -> str:
     providers = ", ".join(f"{p['provider']} `{p['model']}`" for p in summary["meta"]["providers"]) or "none (rules only)"
     return (f"Provider/model for the LLM columns: {providers}. Trials: {summary['meta']['trials']}. "
             f"Cases: {summary['meta']['cases']}. Rules-only is the design-ladder \"workflow\" baseline.")
+
+
+def decision_rule(rows: list[dict], summary: dict, case_ids: list[str]) -> dict | None:
+    """Apply evals/DECISION_RULE.md (D11.7) in code on the paired cases (both A and B have an ok run)."""
+    cols, matrix = summary["columns"], summary["matrix"]
+    if "single" not in cols or "staged" not in cols:
+        return None
+    paired = [c for c in case_ids if matrix.get(c, {}).get("single") in {"PASS", "FAIL"}
+              and matrix.get(c, {}).get("staged") in {"PASS", "FAIL"}]
+    first = {}
+    for r in sorted((r for r in rows if r["status"] == "ok"), key=lambda r: r["trial"]):
+        first.setdefault((r["arch"], r["case_id"]), r)
+    a = sum(1 for c in paired if matrix[c]["single"] == "PASS")
+    b = sum(1 for c in paired if matrix[c]["staged"] == "PASS")
+    rules = sum(1 for c in paired if matrix.get(c, {}).get("rules_only") == "PASS")
+    safety_fixes = [c for c in paired if not first[("single", c)]["scores"]["safety_ok"] and first[("staged", c)]["scores"]["safety_ok"]]
+    lat = lambda arch: _avg([first[(arch, c)]["latency_active_ms"] for c in paired])  # noqa: E731
+    a_lat, b_lat = lat("single"), lat("staged")
+    ratio = round(b_lat / a_lat, 2) if a_lat and b_lat else None
+    clause_a = (b - a >= 2) or bool(safety_fixes)
+    clause_b = ratio is not None and ratio <= 2
+    return {
+        "paired_cases": len(paired), "paired_case_ids": paired, "a_passed": a, "b_passed": b,
+        "rules_only_passed_on_paired": rules if "rules_only" in cols else None,
+        "b_minus_a": b - a, "safety_fixes": safety_fixes,
+        "a_avg_active_latency_ms_paired": a_lat, "b_avg_active_latency_ms_paired": b_lat, "latency_ratio_b_over_a": ratio,
+        "clause_a": clause_a, "clause_b": clause_b, "ship": "B" if clause_a and clause_b else "A",
+        "a_beats_rules_only_on_paired": (a > rules) if "rules_only" in cols else None,
+    }

@@ -117,6 +117,7 @@ async function selectRequest(id) {
   $("detail-body").hidden = false;
   $("result").hidden = true;
   $("result-error").hidden = true;
+  $("compare-card").hidden = true;
   $("run-state").textContent = "";
   for (const li of document.querySelectorAll(".queue-item")) {
     li.classList.toggle("active", li.querySelector(".q-id").textContent === id);
@@ -407,8 +408,159 @@ async function submitNewRequest() {
   }
 }
 
+// ---------------------------------------------------------------- US-7: compare both
+async function compareBoth() {
+  if (!state.selected) return;
+  const rid = state.selected;
+  $("btn-compare").disabled = true;
+  $("btn-analyze").disabled = true;
+  $("compare-card").hidden = true;
+  $("run-state").textContent = "Running both architectures: A, then B…";
+  try {
+    const c = await api("/api/compare", { method: "POST", body: JSON.stringify({ request_id: rid }) });
+    if (state.selected !== rid) return;
+    const body = $("compare-body");
+    clear(body);
+    const row = (label, fa, fb) => body.appendChild(el("tr", {}, [el("th", { text: label }), el("td", { text: fa(c.single) }), el("td", { text: fb(c.staged) })]));
+    const both = (label, f) => row(label, f, f);
+    both("Decision", (r) => LABELS[r.decision_type] || r.decision_type);
+    both("Approvals", (r) => r.decision.required_approvals.join(", "));
+    both("Risk flags", (r) => r.decision.risk_flags.join(", ") || "none");
+    both("Missing information", (r) => r.decision.missing_information.join(", ") || "none");
+    both("Stop reason / mode", (r) => `${r.trace_meta.stop_reason} / ${r.trace_meta.final_mode}`);
+    both("LLM / tool calls", (r) => `${r.trace_meta.llm_calls} / ${r.trace_meta.tool_calls}`);
+    both("Active latency", (r) => Math.round(r.trace_meta.latency_active_ms) + " ms");
+    fillList($("compare-diff"), c.differences, "No differences.");
+    $("compare-card").hidden = false;
+    state.analysis = { ...c.staged, request_id: rid };
+    renderAnalysis(state.analysis);
+    $("run-state").textContent = "";
+    loadQueue();
+  } catch (e) {
+    $("run-state").textContent = "";
+    $("result-error-text").textContent = "Comparison failed: " + e.message;
+    $("result-error").hidden = false;
+  } finally {
+    $("btn-compare").disabled = false;
+    $("btn-analyze").disabled = false;
+  }
+}
+
+function downloadPack() {
+  if (!state.analysis) return;
+  const a = el("a", { href: "/api/evidence-pack/" + encodeURIComponent(state.analysis.trace_meta.run_id), download: "" });
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+// ---------------------------------------------------------------- evaluation dashboard
+const METRIC_ROWS = [
+  ["Golden cases passed (final output)", "golden_passed"], ["Paired A/B cases passed", "golden_passed_paired"],
+  ["Cases only the AI can get right (G-08, G-23)", "ai_cases_passed"], ["Injection cases passed", "injection_passed"],
+  ["Fault cases passed", "fault_passed"], ["Raw agent decision accuracy", "raw_decision_accuracy"],
+  ["Code corrections per run", "code_corrections_per_run"], ["Ungrounded evidence removed", "ungrounded_removed_total"],
+  ["Avg active latency (ms)", "avg_active_latency_ms"], ["Avg LLM calls / run", "avg_llm_calls"],
+  ["Avg tool calls / run", "avg_tool_calls"], ["Avg tokens / run", "avg_tokens"], ["Public runner checks", "public_checks"],
+  ["Infra errors excluded", "runs_infra_error"],
+];
+const ARCH_ORDER = ["single", "staged", "rules_only"];
+
+async function loadEval() {
+  let data;
+  try {
+    data = await api("/api/eval");
+  } catch (e) {
+    $("eval-meta").textContent = "No evaluation results: " + e.message;
+    return;
+  }
+  const s = data.summary;
+  const archs = ARCH_ORDER.filter((a) => s.columns[a]);
+  const providers = s.meta.providers.map((p) => `${p.provider} ${p.model}`).join(", ") || "none";
+  $("eval-meta").textContent = `LLM columns: ${providers} · trials: ${s.meta.trials} · cases: ${s.meta.cases} · ` +
+    "rules-only is the workflow baseline. Scores use exact-set semantics (over-escalation fails a case).";
+  const box = $("eval-rule");
+  clear(box);
+  const r = s.decision_rule;
+  if (r) {
+    box.appendChild(el("strong", { text: `Pre-registered decision rule → ship ${r.ship}` }));
+    fillList(box.appendChild(el("ul", { class: "plain small" })), [
+      `Paired cases (ok in both A and B): ${r.paired_cases}`,
+      `Passed on paired cases: A ${r.a_passed}, B ${r.b_passed}` + (r.rules_only_passed_on_paired != null ? `, rules-only ${r.rules_only_passed_on_paired}` : ""),
+      `Clause (a) B +2 cases or fixes a safety failure: ${r.clause_a} · clause (b) B latency ≤ 2× A: ${r.clause_b} (ratio ${r.latency_ratio_b_over_a})`,
+    ], "");
+  } else {
+    box.appendChild(el("span", { text: "Decision rule: needs both A and B results." }));
+  }
+  const head = $("eval-head");
+  clear(head);
+  head.appendChild(el("tr", {}, [el("th", { text: "Metric" })].concat(archs.map((a) => el("th", { text: s.columns[a].label })))));
+  const body = $("eval-metrics");
+  clear(body);
+  for (const [label, key] of METRIC_ROWS) {
+    body.appendChild(el("tr", {}, [el("td", { text: label })].concat(archs.map((a) => el("td", { text: s.columns[a][key] ?? "n/a" })))));
+  }
+  const mh = $("matrix-head");
+  clear(mh);
+  mh.appendChild(el("tr", {}, [el("th", { text: "Case" }), el("th", { text: "Scenario" })].concat(archs.map((a) => el("th", { text: s.columns[a].label })))));
+  const mb = $("matrix-body");
+  clear(mb);
+  for (const c of data.cases) {
+    const cells = archs.map((a) => {
+      const v = (s.matrix[c.case_id] || {})[a] || "—";
+      const td = el("td", { class: v === "PASS" ? "pass" : v === "FAIL" ? "fail" : "na", text: v });
+      if (v === "PASS" || v === "FAIL") td.addEventListener("click", () => showEvalRun(a, c.case_id, s.columns[a].label));
+      return td;
+    });
+    mb.appendChild(el("tr", {}, [el("td", { text: `${c.case_id} (${c.request_id})` }), el("td", { text: c.title })].concat(cells)));
+  }
+}
+
+async function showEvalRun(arch, caseId, label) {
+  try {
+    const r = await api(`/api/eval/runs/${encodeURIComponent(arch)}/${encodeURIComponent(caseId)}`);
+    $("eval-run").hidden = false;
+    $("eval-run-title").textContent = `${caseId} · ${label}`;
+    $("eval-run-outcome").textContent = `${r.scores.case_pass ? "PASS" : "FAIL: " + r.scores.failures} · ${r.decision.recommendation} · ` +
+      `approvals: ${r.decision.required_approvals.join(", ")} · stop_reason ${r.stop_reason} / ${r.final_mode}`;
+    const tb = $("eval-run-steps");
+    clear(tb);
+    for (const st of r.steps) {
+      tb.appendChild(el("tr", {}, [el("td", { text: st.n }), el("td", { text: st.actor }), el("td", { text: st.action }),
+        el("td", { text: st.summary_out }), el("td", { text: st.route_reason || "" })]));
+    }
+    $("eval-run").scrollIntoView({ behavior: "smooth" });
+  } catch (e) {
+    $("eval-run").hidden = false;
+    $("eval-run-title").textContent = "Could not load the run: " + e.message;
+  }
+}
+
+async function showWalkthroughs() {
+  try {
+    const res = await fetch("/api/eval/walkthroughs");
+    $("walkthroughs").textContent = res.ok ? await res.text() : "Walkthroughs not rendered yet.";
+  } catch (e) {
+    $("walkthroughs").textContent = "Could not load: " + e.message;
+  }
+  $("walkthroughs").hidden = false;
+}
+
+function showView(name) {
+  $("view-review").hidden = name !== "review";
+  $("view-eval").hidden = name !== "eval";
+  $("nav-review").classList.toggle("active", name === "review");
+  $("nav-eval").classList.toggle("active", name === "eval");
+  if (name === "eval") loadEval();
+}
+
 // ---------------------------------------------------------------- wiring
 $("btn-analyze").addEventListener("click", analyze);
+$("btn-compare").addEventListener("click", compareBoth);
+$("btn-pack").addEventListener("click", downloadPack);
+$("nav-review").addEventListener("click", () => showView("review"));
+$("nav-eval").addEventListener("click", () => showView("eval"));
+$("btn-walk").addEventListener("click", showWalkthroughs);
 $("btn-retry-analyze").addEventListener("click", analyze);
 $("confirm-cancel").addEventListener("click", () => $("confirm").close());
 $("confirm-ok").addEventListener("click", confirmAction);

@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -24,6 +24,8 @@ STATIC = Path(__file__).resolve().parent / "static"
 RUNTIME = ROOT / "runtime"
 AUDIT_LOG = RUNTIME / "audit_log.jsonl"
 TRACE_DIR = RUNTIME / "traces"
+EVAL_DIR = ROOT / "evals"
+RESULTS_DIR = EVAL_DIR / "results"
 
 ACTIONS = ["send_for_approvals", "request_clarification", "suggest_existing_tool", "hold_manual_review"]
 RECOMMENDED_ACTION = {
@@ -284,3 +286,87 @@ def consequence(run_id: str, action: str) -> dict:
 @app.get("/api/audit")
 def audit(request_id: str | None = None) -> list[dict]:
     return _audit_entries(request_id)
+
+
+# ---------------------------------------------------------------- US-7: compare both architectures
+def _differences(a: dict, b: dict) -> list[str]:
+    da, db = a["decision"], b["decision"]
+    out = []
+    if a["decision_type"] != b["decision_type"]:
+        out.append(f"Decision differs: A {a['decision_type']}, B {b['decision_type']}")
+    for label, key in [("approvals", "required_approvals"), ("flags", "risk_flags"), ("missing information", "missing_information")]:
+        only_a, only_b = sorted(set(da[key]) - set(db[key])), sorted(set(db[key]) - set(da[key]))
+        if only_a or only_b:
+            out.append(f"{label.capitalize()}: only A {only_a or '[]'}, only B {only_b or '[]'}")
+    ma, mb = a["trace_meta"], b["trace_meta"]
+    out.append(f"Cost: A {ma['llm_calls']} LLM / {ma['tool_calls']} tool calls, {round(ma['latency_active_ms'])} ms active; "
+               f"B {mb['llm_calls']} LLM / {mb['tool_calls']} tool calls, {round(mb['latency_active_ms'])} ms active")
+    return out
+
+
+@app.post("/api/compare")
+def compare(body: AnalyzeBody) -> dict:
+    """Run both architectures on one request (US-7). Each run is an ordinary analysis with its own trace."""
+    a = _analyze(body.request_id, "single")
+    b = _analyze(body.request_id, "staged")
+    return {"single": a, "staged": b, "differences": _differences(a, b)}
+
+
+# ---------------------------------------------------------------- evidence pack for approvers
+@app.get("/api/evidence-pack/{run_id}", response_class=PlainTextResponse)
+def evidence_pack(run_id: str) -> PlainTextResponse:
+    """Markdown evidence pack for one analysis: what an approver would receive. Nothing is sent anywhere."""
+    run = _by_run.get(run_id)
+    if run is None:
+        raise HTTPException(404, "Unknown run; analyse the request again.")
+    d, m, reasons = run["decision"], run["trace_meta"], run["policy"]["approval_reasons"]
+    lines = [f"# Evidence pack: {d['request_id']}", "",
+             f"Copilot recommendation (advisory; nothing is approved or purchased): {d['recommendation']}", "",
+             f"Next step: {d['next_step']}", "", "## Approvals required", ""]
+    for role in d["required_approvals"]:
+        lines.append(f"- {role}: " + "; ".join(f"{r['rule']} ({r['policy_ref']}) {r['detail']}" for r in reasons.get(role, [])))
+    lines += ["", "## Risk flags", ""] + [f"- {f}" for f in d["risk_flags"] or ["none"]]
+    lines += ["", "## Missing information / could not verify", ""] + [f"- {x}" for x in d["missing_information"] or ["none"]]
+    lines += ["", "## Evidence", "", "| Source | Finding | Reference |", "|---|---|---|"]
+    lines += [f"| {e['source']} | {e['finding'].replace('|', '/')} | {(e['reference'] or '').replace('|', '/')} |" for e in d["evidence"]]
+    lines += ["", f"Run {m['run_id']} · {m['architecture']} · {m['provider']} {m['model']} · stop_reason {m['stop_reason']} · "
+              f"LLM calls {m['llm_calls']} · tool calls {m['tool_calls']}", "",
+              "Request text quoted above is business data from the requester or vendor, not instructions."]
+    headers = {"Content-Disposition": f'attachment; filename="evidence-pack-{run_id}.md"'}
+    return PlainTextResponse("\n".join(lines) + "\n", media_type="text/markdown", headers=headers)
+
+
+# ---------------------------------------------------------------- evaluation dashboard (committed results only)
+@app.get("/api/eval")
+def eval_summary() -> dict:
+    path = RESULTS_DIR / "summary.json"
+    if not path.is_file():
+        raise HTTPException(404, "No evaluation results yet. Run: python evals/run_all.py --no-llm")
+    cases = json.loads((EVAL_DIR / "golden_cases.json").read_text(encoding="utf-8"))
+    return {
+        "summary": json.loads(path.read_text(encoding="utf-8")),
+        "cases": [{"case_id": c["case_id"], "request_id": c["request_id"], "title": c["title"], "tests": c["tests"]} for c in cases],
+        "walkthroughs": (RESULTS_DIR / "scenario_walkthroughs.md").is_file(),
+    }
+
+
+@app.get("/api/eval/runs/{arch}/{case_id}")
+def eval_run(arch: str, case_id: str) -> dict:
+    if arch not in {"single", "staged", "rules_only"} or not re.fullmatch(r"G-\d{2}", case_id):
+        raise HTTPException(400, "Unknown architecture or case")
+    files = sorted((RESULTS_DIR / "runs" / arch).glob(f"{case_id}_t*.json"))
+    if not files:
+        raise HTTPException(404, "No stored run for this case")
+    rec = json.loads(files[0].read_text(encoding="utf-8"))
+    t = rec["trace"]
+    return {"case_id": case_id, "arch": arch, "status": rec["status"], "decision": rec["decision"], "scores": rec["scores"],
+            "steps": t["steps"], "stop_reason": t["stop_reason"], "final_mode": t["final_mode"], "error": t.get("error"),
+            "provider": rec.get("provider"), "model": rec.get("model"), "analyst_audit": t.get("analyst_audit")}
+
+
+@app.get("/api/eval/walkthroughs", response_class=PlainTextResponse)
+def eval_walkthroughs() -> str:
+    path = RESULTS_DIR / "scenario_walkthroughs.md"
+    if not path.is_file():
+        raise HTTPException(404, "Run python evals/render_walkthroughs.py")
+    return path.read_text(encoding="utf-8")

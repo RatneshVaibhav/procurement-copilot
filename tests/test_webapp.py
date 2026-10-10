@@ -144,6 +144,35 @@ class WebAppTests(unittest.TestCase):
         self.assertEqual(a["trace_meta"]["final_mode"], "structured")
         self.assertEqual(a["recommended_action"], "send_for_approvals")
 
+    def test_compare_and_evidence_pack(self):
+        with mock.patch.object(web, "handle_request_with_trace", lambda r, a: handle_request_with_trace(r, a, mode="rules_only")), \
+                in_process_vendor_api(extra_data_dir=None):
+            c = self.client.post("/api/compare", json={"request_id": "REQ-1007"}).json()
+        self.assertEqual(c["single"]["trace_meta"]["architecture"], "single")
+        self.assertEqual(c["staged"]["trace_meta"]["architecture"], "staged")
+        self.assertTrue(any(d.startswith("Cost:") for d in c["differences"]))
+        pack = self.client.get(f"/api/evidence-pack/{c['staged']['trace_meta']['run_id']}")
+        self.assertEqual(pack.status_code, 200)
+        self.assertIn("attachment", pack.headers["content-disposition"])
+        self.assertIn("## Approvals required", pack.text)
+        self.assertIn("Security:", pack.text)
+        self.assertIn("nothing is approved or purchased", pack.text)
+        self.assertEqual(self.client.get("/api/evidence-pack/nope").status_code, 404)
+
+    def test_eval_dashboard_reads_committed_results(self):
+        r = self.client.get("/api/eval")
+        self.assertEqual(r.status_code, 200)
+        data = r.json()
+        self.assertIn("rules_only", data["summary"]["columns"])
+        self.assertEqual(len(data["cases"]), 23)
+        run = self.client.get("/api/eval/runs/rules_only/G-01")
+        self.assertEqual(run.status_code, 200)
+        self.assertIn("steps", run.json())
+        self.assertEqual(self.client.get("/api/eval/runs/../G-01").status_code, 404)
+        self.assertIn(self.client.get("/api/eval/runs/single/..%2F..%2Fetc").status_code, {400, 404})  # never served
+        self.assertEqual(self.client.get("/api/eval/runs/single/X-01").status_code, 400)
+        self.assertEqual(self.client.get("/api/eval/runs/triple/G-01").status_code, 400)
+
     def test_static_ui_never_uses_innerhtml(self):
         for path in STATIC.glob("*.js"):
             text = path.read_text(encoding="utf-8")
