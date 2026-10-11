@@ -125,6 +125,20 @@ class WebAppTests(unittest.TestCase):
         self.assertEqual(next(r for r in rows if r["request_id"] == "REQ-1006")["status"], "Analysed")
         self.assertEqual(self.client.post("/api/actions/revoke", json={**body, "reason": "twice"}).status_code, 400)
 
+    def test_actions_survive_an_app_restart(self):
+        a = self.analyze("REQ-1007")
+        run_id = a["trace_meta"]["run_id"]
+        web._by_run.clear()  # what a restart loses; the trace file in TRACE_DIR remains
+        c = self.client.get("/api/consequence", params={"run_id": run_id, "action": "send_for_approvals"})
+        self.assertEqual(c.status_code, 200, c.text)
+        self.assertFalse(c.json()["override"])
+        r = self.client.post("/api/actions", json={"request_id": "REQ-1007", "run_id": run_id, "action": "send_for_approvals"})
+        self.assertEqual(r.status_code, 200, r.text)
+        self.assertEqual(r.json()["copilot_decision_type"], "route_for_specialist_review")
+        self.assertEqual(self.client.get(f"/api/evidence-pack/{run_id}").status_code, 200)
+        self.assertEqual(self.client.post("/api/actions", json={"request_id": "REQ-1007", "run_id": "../traces/x",
+                                                                "action": "hold_manual_review", "reason": "x"}).status_code, 400)
+
     def test_submitted_text_is_bounded(self):
         r = self.client.post("/api/requests", json={"product_name": "Notes", "business_justification": "x" * 4001})
         self.assertEqual(r.status_code, 422)

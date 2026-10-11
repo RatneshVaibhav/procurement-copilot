@@ -28,6 +28,7 @@ TRACE_DIR = RUNTIME / "traces"
 EVAL_DIR = ROOT / "evals"
 RESULTS_DIR = EVAL_DIR / "results"
 MD_SPECIAL = re.compile(r"([\\`\[\]<>|])")  # escaped in the Markdown evidence pack
+RUN_ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9_-]{0,119}")  # path-safe: no dots or slashes
 
 ACTIONS = ["send_for_approvals", "request_clarification", "suggest_existing_tool", "hold_manual_review"]
 RECOMMENDED_ACTION = {
@@ -217,6 +218,32 @@ class AnalyzeBody(BaseModel):
 def _analyze(request_id: str, architecture: str) -> dict:
     decision, trace = handle_request_with_trace(request_id, architecture)
     d = decision.model_dump()
+    response = _response(d, trace)
+    TRACE_DIR.mkdir(parents=True, exist_ok=True)
+    (TRACE_DIR / f"{trace['run_id']}.json").write_text(
+        json.dumps({"request_id": request_id, "decision": d, "trace": trace}, indent=1, default=str), encoding="utf-8")
+    with _lock:
+        _latest[request_id] = response
+        _by_run[trace["run_id"]] = {**response, "request_id": request_id}
+    return response
+
+
+def _run(run_id: str) -> dict | None:
+    """A run analysed by this process, or rebuilt from its saved trace (runtime/traces) after an app restart."""
+    run = _by_run.get(run_id)
+    if run is not None or not RUN_ID.fullmatch(run_id):
+        return run
+    path = TRACE_DIR / f"{run_id}.json"
+    if not path.is_file():
+        return None
+    saved = json.loads(path.read_text(encoding="utf-8"))
+    run = {**_response(saved["decision"], saved["trace"]), "request_id": saved.get("request_id") or saved["decision"]["request_id"]}
+    with _lock:
+        _by_run[run_id] = run
+    return run
+
+
+def _response(d: dict, trace: dict) -> dict:
     policy = trace.get("policy")
     guard = trace.get("guardrails") or {}
     decision_type = guard.get("decision_type") or decision_from_recommendation(d["recommendation"]) or "route_for_specialist_review"
@@ -246,12 +273,6 @@ def _analyze(request_id: str, architecture: str) -> dict:
                           "llm_calls": trace["llm_calls"], "tool_calls": trace["tool_calls"],
                           "latency_active_ms": trace["latency_active_ms"]},
     }
-    TRACE_DIR.mkdir(parents=True, exist_ok=True)
-    (TRACE_DIR / f"{trace['run_id']}.json").write_text(json.dumps({"decision": d, "trace": trace}, indent=1, default=str),
-                                                       encoding="utf-8")
-    with _lock:
-        _latest[request_id] = response
-        _by_run[trace["run_id"]] = {**response, "request_id": request_id}
     return response
 
 
@@ -273,7 +294,7 @@ class ActionBody(BaseModel):
 def record_action(body: ActionBody) -> dict:
     if body.action not in ACTIONS:
         raise HTTPException(400, f"action must be one of {ACTIONS}")
-    run = _by_run.get(body.run_id)
+    run = _run(body.run_id)
     if run is None or run["request_id"] != body.request_id:
         raise HTTPException(400, "Unknown run for this request; analyse the request again.")
     recommended = run["recommended_action"]
@@ -343,7 +364,7 @@ def revoke_action(body: RevokeBody) -> dict:
 
 @app.get("/api/consequence")
 def consequence(run_id: str, action: str) -> dict:
-    run = _by_run.get(run_id)
+    run = _run(run_id)
     if run is None or action not in ACTIONS:
         raise HTTPException(400, "Unknown run or action")
     requester = (run["policy"].get("requester") or {}).get("name") or "the requester"
@@ -390,7 +411,7 @@ def _md(text) -> str:
 @app.get("/api/evidence-pack/{run_id}", response_class=PlainTextResponse)
 def evidence_pack(run_id: str) -> PlainTextResponse:
     """Markdown evidence pack for one analysis: what an approver would receive. Nothing is sent anywhere."""
-    run = _by_run.get(run_id)
+    run = _run(run_id)
     if run is None:
         raise HTTPException(404, "Unknown run; analyse the request again.")
     d, m, reasons = run["decision"], run["trace_meta"], run["policy"]["approval_reasons"]
