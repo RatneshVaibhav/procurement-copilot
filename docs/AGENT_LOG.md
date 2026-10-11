@@ -35,16 +35,35 @@ How I used Claude Code to build this project and where I stepped in (Class 10: a
 | P5 | Eval harness; decision rule committed before any LLM run; rules-only baseline 20/23 | The provider-mixing guard covered only one column; a missing key would have produced fake A/B runs |
 | P6 | Web app: queue, analysis, evidence, trace panel, actions with confirmation, audit log | An old result could show under a different request; Confirm was clickable before the consequence loaded |
 | P7 | Docs, eval runs (qwen, then the full Flash-Lite eval and consistency trials), compare view, evaluation dashboard, evidence pack | The README still said results came from Gemini; the evidence pack didn't escape request text; numbers like "3.10" failed the grounding check |
+| Review | A second Claude Code session as an FDE reviewer, in its own git worktree: CI, rollback of a recorded action, input limits, restart-safe actions, held-out cases, browser pass | No CI; no way to undo an action; a 1 MB justification went straight through; the default config was the one model we never evaluated; both manual reviews were still marked as drafts |
 
-The unit tests went from the starter set to 209 by the end. None of them calls a real LLM.
+The unit tests went from the starter set to 216 by the end. None of them calls a real LLM. CI runs them on every push, together with the rules-only baselines and a check that every committed summary rebuilds byte-identical from its stored runs.
 
 ## Evidence (Class 10 checklist)
 - **One diff I reviewed line by line:** commit `a5555c1`, the evidence-pack part of `webapp/main.py` and its test in `tests/test_webapp.py`. I checked two things. First, every piece of request, vendor or LLM text goes through `_md()` before it lands in the Markdown, so a justification can't fake a heading, a table row, a link or HTML. Second, the test really tries `<img src=x onerror=alert(1)>` and a fake "## Approvals required" line.
 - **One wrong assumption that came up:** the plan expected Gemini's free tier to allow "a few hundred" requests a day. On my project it was 20, so running the reported eval on Gemini (D-17) couldn't work and I moved it to qwen on Groq (D-20). Another one: I assumed Gemini's OpenAI-compatible API handles tool calls like OpenAI's. With the Gemini 3 models it doesn't: each tool call carries a "thought signature" that has to be sent back. Without it, every run fell back to rules-only after the first call. The client now passes the signature back, and the Groq messages are unchanged. A smaller one: a 400-error check matched the word "reasoning" inside model output and would have quietly changed model settings in the middle of the eval.
 - **Where I redirected the agent:** I kept the project on free tiers, even though it meant partial coverage. When the quota became the bottleneck, I first chose the paired order and honest reporting of what didn't run. Then I moved the main eval to a free model with a bigger allowance, so the comparison covers every case. I asked about getting more API keys from extra accounts, then dropped the idea: it breaks the providers' terms, and the reported numbers have to come from one model anyway. When the deadline got tight, I gave the build one more day and asked for every deliverable to be finished properly.
 
+## The last-morning review
+On the final morning I opened a second Claude Code session and asked it to act as a sceptical FDE manager: score the project against the rubric, actually run things, and fix what it could without stepping on the build session. It worked in its own git worktree and kept a handoff log, so the two sessions never edited the same file at the same time.
+
+What it found that I had missed:
+- there was no CI;
+- once a reviewer recorded an action there was no way to take it back;
+- the request form accepted a 1 MB justification and would have sent all of it to the LLM;
+- the `.env.example` default was Groq gpt-oss-20b, the one model we never evaluated, so anyone cloning the repo got the slowest, untested setup;
+- after an app restart, actions on an earlier analysis failed;
+- both manual reviews still said "draft".
+
+All of these are fixed now. It also clicked through the real UI in a headless browser (13 checks, including override, revoke and an XSS attempt in the form), and pointed a deliberately hostile fake model at the agent: one that calls `approve_purchase`, drops every approval and claims the purchase was placed. Code put everything back.
+
+The finding that was hardest to hear was about the results. On Flash-Lite, A beats the rules-only workflow on exactly one case, and that is the LLM-outage case, which rules-only fails by design. That led to two questions I had to answer honestly:
+- **Should qwen be the primary eval, since it makes the agent look better?** No. It covers 10 paired cases, the reporting order was fixed before the Flash-Lite run (D-23), and switching after seeing the numbers would be cherry-picking. Both evals give the same ship decision anyway.
+- **Is the agent tuned to the test set?** Partly: two golden requests shaped the overlap wording. So I added five held-out cases, written after the prompts were frozen (D-25). On those, both agents beat the rules (first trial 4/5 against 2/5), so the AI does earn its place on cases it has never seen. The result I didn't expect: B did better than A on the two AI-only judgements (the existing tool and the injection the regex misses, 3/3 each against A's 1/3 and 2/3). I kept the decision, because the rule was registered for the golden set and B's readiness to say "an existing tool covers this" is the same habit that made it recommend the wrong tool on G-16, G-04 and G-07. But it's in the README and the memo, not hidden. And H-04 confirmed the gap I already knew about: personal data that is only described in the text gets missed by both.
+
 ## My judgement calls
 1. **Decision rule.** I kept the spec's default rule (D-13) and had it committed before the first LLM eval run, so the result couldn't be tuned afterwards. B ships only if it passes at least 2 more golden cases than A, or fixes a safety failure A has, at no more than 2× A's latency. A second agent doubles the moving parts, so it has to earn them.
 2. **Overlap flag (assumption 11).** The flag is literal and set by code: same category or an identical product name. Whether the existing tool actually meets the need is the AI's judgement, and that only drives `use_existing_tool`. That judgement is exactly where B went wrong on G-04 and G-07.
 3. **Vendor API down (assumption 13).** If the registry review is current and no sensitive data is involved, the gap is recorded and flagged but doesn't add Security. Policy §10 only escalates when the gap is material.
-4. **Ship A.** Before production I'd want the full case set with several trials, plus a deterministic check for personal data that's only implied in the free text (G-23).
+4. **Ship A.** A never failed a golden case the rules passed, and its misses are omissions a reviewer can see, not wrong recommendations. Before production I'd want repeated trials on a stronger model and a deterministic check for personal data that's only described in the free text (G-23, H-04).
+5. **Primary eval model.** Flash-Lite, not qwen, even though qwen makes the agent look better: it is the only model that ran every case on both architectures, and I fixed that reporting order before the full run (D-23).

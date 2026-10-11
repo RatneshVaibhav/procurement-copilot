@@ -92,6 +92,13 @@ Written by Claude Code under D-11 (continuous mode). Each phase appends 5–10 l
 - qwen paced loop stopped (no longer needed); results folders swapped (`evals/results` = primary, `evals/results_qwen` = second model); walkthroughs re-rendered for both; manual review drafted for the Flash-Lite runs (policy failures A 0, B 0).
 - README §7–10, memo (482 words), agent log, CLAUDE.md and evals/README commands updated. Tests: 211 pass.
 
+### Pre-submission review and held-out cases (Sun 11 Oct, 08:15–09:45 IST)
+- A second Claude Code session reviewed the project as an FDE manager, in its own git worktree (branch `review/fde-audit`, local) with a handoff log, so it never edited a file the build session had open. Repo pushed to https://github.com/RatneshVaibhav/procurement-copilot (public).
+- Tested: fresh clone + venv + install + tests on Python 3.12 and 3.10; 29 API, edge-case and adversarial checks; 7 end-to-end fault injections through the real LLM client against a fake provider (timeout, 500, 429, garbage output, a hostile model that calls `approve_purchase` and drops every approval, vendor API down); 13 headless-browser UI checks. Gaps found and fixed (D-26): no CI, no rollback of a recorded action, unbounded form input, actions lost after an app restart, a default config that pointed at the never-evaluated model (D-24), draft notes in both manual reviews, a README line claiming the audit log records "who", table cells splitting words.
+- Held-out cases (D-25): 5 new cases written after the prompt freeze, run on Flash-Lite with 3 trials for A and B. First trial A 4/5, B 4/5, rules-only 2/5; all trials A 9/15, B 11/15. B better on H-01 (existing tool) and H-05 (injection outside the regex); both 0/3 on H-04 (employee PII implied by text). The pre-registered rule stays on the golden set: ship A. No prompt or agent change.
+- Scorer: case groups read from labels; both existing summaries rebuild byte-identical. Tests: 216 pass. CI checks the rules-only baselines (20/23, 2/5) and summary reproducibility.
+- Memo rewritten with the held-out evidence and the per-case comparison with rules-only (498 words by `wc -w`).
+
 ## Human checklist
 
 Items that need the human. The build does not wait for them. In order:

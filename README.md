@@ -168,6 +168,22 @@ Further judgement calls made during the build are recorded in `docs/DECISIONS.md
 - **B is less robust on the small model.** Its LLM path failed in 4 of 34 B runs outside the LLM-outage case (the analyst ran out of turns; the code fallback took over safely but adds `llm_unavailable`), A's in none; A's structured finalizer rescued 3 invalid submissions. B's analyst also called the vendor tool with vendor names that exist nowhere in the data (4 of 6 manually reviewed runs); the deterministic gate re-ran the right lookup each time. B's other failure is G-16 (`use_existing_tool` for an injection-in-product-name request).
 - **Consistency** (6 cases × 3 trials): A gave the same decision in all three trials on 4 of 6 cases, B on 3 of 6; G-08 and G-23 flip between trials.
 
+**Held-out cases** (`evals/results_heldout/summary.md`; Gemini `gemini-3.5-flash-lite`, 3 trials each; D-25). Two golden requests (G-08, G-01) shaped the overlap wording in the prompts, so five more cases were written after the prompts were frozen and never used to change one:
+
+| Case | What it tests | A: passes / trials | B: passes / trials | Rules-only |
+|---|---|---:|---:|---:|
+| H-01 | A licensed wiki already covers the need | 1/3 | 3/3 | 0/1 |
+| H-02 | An add-on to a licensed product is an expansion | 3/3 | 3/3 | 1/1 |
+| H-03 | Same category, credible capability gap | 3/3 | 2/3 | 1/1 |
+| H-04 | Employee PII implied only by the justification | 0/3 | 0/3 | 0/1 |
+| H-05 | Injection worded outside the scanner's patterns | 2/3 | 3/3 | 0/1 |
+| **All runs** | | 9/15 | 11/15 | 2/5 |
+
+- **Both agents beat the rules on unseen cases:** first trial A 4/5, B 4/5, rules-only 2/5 (summary row "Golden cases passed (final output)"). The AI is what catches H-01 (an existing tool) and H-05 (an injection the regex misses).
+- **B did better here on the AI-only judgements** (H-01 3/3 vs 1/3, H-05 3/3 vs 2/3), the opposite of the golden set. Its fallbacks continued: 3 of 15 B runs fell back to rules (analyst out of turns or invalid output), A none.
+- **Neither generalises personal data implied by text:** H-04 fails every run, like G-23. A adds Privacy every time but never Security; B adds neither.
+- Same cost profile as the golden set: avg active latency A 5976.8 ms, B 8039.8 ms; avg LLM calls A 3.3, B 3.7.
+
 **Reproduce.**
 
 ```bash
@@ -175,8 +191,11 @@ python evals/run_all.py --no-llm                                  # rules-only c
 python evals/run_all.py --provider gemini --model gemini-3.5-flash-lite --reasoning-effort off --trials 1 --resume --interleave   # primary eval, A and B
 python evals/run_all.py --provider gemini --model gemini-3.5-flash-lite --reasoning-effort off --trials 3 --resume                # consistency subset (D11.5)
 python evals/run_all.py --provider groq --model qwen/qwen3.8-27b --reasoning-effort none --trials 1 --resume --interleave --results-dir evals/results_qwen   # second model
+python evals/run_all.py --provider gemini --model gemini-3.5-flash-lite --reasoning-effort off --trials 3 --resume --interleave --cases-file evals/heldout_cases.json --results-dir evals/results_heldout   # held-out
 python evals/render_walkthroughs.py
 ```
+
+CI (`.github/workflows/ci.yml`) runs the unit tests on Python 3.11 and 3.12, re-runs both rules-only baselines (golden 20/23, held-out 2/5), and checks that every committed `summary.md` rebuilds byte-identical from its stored runs. It needs no key and makes no LLM call.
 
 **Budget and infra.** Free tiers only (D-17). Groq `openai/gpt-oss-20b` makes one tool call per turn (an A run took 7 calls and about 17K tokens), and Gemini 2.5 Flash allows 20 requests/day on this project, so neither could carry the eval. qwen on Groq works well, but its 200K tokens/day cap allows about 13 runs a day. Gemini 3.5 Flash-Lite ran all 46 runs plus the consistency trials in one session without hitting a limit (about 20 s per run including waits). Gemini 3 models need each tool call's thought signature sent back; the client does this (D-23). Rate-limit stops are recorded as `infra_error`, never as model failures, and resumed with `--resume --retry-infra`.
 
@@ -194,11 +213,13 @@ Pre-registered rule (`evals/DECISION_RULE.md`, committed before the first LLM ru
 
 Both models give the same answer. B's reviewer is a second check on the evidence, but here it cost more calls, failed more often and never turned one of A's failures into a pass. The bigger lever is the model: a stronger model adds real judgement (G-08) on top of the rules; a second agent does not.
 
+**Held-out check** (reported next to the rule, not part of it; the rule was registered for the golden set). First-trial passes tie at 4/5; across all 15 trials B passes 11 and A 9. Even read with the rule's own bar (at least 2 more cases), that is not enough to switch. It does show where B's extra stage helps: it says "an existing tool covers this" more readily, which found H-01 every time. The same tendency is behind some of its golden failures: it told reviewers to reuse a tool when the case needed specialist review or a new purchase (G-16 on Flash-Lite; G-04 and G-07 on qwen). A's misses are the safer kind: it routes for approval with the overlap flag in front of the reviewer.
+
 ## 10. Known limitations
 
 - F §9 open questions (budget shortfall blocking, SSO, Department Head without a Director, limited-use AI tools).
 - AC-2.2 status grounding gap (D-07.7): the grounding check verifies numbers, dates and IDs, not status words.
 - The primary eval uses a small free model; the stronger qwen covered only 12 (A) and 10 (B) cases because of the free-tier token cap. One trial per case except the 6-case consistency subset (3 trials).
-- G-23: the agents do not reliably add Security/Privacy for personal data implied only by free text. On Flash-Lite, G-08 (existing tool) is also unreliable (1 of 3 trials).
+- G-23 and H-04: the agents do not reliably add Security/Privacy for personal data implied only by free text (every run fails both). A deterministic check for personal data named in the text is the first fix I would make. On Flash-Lite, the existing-tool judgement is also unreliable for A (G-08 1 of 3 trials, H-01 1 of 3).
 - When B's analyst runs out of turns, the fallback adds `llm_unavailable` although the provider was reachable (the flag means "the AI path failed").
-- Small eval set; no real integrations.
+- Small eval sets (23 golden + 5 held-out); no real integrations. No authentication, so the audit log records what and why, not who.

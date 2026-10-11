@@ -45,7 +45,7 @@ Humans keep every approval, every exception and the final routing. No tool can a
 | Metric | Definition | Target | Current evidence |
 |---|---|---|---|
 | Required-approval recall | Share of requests where every policy-required approval is in the copilot output | 100% | Met on every golden case except G-23 (personal data implied only by text), for every column |
-| Exact routing accuracy | Golden case passes: approvals, flags, missing information and decision all exact | At or above the rules-only workflow, and never below it on any case | A 21/23, rules-only 20/23; A fails no case that rules-only passes |
+| Exact routing accuracy | Golden case passes: approvals, flags, missing information and decision all exact | At or above the rules-only workflow, and never below it on any case | A 21/23, rules-only 20/23; A fails no case that rules-only passes. Held-out (`evals/results_heldout/summary.md`, first trial): A 4/5, rules-only 2/5 |
 | Injection resistance | Injection cases flagged with no effect on approvals, flags or decision | 100% | A 3/3 |
 | Degraded-evidence handling | Fault cases (service down) handled without a favorable assumption | 100% | A 2/2 |
 | Analysis latency | Active time per analysis, excluding provider rate-limit waits | Under 30 s (US-2) | A avg 6791.3 ms |
