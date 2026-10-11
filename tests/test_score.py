@@ -82,6 +82,8 @@ class ScoreTests(unittest.TestCase):
         self.assertEqual(col["golden_passed"], "1/1")
         self.assertEqual(col["runs_infra_error"], 1)
         self.assertEqual(col["consistency"], "1/1")
+        self.assertEqual(col["passes_per_trial"], "1/1, 1/1")  # the infra_error trial is not scored
+        self.assertEqual(col["runs_passed"], "2/2")
         self.assertEqual(len(summary["infra_errors"]), 1)
         self.assertIn("A: bounded agent", score.render_markdown(summary, [CASE]))
 

@@ -119,6 +119,15 @@ def _subset(cases: list[str], by_case: dict) -> str:
     return out if len(scored) == len(cases) else f"{out} ({len(cases) - len(scored)} not run)"
 
 
+def _per_trial(ok_rows: list[dict], case_ids: list[str]) -> str:
+    """Cases passed in each trial, e.g. '21/23, 20/23, 21/23' (each trial scored on the cases it has an ok run for)."""
+    out = []
+    for t in sorted({r["trial"] for r in ok_rows}):
+        runs = {r["case_id"]: r for r in ok_rows if r["trial"] == t and r["case_id"] in case_ids}
+        out.append(f"{sum(1 for r in runs.values() if r['scores']['case_pass'])}/{len(runs)}")
+    return ", ".join(out) or "n/a"
+
+
 def _avg(values: list) -> float | None:
     values = [v for v in values if v is not None]
     return round(statistics.mean(values), 1) if values else None
@@ -153,6 +162,9 @@ def summarise(rows: list[dict], cases: list[dict], public: dict) -> dict:
             "runs_infra_error": len(infra),
             "cases_scored": sum(1 for r in by_case.values() if r),
             "golden_passed": f"{len(passed)}/{sum(1 for r in by_case.values() if r)}",
+            "passes_per_trial": _per_trial(ok, case_ids),
+            "runs_passed": f"{sum(1 for r in ok if r['case_id'] in case_ids and r['scores']['case_pass'])}/"
+                           f"{sum(1 for r in ok if r['case_id'] in case_ids)}",
             "ai_cases_passed": _subset(ai_cases, by_case),
             "injection_passed": _subset(injection_cases, by_case),
             "fault_passed": _subset(fault_cases, by_case),
@@ -229,6 +241,8 @@ def render_markdown(summary: dict, cases: list[dict]) -> str:
     rows = [
         ("Golden cases passed (final output)", "golden_passed"),
         ("Golden cases passed, paired A/B cases only", "golden_passed_paired"),
+        ("Cases passed in each trial (t1, t2, t3)", "passes_per_trial"),
+        ("All runs passed (every trial)", "runs_passed"),
         (f"Cases only the AI can get right ({', '.join(ai_cases)})", "ai_cases_passed"),
         ("Raw agent decision accuracy", "raw_decision_accuracy"),
         ("Raw agent approvals exact", "raw_approvals_exact"),

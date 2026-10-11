@@ -7,6 +7,8 @@ Provider/model for the LLM columns: groq `qwen/qwen3.8-27b`. Trials: 1. Cases: 2
 |---|---:|---:|---:|
 | Golden cases passed (final output) | 11/12 | 7/10 | 20/23 |
 | Golden cases passed, paired A/B cases only | 9/10 | 7/10 | n/a |
+| Cases passed in each trial (t1, t2, t3) | 11/12 | 7/10 | 20/23 |
+| All runs passed (every trial) | 11/12 | 7/10 | 20/23 |
 | Cases only the AI can get right (G-08, G-23) | 1/2 | 1/2 | 0/2 |
 | Raw agent decision accuracy | 11/11 | 9/9 | n/a |
 | Raw agent approvals exact | 10/11 | 8/9 | n/a |
