@@ -1,5 +1,19 @@
 # AI Procurement Request Copilot
 
+**Which architecture would I ship? A, the single bounded agent, on top of the deterministic rules.** On the same 23 golden cases (Gemini `gemini-3.5-flash-lite`) A passed 21, B (analyst → reviewer) 18, the rules-only workflow 20. A never failed a case the rules passed, and the decision rule was committed before any LLM run. On 5 held-out cases written after the prompts were frozen, both agents passed 4 and the rules 2. Details: §7–§9 and `docs/DECISION_MEMO.md`.
+
+| Brief deliverable | Where |
+|---|---|
+| Git repository, README and setup | This file, §2 |
+| Working local app, one-command start | `python run_local.py` (§2, §3) |
+| Architecture / workflow diagram and assumptions | §4 (Mermaid), §6, `docs/architecture.md`, `docs/WORKFLOW.md` |
+| Required output (recommendation, evidence, approvals, missing information, risk flags, next step) | `ProcurementDecision` in `src/contracts.py`, built by `src/guardrails.py` |
+| Single-agent baseline, staged 2-agent variant, same test set | A: `src/agents/single_agent.py`; B: `src/agents/staged_agent.py`; §7 |
+| Reproducible evaluation script and results | `evals/run_all.py`; `evals/results/`, `evals/results_qwen/`, `evals/results_heldout/` (§7) |
+| Architecture decision memo (max 500 words) | `docs/DECISION_MEMO.md` |
+| No secrets; `.env.example` | `.env` is git-ignored; `.env.example` lists every setting |
+| How the build used Claude Code | `docs/AGENT_LOG.md`, `docs/BUILD_LOG.md`, `docs/DECISIONS.md` |
+
 ## 1. What it does
 
 A procurement reviewer opens a software purchase request; the copilot gathers evidence (budget, catalog, vendor registry and vendor-risk service, policy), runs deterministic policy checks, and recommends the next action with the approvals required, risk flags, missing information and grounded evidence.
@@ -10,13 +24,11 @@ A human always decides: the copilot cannot approve, purchase or notify anyone, a
 
 Requires Python 3.11 or 3.12 (macOS, Linux or Windows).
 
-```bash
-python -m pip install -r requirements.txt
-python verify_setup.py      # pre-flight
-python run_local.py         # ONE command: mock vendor-risk API :8001 + web app :8000
-```
+1. Install and check: `python -m pip install -r requirements.txt`, then `python verify_setup.py`.
+2. Copy `.env.example` to `.env` and add `GEMINI_API_KEY` (free at aistudio.google.com). The defaults are the primary evaluated configuration: Gemini `gemini-3.5-flash-lite`, no reasoning-effort parameter (D-23). This step is optional: without a key the app still works and shows the rule-based result with the banner "AI analysis unavailable".
+3. Start: `python run_local.py` (ONE command: mock vendor-risk API on :8001 and the web app on :8000), then open http://127.0.0.1:8000.
 
-Copy `.env.example` to `.env` and add `GEMINI_API_KEY` (free at aistudio.google.com). The defaults are the primary evaluated configuration: Gemini `gemini-3.5-flash-lite`, no reasoning-effort parameter (D-23). For the second evaluated model set `LLM_PROVIDER=groq`, `GROQ_API_KEY` (free at console.groq.com), `MODEL_NAME=qwen/qwen3.8-27b` and `LLM_REASONING_EFFORT=none` (D-20); on Groq's free tier its runs averaged about 2 minutes including rate-limit waits (`evals/results_qwen/summary.md`), against about 20 s for Flash-Lite. Then open http://127.0.0.1:8000. Without an API key the app still works and shows the rule-based result with the banner "AI analysis unavailable".
+For the second evaluated model set `LLM_PROVIDER=groq`, `GROQ_API_KEY` (free at console.groq.com), `MODEL_NAME=qwen/qwen3.8-27b` and `LLM_REASONING_EFFORT=none` (D-20). On Groq's free tier its runs averaged about 2 minutes including rate-limit waits (`evals/results_qwen/summary.md`), against about 20 s for Flash-Lite.
 
 Other commands:
 
@@ -125,7 +137,7 @@ Further judgement calls made during the build are recorded in `docs/DECISIONS.md
 
 **Method.** 23 hand-labelled golden cases (`evals/golden_cases.json`): the 10 official requests, 11 eval-only fixtures (threshold boundaries, name casing, unregistered vendor, injection in the product name and in vendor-API notes, HR integration, unknown requester, PII implied only by text) and 2 fault cases (vendor-risk API down, LLM down). Scoring uses exact-set semantics, so over-escalation fails a case: approvals and flags must satisfy required ⊆ final ⊆ required ∪ optional, plus missing-information groups, the accepted decision types and a safety check (human review, no forbidden approver, no "approved" claim). Raw-agent metrics score the LLM's proposal before guardrails, which shows how much code corrected. The three columns are the design-ladder rungs: Workflow (rules-only), A: bounded agent, B: sequential specialists. Both LLM columns use the same provider and model; runs that hit provider rate limits are recorded as `infra_error`, re-run, and never counted as model failures. Full details: `evals/README.md`.
 
-**Two evals, one model each.** A comparison never mixes models: within each eval, A and B use the same model. The primary eval runs Gemini `gemini-3.5-flash-lite` (free tier) on all 23 cases for both architectures (46 runs, no infra errors), plus two extra trials of the 6-case consistency subset (D11.5, D-23). The second eval runs Groq `qwen/qwen3.8-27b` (free tier, D-20), a stronger model; its 200K tokens/day cap stopped it after 12 cases for A and 10 for B. Rules-only covers all 23 in both. Flash-Lite is the primary eval because it is the only one with every case on both architectures (the brief asks for the same test set on both), the reporting order was fixed before its full run (D-23), and both evals give the same ship decision; qwen is kept as evidence of what a stronger model adds.
+**Two models, never mixed.** Within each result set, A and B use the same model; the held-out set uses the primary model. The primary eval runs Gemini `gemini-3.5-flash-lite` (free tier) on all 23 cases for both architectures (46 runs, no infra errors), plus two extra trials of the 6-case consistency subset (D11.5, D-23). The second eval runs Groq `qwen/qwen3.8-27b` (free tier, D-20), a stronger model; its 200K tokens/day cap stopped it after 12 cases for A and 10 for B. Rules-only covers all 23 in both. Flash-Lite is the primary eval because it is the only one with every case on both architectures (the brief asks for the same test set on both), the reporting order was fixed before its full run (D-23), and both evals give the same ship decision; qwen is kept as evidence of what a stronger model adds.
 
 **Primary results** (`evals/results/summary.md`; Gemini `gemini-3.5-flash-lite`; averages include the consistency trials):
 

@@ -99,15 +99,21 @@ Written by Claude Code under D-11 (continuous mode). Each phase appends 5–10 l
 - Scorer: case groups read from labels; both existing summaries rebuild byte-identical. Tests: 216 pass. CI checks the rules-only baselines (20/23, 2/5) and summary reproducibility.
 - Memo rewritten with the held-out evidence and the per-case comparison with rules-only (498 words by `wc -w`).
 
+### Final submission pass (Sun 11 Oct, after 09:45 IST)
+- Line-by-line review of commit `a5555c1` (evidence-pack escaping, number grounding, org-ID redaction, decision-rule tests): all correct; one gap fixed (`*`, `_`, `~` now escaped so requester text cannot render bold or struck through in an approver's viewer; test fails without the fix). Residual by choice: bare URLs in requester text still autolink in most Markdown viewers.
+- README: "at a glance" answer to the brief's final question and a map from each brief deliverable to its file; setup steps reordered (key before start); "two models, never mixed".
+- `STUDENT_CHECKLIST.md` ticked, with the evidence for each item.
+- Fresh clone of the public repo → venv → install → pre-flight → tests → `run_local.py` → rules-only eval → summary rebuilds: see the commit that follows this entry and CI on GitHub.
+
 ## Human checklist
 
 Items that need the human. The build does not wait for them. In order:
 
 - [x] **Push:** done Sun 11 Oct to https://github.com/RatneshVaibhav/procurement-copilot (public, default branch `master`). Still worth a look in a private window that the README and Mermaid diagrams render.
-- [ ] **Browser checks** (`python run_local.py`, http://127.0.0.1:8000): REQ-1006 → injection banner + clarification, "Send for approvals" needs an override reason, then **Revoke** it from the audit history (reason required); REQ-1007 → registry vs vendor-risk side by side; REQ-1009 → vendor-risk unavailable banner (do not stop the mock: `run_local.py` exits when either service stops); trace panel shows steps and stop reason; confirming writes `runtime/audit_log.jsonl`; "New request" with justification `<img src=x onerror=alert(1)>` renders as text; Evaluation tab, Compare both and the evidence-pack download work. Each of these was exercised through the API on Sun 11 Oct (29 checks, all passing after the fixes); the browser pass is the last step.
+- [x] **Browser checks:** done headlessly (Playwright + Chromium): 13 checks covering every item on the old list, plus revoke and the over-long form error. A quick look yourself is still worthwhile: `python run_local.py`, http://127.0.0.1:8000.
 - [x] **Manual review:** both tables checked row by row against their run files; draft notes removed.
-- [ ] **AGENT_LOG:** its "one diff I reviewed" line refers to commit `a5555c1` (evidence pack in `webapp/main.py` + its test): read that diff once (`git show a5555c1 -- webapp/main.py tests/test_webapp.py`) so the line is true.
+- [x] **AGENT_LOG:** the "one diff reviewed line by line" item (commit `a5555c1`) was reviewed by the review session and walked through with me; it found and fixed one escaping gap (`556a470`).
 - [x] **Memo:** final (Flash-Lite primary, qwen second, held-out cases, per-case comparison with rules-only).
 - [ ] **Submit** the repo URL on the Google Form; screenshot the confirmation.
 - [ ] **Rotate the Gemini key** (it was pasted into a chat session). Optional: older commit `d773e1e` contains the Groq organisation ID inside stored 429 messages (an account ID, not a key); current files are redacted.
-- Optional reading from earlier phases: P3 Groq outputs in `runtime/dev_checks/p3_checks.log`; P1 engine evidence for REQ-1007/REQ-1009; D-14, D-15, D-16, D-18, D-19, D-21, D-22 (proposed).
+- Optional reading from earlier phases (the `runtime/` files are local and git-ignored): P3 Groq outputs in `runtime/dev_checks/p3_checks.log`; P1 engine evidence for REQ-1007/REQ-1009; D-14, D-15, D-16, D-18, D-19, D-21, D-22 (proposed).
