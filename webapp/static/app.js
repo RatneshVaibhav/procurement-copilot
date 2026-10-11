@@ -32,7 +32,7 @@ const FLAG_HELP = {
 };
 const RULE_SOURCES = new Set(["evaluate_policy_rules", "injection_scan"]);
 
-const state = { selected: null, analysis: null, pendingAction: null, requests: [] };
+const state = { selected: null, analysis: null, pendingAction: null, pendingRevoke: null, requests: [] };
 const $ = (id) => document.getElementById(id);
 
 function el(tag, props = {}, children = []) {
@@ -313,6 +313,7 @@ function renderActions(a) {
 async function openConfirm(action, label) {
   const a = state.analysis;
   state.pendingAction = action;
+  state.pendingRevoke = null;
   $("confirm-title").textContent = label;
   $("confirm-error").hidden = true;
   $("confirm-reason").value = "";
@@ -332,9 +333,46 @@ async function openConfirm(action, label) {
   $("confirm").showModal();
 }
 
+// Rollback: a revoke is a new audit entry that supersedes the original; nothing is deleted.
+function openRevoke(entry) {
+  state.pendingRevoke = entry;
+  $("confirm-title").textContent = "Revoke recorded action";
+  $("confirm-consequence").textContent = `Withdraws the recorded '${entry.chosen_action}' action from ${entry.timestamp}. ` +
+    "Nothing had been sent; the request is open for review again. The original entry stays in the audit log.";
+  $("confirm-override").hidden = true;
+  $("reason-hint").textContent = "(required)";
+  $("confirm-reason").value = "";
+  $("confirm-error").hidden = true;
+  $("confirm-ok").disabled = false;
+  $("confirm").showModal();
+}
+
+async function confirmRevoke(reason) {
+  if (!reason) {
+    $("confirm-error").textContent = "Please give a reason for revoking this action.";
+    $("confirm-error").hidden = false;
+    return;
+  }
+  try {
+    const entry = await api("/api/actions/revoke", { method: "POST", body: JSON.stringify({
+      request_id: state.pendingRevoke.request_id, entry_id: state.pendingRevoke.entry_id, reason,
+    }) });
+    state.pendingRevoke = null;
+    $("confirm").close();
+    $("action-success").textContent = `Revoked at ${new Date(entry.timestamp).toLocaleTimeString()} · request open for review`;
+    $("action-success").hidden = false;
+    loadAudit();
+    loadQueue();
+  } catch (e) {
+    $("confirm-error").textContent = e.message;
+    $("confirm-error").hidden = false;
+  }
+}
+
 async function confirmAction() {
   const a = state.analysis;
   const reason = $("confirm-reason").value.trim();
+  if (state.pendingRevoke) return confirmRevoke(reason);
   if (!$("confirm-override").hidden && !reason) {
     $("confirm-error").textContent = "Please give a reason for overriding the recommendation.";
     $("confirm-error").hidden = false;
@@ -359,9 +397,22 @@ async function confirmAction() {
 async function loadAudit() {
   try {
     const entries = await api("/api/audit?request_id=" + encodeURIComponent(state.selected));
-    fillList($("audit-history"), entries.map((e) =>
-      `${e.timestamp} · ${e.chosen_action}${e.override ? " (override)" : ""} · copilot: ${e.copilot_decision_type}` +
-      (e.reason ? ` · reason: ${e.reason}` : "")), "No actions recorded yet.");
+    const revoked = new Set(entries.filter((e) => e.chosen_action === "revoke").map((e) => e.revokes));
+    const box = $("audit-history");
+    fillList(box, [], "No actions recorded yet.");
+    if (entries.length) clear(box);
+    for (const e of entries) {
+      const text = e.chosen_action === "revoke"
+        ? `${e.timestamp} · revoke (rolls back an earlier action) · reason: ${e.reason}`
+        : `${e.timestamp} · ${e.chosen_action}${e.override ? " (override)" : ""} · copilot: ${e.copilot_decision_type}` +
+          (e.reason ? ` · reason: ${e.reason}` : "") + (revoked.has(e.entry_id) ? " · revoked" : "");
+      const li = el("li", { text });
+      if (e.entry_id && e.chosen_action !== "revoke" && !revoked.has(e.entry_id)) {
+        li.appendChild(document.createTextNode(" "));
+        li.appendChild(el("button", { type: "button", class: "secondary", text: "Revoke", onclick: () => openRevoke(e) }));
+      }
+      box.appendChild(li);
+    }
   } catch (e) {
     fillList($("audit-history"), ["Could not load the audit log: " + e.message], "");
   }

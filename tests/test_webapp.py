@@ -107,6 +107,34 @@ class WebAppTests(unittest.TestCase):
         rows = self.client.get("/api/requests").json()
         self.assertEqual(next(r for r in rows if r["request_id"] == "REQ-1006")["status"], "Action recorded")
 
+    def test_revoke_rolls_back_an_action_without_deleting_it(self):
+        a = self.analyze("REQ-1006")
+        entry = self.client.post("/api/actions", json={"request_id": "REQ-1006", "run_id": a["trace_meta"]["run_id"],
+                                                       "action": "request_clarification"}).json()
+        self.assertTrue(entry["entry_id"])
+        body = {"request_id": "REQ-1006", "entry_id": entry["entry_id"]}
+        self.assertEqual(self.client.post("/api/actions/revoke", json=body).status_code, 400)  # reason required
+        wrong = self.client.post("/api/actions/revoke", json={**body, "request_id": "REQ-1001", "reason": "x"})
+        self.assertEqual(wrong.status_code, 400)
+        r = self.client.post("/api/actions/revoke", json={**body, "reason": "Recorded on the wrong request"})
+        self.assertEqual(r.status_code, 200, r.text)
+        self.assertEqual(r.json()["revokes"], entry["entry_id"])
+        log = self.client.get("/api/audit", params={"request_id": "REQ-1006"}).json()
+        self.assertEqual([e["chosen_action"] for e in log], ["request_clarification", "revoke"])  # append-only
+        rows = self.client.get("/api/requests").json()
+        self.assertEqual(next(r for r in rows if r["request_id"] == "REQ-1006")["status"], "Analysed")
+        self.assertEqual(self.client.post("/api/actions/revoke", json={**body, "reason": "twice"}).status_code, 400)
+
+    def test_submitted_text_is_bounded(self):
+        r = self.client.post("/api/requests", json={"product_name": "Notes", "business_justification": "x" * 4001})
+        self.assertEqual(r.status_code, 422)
+        self.assertIn("business_justification", r.json()["detail"])
+        self.assertEqual(self.client.post("/api/requests", json={"vendor_name": "v" * 201}).status_code, 422)
+        self.assertEqual(self.client.post("/api/requests", json={"requested_integrations": ["sso"] * 21}).status_code, 422)
+        ok = self.client.post("/api/requests", json={"product_name": "Notes", "business_justification": "x" * 4000})
+        self.assertEqual(ok.status_code, 200)
+        self.assertEqual([r["request_id"] for r in da.load_submitted_requests()], [ok.json()["request_id"]])
+
     def test_unknown_run_is_rejected(self):
         r = self.client.post("/api/actions", json={"request_id": "REQ-1001", "run_id": "nope", "action": "hold_manual_review"})
         self.assertEqual(r.status_code, 400)

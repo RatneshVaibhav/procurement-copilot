@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 import re
 import threading
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -61,6 +62,12 @@ def _audit_entries(request_id: str | None = None) -> list[dict]:
 
 def _requester(raw: dict) -> dict:
     return pe.requester_info(str(raw.get("requester_id") or "").strip() or None)
+
+
+def _active_actions(entries: list[dict]) -> list[dict]:
+    """Recorded actions that have not been revoked. The log itself is append-only: a revoke is a new entry."""
+    revoked = {e.get("revokes") for e in entries if e.get("chosen_action") == "revoke"}
+    return [e for e in entries if e.get("chosen_action") != "revoke" and e.get("entry_id") not in revoked]
 
 
 def _status(request_id: str, audited: set[str]) -> str:
@@ -131,7 +138,7 @@ def health() -> dict:
 
 @app.get("/api/requests")
 def list_requests() -> list[dict]:
-    audited = {e.get("request_id") for e in _audit_entries()}
+    audited = {e.get("request_id") for e in _active_actions(_audit_entries())}
     rows = []
     for raw in da.all_requests():
         rid = str(raw.get("request_id") or "")
@@ -168,9 +175,30 @@ class NewRequest(BaseModel):
     urgency: str | None = None
 
 
+TEXT_MAX = 200            # short fields (IDs, names, category, level, urgency)
+JUSTIFICATION_MAX = 4000  # the free-text field; it reaches the LLM inside tool results
+INTEGRATIONS_MAX = 20
+
+
+def _too_long(body: NewRequest) -> str | None:
+    """Bound what a form submission can send to the LLM (token cost, latency). Readable message for the UI."""
+    for key, value in body.model_dump().items():
+        if isinstance(value, str):
+            limit = JUSTIFICATION_MAX if key == "business_justification" else TEXT_MAX
+            if len(value) > limit:
+                return f"{key} is longer than {limit} characters"
+    items = body.requested_integrations or []
+    if len(items) > INTEGRATIONS_MAX or any(len(i) > TEXT_MAX for i in items):
+        return f"requested_integrations allows at most {INTEGRATIONS_MAX} items of {TEXT_MAX} characters"
+    return None
+
+
 @app.post("/api/requests")
 def submit_request(body: NewRequest) -> dict:
     """US-6: every field may be blank; the copilot handles missing information."""
+    problem = _too_long(body)
+    if problem:
+        raise HTTPException(422, problem)
     with _lock:
         existing = da.load_submitted_requests()
         numbers = [int(m.group(1)) for r in existing if (m := re.fullmatch(r"REQ-U(\d+)", str(r.get("request_id", ""))))]
@@ -257,6 +285,7 @@ def record_action(body: ActionBody) -> dict:
     products = [c["product_name"] for c in run["policy"]["catalog_candidates"] if c["software_id"] in run["policy"]["overlap_covering"]]
     entry = {
         "timestamp": datetime.now(timezone.utc).isoformat(timespec="seconds"),  # audit timestamp, not policy logic
+        "entry_id": uuid.uuid4().hex[:12],
         "request_id": body.request_id,
         "run_id": body.run_id,
         "architecture": run["trace_meta"]["architecture"],
@@ -270,6 +299,45 @@ def record_action(body: ActionBody) -> dict:
     RUNTIME.mkdir(parents=True, exist_ok=True)
     with _lock, AUDIT_LOG.open("a", encoding="utf-8") as f:
         f.write(json.dumps(entry) + "\n")
+    return entry
+
+
+class RevokeBody(BaseModel):
+    request_id: str
+    entry_id: str
+    reason: str | None = None
+
+
+@app.post("/api/actions/revoke")
+def revoke_action(body: RevokeBody) -> dict:
+    """Roll back a recorded action. Nothing is deleted or edited: a new 'revoke' entry supersedes the original,
+    so the audit trail keeps both. A reason is always required."""
+    reason = (body.reason or "").strip()
+    if not reason:
+        raise HTTPException(400, "A reason is required to revoke a recorded action.")
+    with _lock:
+        entries = _audit_entries(body.request_id)
+        target = next((e for e in _active_actions(entries) if e.get("entry_id") == body.entry_id), None)
+        if target is None:
+            raise HTTPException(400, "No active recorded action with this ID for this request (already revoked or unknown).")
+        entry = {
+            "timestamp": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            "entry_id": uuid.uuid4().hex[:12],
+            "request_id": body.request_id,
+            "run_id": target.get("run_id"),
+            "architecture": target.get("architecture"),
+            "copilot_decision_type": target.get("copilot_decision_type"),
+            "copilot_recommended_action": target.get("copilot_recommended_action"),
+            "chosen_action": "revoke",
+            "revokes": body.entry_id,
+            "override": False,
+            "reason": reason,
+            "consequence": f"Withdraws the recorded '{target.get('chosen_action')}' action. Nothing had been sent; "
+                           "the request is open for review again.",
+        }
+        RUNTIME.mkdir(parents=True, exist_ok=True)
+        with AUDIT_LOG.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(entry) + "\n")
     return entry
 
 
