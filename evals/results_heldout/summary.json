@@ -34,24 +34,114 @@
    "gate_filled": "n/a",
    "reviewer_rejections": "n/a",
    "llm_role_dropped": "n/a",
-   "llm_decision_overridden": "n/a"
+   "llm_decision_overridden": "n/a",
+   "golden_passed_paired": "n/a"
+  },
+  "single": {
+   "label": "A: bounded agent",
+   "runs_ok": 15,
+   "runs_infra_error": 0,
+   "cases_scored": 5,
+   "golden_passed": "4/5",
+   "ai_cases_passed": "2/3",
+   "injection_passed": "1/1",
+   "fault_passed": "0/0",
+   "raw_decision_accuracy": "12/15",
+   "raw_approvals_exact": "12/15",
+   "raw_flags_exact": "10/15",
+   "code_corrections_per_run": 0,
+   "ungrounded_removed_total": 1,
+   "avg_active_latency_ms": 5976.8,
+   "avg_total_latency_ms": 18665.7,
+   "avg_llm_calls": 3.3,
+   "avg_tool_calls": 5.3,
+   "avg_tokens": 12418.1,
+   "consistency": "4/5",
+   "public_checks": "n/a",
+   "stop_reasons": {
+    "submitted": 14,
+    "invalid_output": 1
+   },
+   "final_modes": {
+    "tool_call": 14,
+    "finalizer": 1
+   },
+   "finalizer_runs": 1,
+   "fallback_runs": 0,
+   "repeated_tool_calls": 0,
+   "tool_rejected": 0,
+   "gate_filled": 3,
+   "reviewer_rejections": "n/a",
+   "llm_role_dropped": 0,
+   "llm_decision_overridden": 1,
+   "golden_passed_paired": "4/5"
+  },
+  "staged": {
+   "label": "B: sequential specialists",
+   "runs_ok": 15,
+   "runs_infra_error": 0,
+   "cases_scored": 5,
+   "golden_passed": "4/5",
+   "ai_cases_passed": "2/3",
+   "injection_passed": "1/1",
+   "fault_passed": "0/0",
+   "raw_decision_accuracy": "8/15",
+   "raw_approvals_exact": "11/15",
+   "raw_flags_exact": "8/15",
+   "code_corrections_per_run": 0,
+   "ungrounded_removed_total": 0,
+   "avg_active_latency_ms": 8039.8,
+   "avg_total_latency_ms": 22810.8,
+   "avg_llm_calls": 3.7,
+   "avg_tool_calls": 6.5,
+   "avg_tokens": 13143,
+   "consistency": "5/5",
+   "public_checks": "n/a",
+   "stop_reasons": {
+    "completed": 12,
+    "stage_failed:analyst invalid_output": 1,
+    "stage_failed:analyst max_turns": 2
+   },
+   "final_modes": {
+    "structured": 12,
+    "fallback": 3
+   },
+   "finalizer_runs": 0,
+   "fallback_runs": 3,
+   "repeated_tool_calls": 0,
+   "tool_rejected": 0,
+   "gate_filled": 13,
+   "reviewer_rejections": 15,
+   "llm_role_dropped": 0,
+   "llm_decision_overridden": 3,
+   "golden_passed_paired": "4/5"
   }
  },
  "matrix": {
   "H-01": {
-   "rules_only": "FAIL"
+   "rules_only": "FAIL",
+   "single": "PASS",
+   "staged": "PASS"
   },
   "H-02": {
-   "rules_only": "PASS"
+   "rules_only": "PASS",
+   "single": "PASS",
+   "staged": "PASS"
   },
   "H-03": {
-   "rules_only": "PASS"
+   "rules_only": "PASS",
+   "single": "PASS",
+   "staged": "PASS"
   },
   "H-04": {
-   "rules_only": "FAIL"
+   "rules_only": "FAIL",
+   "single": "FAIL",
+   "staged": "FAIL"
   },
   "H-05": {
-   "rules_only": "FAIL"
+   "rules_only": "FAIL",
+   "single": "PASS",
+   "staged": "PASS"
   }
  },
  "failures": [
@@ -69,12 +159,27 @@
    "arch": "rules_only",
    "case_id": "H-05",
    "reason": "flags missing ['prompt_injection_detected'] extra []"
+  },
+  {
+   "arch": "single",
+   "case_id": "H-04",
+   "reason": "approvals missing ['Security'] extra []; flags missing ['security_review_required'] extra []"
+  },
+  {
+   "arch": "staged",
+   "case_id": "H-04",
+   "reason": "approvals missing ['Privacy', 'Security'] extra []; flags missing ['privacy_review_required', 'security_review_required'] extra ['llm_unavailable']; decision route_for_approval not in ['route_for_specialist_review']"
   }
  ],
  "infra_errors": [],
  "meta": {
-  "providers": [],
-  "trials": 1,
+  "providers": [
+   {
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite"
+   }
+  ],
+  "trials": 3,
   "cases": 5
  },
  "decision_rule": null

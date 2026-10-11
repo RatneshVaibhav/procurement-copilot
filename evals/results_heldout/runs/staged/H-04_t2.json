@@ -1,0 +1,791 @@
+{
+ "case_id": "H-04",
+ "request_id": "REQ-H204",
+ "arch": "staged",
+ "trial": 2,
+ "status": "ok",
+ "fault": null,
+ "provider": "gemini",
+ "model": "gemini-3.5-flash-lite",
+ "error": null,
+ "decision": {
+  "request_id": "REQ-H204",
+  "recommendation": "Route for approval: Route request REQ-H204 for Department Head and Procurement approval as the annual cost of $3,000 falls within the $1,000.01 to $10,000 tier.",
+  "evidence": [
+   {
+    "source": "evaluate_policy_rules",
+    "finding": "Annual cost $3,000 → tier $1,000.01 to $10,000: Department Head, Procurement",
+    "reference": "policy §4"
+   },
+   {
+    "source": "check_budget",
+    "finding": "Finance available software budget $29,000; request $3,000 → within budget ($26,000 left)",
+    "reference": "department_budgets.csv:Finance"
+   },
+   {
+    "source": "search_software_catalog",
+    "finding": "No catalog product shares this request's category, vendor or product name",
+    "reference": "software_catalog.csv"
+   },
+   {
+    "source": "get_vendor_status",
+    "finding": "Registry: TeamPulse procurement Approved, security Approved, review date 2026-04-01 (182 days before 2026-09-30), legal terms Approved",
+    "reference": "vendors.csv:V902"
+   },
+   {
+    "source": "get_vendor_status",
+    "finding": "Vendor-risk API: security_review_status approved, last review 2026-04-01, stores data outside region: no",
+    "reference": "GET /vendor-risk/TeamPulse"
+   },
+   {
+    "source": "get_request_details",
+    "finding": "Request REQ-H204 submitted by Noah Williams (Finance) for TeamPulse Surveys by TeamPulse, annual cost $3,000 for 5 users.",
+    "reference": "REQ-H204"
+   },
+   {
+    "source": "check_budget",
+    "finding": "Finance department annual budget is $90,000, committed $61,000, available $29,000. Request cost $3,000 fits within available budget.",
+    "reference": "department_budgets.csv:Finance"
+   },
+   {
+    "source": "search_software_catalog",
+    "finding": "Software catalog search for productivity and tools yielded no candidates or overlap.",
+    "reference": "software_catalog.csv"
+   },
+   {
+    "source": "search_software_catalog",
+    "finding": "Software catalog search for survey and feedback yielded no candidates or overlap.",
+    "reference": "software_catalog.csv"
+   },
+   {
+    "source": "get_vendor_status",
+    "finding": "Vendor 'TeamPulse' is registered in internal registry and has a current vendor-risk record (approved, last reviewed 2026-04-01).",
+    "reference": "GET /vendor-risk/TeamPulse"
+   }
+  ],
+  "required_approvals": [
+   "Department Head",
+   "Procurement"
+  ],
+  "missing_information": [],
+  "risk_flags": [],
+  "next_step": "Submit the request to Priya Shah (Department Head) and Procurement for review and approval.",
+  "human_review_required": true,
+  "telemetry": {
+   "llm_calls": 4,
+   "tool_calls": 7,
+   "tool_names": [
+    "get_request_details",
+    "check_budget",
+    "search_software_catalog",
+    "get_vendor_status",
+    "search_software_catalog",
+    "get_vendor_status",
+    "evaluate_policy_rules"
+   ]
+  }
+ },
+ "trace": {
+  "run_id": "REQ-H204-staged-103f81f7",
+  "request_id": "REQ-H204",
+  "architecture": "staged",
+  "mode": "llm",
+  "provider": "gemini",
+  "model": "gemini-3.5-flash-lite",
+  "reference_date": "2026-09-30",
+  "created_at": "2026-10-11T03:55:43+00:00",
+  "latency_total_ms": 24432.5,
+  "llm_wait_ms": 15493.9,
+  "latency_active_ms": 8938.6,
+  "llm_ms": 8894.3,
+  "tool_ms": 37.8,
+  "llm_calls": 4,
+  "tool_calls": 7,
+  "tokens": {
+   "prompt": 11856,
+   "completion": 1505,
+   "cached": 0
+  },
+  "steps": [
+   {
+    "n": 1,
+    "actor": "code:supervisor",
+    "action": "route",
+    "summary_in": "step 0",
+    "summary_out": "analyst",
+    "route_reason": "no evidence pack yet",
+    "ms": null,
+    "tokens": null
+   },
+   {
+    "n": 2,
+    "actor": "agent:analyst",
+    "action": "llm turn 1",
+    "summary_in": "7 messages",
+    "summary_out": "get_request_details(REQ-H204) → ok; check_budget(REQ-H204) → ok; search_software_catalog(REQ-H204) → ok; get_vendor_status(Apex Data Systems) → ok",
+    "route_reason": null,
+    "ms": 1530.2,
+    "tokens": {
+     "prompt": 2251,
+     "completion": 105,
+     "cached": 0
+    }
+   },
+   {
+    "n": 3,
+    "actor": "agent:analyst",
+    "action": "llm turn 2",
+    "summary_in": "9 messages",
+    "summary_out": "search_software_catalog(REQ-H204) → ok",
+    "route_reason": null,
+    "ms": 1349.2,
+    "tokens": {
+     "prompt": 3072,
+     "completion": 35,
+     "cached": 0
+    }
+   },
+   {
+    "n": 4,
+    "actor": "agent:analyst",
+    "action": "llm turn 3",
+    "summary_in": "9 messages",
+    "summary_out": "submit_evidence_pack: valid",
+    "route_reason": null,
+    "ms": 2752.7,
+    "tokens": {
+     "prompt": 3181,
+     "completion": 593,
+     "cached": 0
+    }
+   },
+   {
+    "n": 5,
+    "actor": "code:supervisor",
+    "action": "route",
+    "summary_in": "step 1",
+    "summary_out": "gate",
+    "route_reason": "verify required evidence ran",
+    "ms": null,
+    "tokens": null
+   },
+   {
+    "n": 6,
+    "actor": "code:gate",
+    "action": "completeness gate",
+    "summary_in": "required: get_request_details, check_budget, search_software_catalog, get_vendor_status",
+    "summary_out": "filled: get_vendor_status",
+    "route_reason": null,
+    "ms": null,
+    "tokens": null
+   },
+   {
+    "n": 7,
+    "actor": "code:supervisor",
+    "action": "route",
+    "summary_in": "step 2",
+    "summary_out": "policy_engine",
+    "route_reason": "authoritative rules not computed",
+    "ms": null,
+    "tokens": null
+   },
+   {
+    "n": 8,
+    "actor": "code:policy_engine",
+    "action": "evaluate_policy_rules",
+    "summary_in": "REQ-H204",
+    "summary_out": "approvals: Department Head, Procurement; flags: none",
+    "route_reason": null,
+    "ms": null,
+    "tokens": null
+   },
+   {
+    "n": 9,
+    "actor": "code:supervisor",
+    "action": "route",
+    "summary_in": "step 3",
+    "summary_out": "reviewer",
+    "route_reason": "evidence and rules ready for independent review",
+    "ms": null,
+    "tokens": null
+   },
+   {
+    "n": 10,
+    "actor": "agent:reviewer",
+    "action": "structured review",
+    "summary_in": "evidence pack + raw tool results + policy",
+    "summary_out": "proposal: route_for_approval; audit: 1 issues, 4 rejected claims",
+    "route_reason": null,
+    "ms": 3262.2,
+    "tokens": {
+     "prompt": 3352,
+     "completion": 772,
+     "cached": 0
+    }
+   },
+   {
+    "n": 11,
+    "actor": "code:supervisor",
+    "action": "route",
+    "summary_in": "step 4",
+    "summary_out": "finalize",
+    "route_reason": "all artifacts present",
+    "ms": null,
+    "tokens": null
+   },
+   {
+    "n": 12,
+    "actor": "code:guardrails",
+    "action": "merge + validate + ground",
+    "summary_in": "proposal: route_for_approval",
+    "summary_out": "final: route_for_approval; corrections: none",
+    "route_reason": null,
+    "ms": null,
+    "tokens": null
+   }
+  ],
+  "stop_reason": "completed",
+  "final_mode": "structured",
+  "analyst_stop_reason": "submitted",
+  "repeated_tool_calls": 0,
+  "tool_rejected": 0,
+  "event_counts": {
+   "gate_filled:get_vendor_status": 1,
+   "reviewer_rejection": 4
+  },
+  "events": [
+   {
+    "event": "gate_filled:get_vendor_status",
+    "tool": "get_vendor_status"
+   },
+   {
+    "event": "reviewer_rejection"
+   },
+   {
+    "event": "reviewer_rejection"
+   },
+   {
+    "event": "reviewer_rejection"
+   },
+   {
+    "event": "reviewer_rejection"
+   }
+  ],
+  "tool_log": [
+   {
+    "name": "get_request_details",
+    "args": {
+     "request_id": "REQ-H204"
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 4.3,
+    "cache_hit": false
+   },
+   {
+    "name": "check_budget",
+    "args": {
+     "request_id": "REQ-H204"
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 5.1,
+    "cache_hit": false
+   },
+   {
+    "name": "search_software_catalog",
+    "args": {
+     "keywords": [
+      "productivity",
+      "tools"
+     ],
+     "request_id": "REQ-H204"
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 3.4,
+    "cache_hit": false
+   },
+   {
+    "name": "get_vendor_status",
+    "args": {
+     "vendor_name": "Apex Data Systems"
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 3.8,
+    "cache_hit": false
+   },
+   {
+    "name": "search_software_catalog",
+    "args": {
+     "keywords": [
+      "survey",
+      "feedback"
+     ],
+     "request_id": "REQ-H204"
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 4.4,
+    "cache_hit": false
+   },
+   {
+    "name": "get_vendor_status",
+    "args": {
+     "vendor_name": "TeamPulse"
+    },
+    "initiator": "gate",
+    "status": "ok",
+    "duration_ms": 6.3,
+    "cache_hit": false
+   },
+   {
+    "name": "evaluate_policy_rules",
+    "args": {
+     "request_id": "REQ-H204"
+    },
+    "initiator": "orchestrator",
+    "status": "ok",
+    "duration_ms": 10.5,
+    "cache_hit": false
+   }
+  ],
+  "llm_call_log": [
+   {
+    "actor": "agent:analyst",
+    "latency_ms": 1530.2,
+    "wait_ms": 3169.0,
+    "attempts": 1,
+    "usage": {
+     "prompt": 2251,
+     "completion": 105,
+     "cached": 0
+    }
+   },
+   {
+    "actor": "agent:analyst",
+    "latency_ms": 1349.2,
+    "wait_ms": 4452.2,
+    "attempts": 1,
+    "usage": {
+     "prompt": 3072,
+     "completion": 35,
+     "cached": 0
+    }
+   },
+   {
+    "actor": "agent:analyst",
+    "latency_ms": 2752.7,
+    "wait_ms": 4645.9,
+    "attempts": 1,
+    "usage": {
+     "prompt": 3181,
+     "completion": 593,
+     "cached": 0
+    }
+   },
+   {
+    "actor": "agent:reviewer",
+    "latency_ms": 3262.2,
+    "wait_ms": 3226.8,
+    "attempts": 1,
+    "usage": {
+     "prompt": 3352,
+     "completion": 772,
+     "cached": 0
+    }
+   }
+  ],
+  "proposals": [
+   {
+    "actor": "agent:analyst",
+    "final_mode": "tool_call",
+    "proposal": {
+     "need_summary": "The requester needs TeamPulse Surveys to conduct the annual staff wellbeing survey for 5 users.",
+     "data_classes_implied": [
+      "internal",
+      "employee PII (names, work emails, dates of birth, home addresses)"
+     ],
+     "overlap_assessment": [],
+     "vendor_observations": [
+      "Vendor is unregistered and not found in the vendor-risk service."
+     ],
+     "uncertainties": [
+      "Whether 'TeamPulse' and 'Apex Data Systems' are the same entity (request specifies vendor as TeamPulse, but vendor status check was performed on Apex Data Systems based on tool name match/prompt reference).",
+      "Whether data storage and processing comply with privacy requirements for employee PII including dates of birth and home addresses."
+     ],
+     "injection_observed": false,
+     "injection_excerpt": null,
+     "evidence": [
+      {
+       "source": "get_request_details",
+       "finding": "Request REQ-H204 submitted by Noah Williams (Finance) for TeamPulse Surveys by TeamPulse, annual cost $3,000 for 5 users.",
+       "reference": "REQ-H204"
+      },
+      {
+       "source": "get_request_details",
+       "finding": "Business justification is to run the annual staff wellbeing survey, uploading employee list with names, work emails, dates of birth, and home addresses.",
+       "reference": "REQ-H204"
+      },
+      {
+       "source": "check_budget",
+       "finding": "Finance department annual budget is $90,000, committed $61,000, available $29,000. Request cost $3,000 fits within available budget (remaining after: $26,000).",
+       "reference": "department_budgets.csv:Finance"
+      },
+      {
+       "source": "search_software_catalog",
+       "finding": "Software catalog search for productivity, tools, survey, feedback yielded no candidates or overlap.",
+       "reference": "software_catalog.csv"
+      },
+      {
+       "source": "get_vendor_status",
+       "finding": "Vendor 'Apex Data Systems' is not registered in internal registry and has no vendor-risk record (API 404).",
+       "reference": "GET /vendor-risk/Apex Data Systems"
+      }
+     ],
+     "gaps": [
+      "Vendor 'Apex Data Systems' is completely unlisted in both internal registry and vendor-risk service (new vendor).",
+      "Security review missing/not completed for the vendor and data processing.",
+      "Privacy review needed as employee PII (dates of birth, home addresses) is processed and potentially stored outside the region.",
+      "Legal review needed for new vendor and data processing terms."
+     ],
+     "unsupported_or_unverified": [
+      "Vendor security posture and risk assessment are entirely unverified because the vendor is not found in the vendor-risk service."
+     ]
+    }
+   },
+   {
+    "actor": "agent:reviewer",
+    "final_mode": "structured",
+    "proposal": {
+     "decision_type": "route_for_approval",
+     "recommendation": "Route request REQ-H204 for Department Head and Procurement approval as the annual cost of $3,000 falls within the $1,000.01 to $10,000 tier.",
+     "next_step": "Submit the request to Priya Shah (Department Head) and Procurement for review and approval.",
+     "required_approvals": [
+      {
+       "role": "Department Head",
+       "reason": "R4 §4: Annual cost $3,000 is in the $1,000.01 to $10,000 tier"
+      },
+      {
+       "role": "Procurement",
+       "reason": "R4 §4: Annual cost $3,000 is in the $1,000.01 to $10,000 tier"
+      }
+     ],
+     "risk_flags": [],
+     "missing_information": [],
+     "overlap_assessment": [],
+     "evidence": [
+      {
+       "source": "get_request_details",
+       "finding": "Request REQ-H204 submitted by Noah Williams (Finance) for TeamPulse Surveys by TeamPulse, annual cost $3,000 for 5 users.",
+       "reference": "REQ-H204"
+      },
+      {
+       "source": "check_budget",
+       "finding": "Finance department annual budget is $90,000, committed $61,000, available $29,000. Request cost $3,000 fits within available budget.",
+       "reference": "department_budgets.csv:Finance"
+      },
+      {
+       "source": "search_software_catalog",
+       "finding": "Software catalog search for productivity and tools yielded no candidates or overlap.",
+       "reference": "software_catalog.csv"
+      },
+      {
+       "source": "search_software_catalog",
+       "finding": "Software catalog search for survey and feedback yielded no candidates or overlap.",
+       "reference": "software_catalog.csv"
+      },
+      {
+       "source": "get_vendor_status",
+       "finding": "Vendor 'TeamPulse' is registered in internal registry and has a current vendor-risk record (approved, last reviewed 2026-04-01).",
+       "reference": "GET /vendor-risk/TeamPulse"
+      }
+     ],
+     "injection_observed": false,
+     "injection_excerpt": null,
+     "analyst_audit": {
+      "issues_found": [
+       "Analyst hallucinated a search for vendor 'Apex Data Systems' which was an artifact of prompt text/confusion; the actual vendor in request details is TeamPulse which is fully registered and approved."
+      ],
+      "rejected_claims": [
+       "Vendor 'Apex Data Systems' is completely unlisted in both internal registry and vendor-risk service (new vendor).",
+       "Security review missing/not completed for the vendor and data processing.",
+       "Privacy review needed as employee PII (dates of birth, home addresses) is processed and potentially stored outside the region.",
+       "Legal review needed for new vendor and data processing terms."
+      ],
+      "agrees_with_overlap_assessment": true
+     }
+    }
+   }
+  ],
+  "evidence_pack": {
+   "need_summary": "The requester needs TeamPulse Surveys to conduct the annual staff wellbeing survey for 5 users.",
+   "data_classes_implied": [
+    "internal",
+    "employee PII (names, work emails, dates of birth, home addresses)"
+   ],
+   "overlap_assessment": [],
+   "vendor_observations": [
+    "Vendor is unregistered and not found in the vendor-risk service."
+   ],
+   "uncertainties": [
+    "Whether 'TeamPulse' and 'Apex Data Systems' are the same entity (request specifies vendor as TeamPulse, but vendor status check was performed on Apex Data Systems based on tool name match/prompt reference).",
+    "Whether data storage and processing comply with privacy requirements for employee PII including dates of birth and home addresses."
+   ],
+   "injection_observed": false,
+   "injection_excerpt": null,
+   "evidence": [
+    {
+     "source": "get_request_details",
+     "finding": "Request REQ-H204 submitted by Noah Williams (Finance) for TeamPulse Surveys by TeamPulse, annual cost $3,000 for 5 users.",
+     "reference": "REQ-H204"
+    },
+    {
+     "source": "get_request_details",
+     "finding": "Business justification is to run the annual staff wellbeing survey, uploading employee list with names, work emails, dates of birth, and home addresses.",
+     "reference": "REQ-H204"
+    },
+    {
+     "source": "check_budget",
+     "finding": "Finance department annual budget is $90,000, committed $61,000, available $29,000. Request cost $3,000 fits within available budget (remaining after: $26,000).",
+     "reference": "department_budgets.csv:Finance"
+    },
+    {
+     "source": "search_software_catalog",
+     "finding": "Software catalog search for productivity, tools, survey, feedback yielded no candidates or overlap.",
+     "reference": "software_catalog.csv"
+    },
+    {
+     "source": "get_vendor_status",
+     "finding": "Vendor 'Apex Data Systems' is not registered in internal registry and has no vendor-risk record (API 404).",
+     "reference": "GET /vendor-risk/Apex Data Systems"
+    }
+   ],
+   "gaps": [
+    "Vendor 'Apex Data Systems' is completely unlisted in both internal registry and vendor-risk service (new vendor).",
+    "Security review missing/not completed for the vendor and data processing.",
+    "Privacy review needed as employee PII (dates of birth, home addresses) is processed and potentially stored outside the region.",
+    "Legal review needed for new vendor and data processing terms."
+   ],
+   "unsupported_or_unverified": [
+    "Vendor security posture and risk assessment are entirely unverified because the vendor is not found in the vendor-risk service."
+   ]
+  },
+  "analyst_audit": {
+   "issues_found": [
+    "Analyst hallucinated a search for vendor 'Apex Data Systems' which was an artifact of prompt text/confusion; the actual vendor in request details is TeamPulse which is fully registered and approved."
+   ],
+   "rejected_claims": [
+    "Vendor 'Apex Data Systems' is completely unlisted in both internal registry and vendor-risk service (new vendor).",
+    "Security review missing/not completed for the vendor and data processing.",
+    "Privacy review needed as employee PII (dates of birth, home addresses) is processed and potentially stored outside the region.",
+    "Legal review needed for new vendor and data processing terms."
+   ],
+   "agrees_with_overlap_assessment": true
+  },
+  "guardrails": {
+   "questions_for_reviewer": [],
+   "ungrounded_evidence": [],
+   "llm_added_reviews": [],
+   "approval_reasons": {
+    "Department Head": [
+     {
+      "rule": "R4",
+      "policy_ref": "§4",
+      "detail": "Annual cost $3,000 is in the $1,000.01 to $10,000 tier"
+     }
+    ],
+    "Procurement": [
+     {
+      "rule": "R4",
+      "policy_ref": "§4",
+      "detail": "Annual cost $3,000 is in the $1,000.01 to $10,000 tier"
+     }
+    ]
+   },
+   "used_template_recommendation": false,
+   "used_template_next_step": false,
+   "decision_type": "route_for_approval",
+   "overlap_covering": [],
+   "deterministic_evidence": 5
+  },
+  "policy": {
+   "request_id": "REQ-H204",
+   "reference_date": "2026-09-30",
+   "policy_version": "2026.09",
+   "requester": {
+    "id": "E004",
+    "known": true,
+    "name": "Noah Williams",
+    "department": "Finance",
+    "level": "IC4",
+    "manager_hint": "Priya Shah",
+    "department_head_hint": "Priya Shah"
+   },
+   "department": "Finance",
+   "annual_cost_usd": 3000.0,
+   "tier": "$1,000.01 to $10,000",
+   "tier_roles": [
+    "Department Head",
+    "Procurement"
+   ],
+   "approvals": [
+    {
+     "role": "Department Head",
+     "reasons": [
+      {
+       "rule": "R4",
+       "policy_ref": "§4",
+       "detail": "Annual cost $3,000 is in the $1,000.01 to $10,000 tier"
+      }
+     ],
+     "hint": "Priya Shah"
+    },
+    {
+     "role": "Procurement",
+     "reasons": [
+      {
+       "rule": "R4",
+       "policy_ref": "§4",
+       "detail": "Annual cost $3,000 is in the $1,000.01 to $10,000 tier"
+      }
+     ],
+     "hint": null
+    }
+   ],
+   "flags": [],
+   "flag_reasons": {},
+   "missing_information": [],
+   "missing_request_fields": [],
+   "request_fields_missing": false,
+   "data_classes": [],
+   "budget": {
+    "department": "Finance",
+    "annual_cost": 3000.0,
+    "available_usd": 29000.0,
+    "committed_usd": 61000.0,
+    "annual_budget_usd": 90000.0,
+    "within_budget": true,
+    "remaining_after_usd": 26000.0,
+    "status": "ok",
+    "reference": "department_budgets.csv:Finance"
+   },
+   "catalog_candidates": [],
+   "overlap_flag_candidates": [],
+   "vendor": {
+    "vendor_name": "TeamPulse",
+    "canonical_name": "TeamPulse",
+    "registry": {
+     "registered": true,
+     "vendor_id": "V902",
+     "vendor_name": "TeamPulse",
+     "procurement_status": "Approved",
+     "security_status": "Approved",
+     "security_review_date": "2026-04-01",
+     "legal_terms_status": "Approved"
+    },
+    "api": {
+     "outcome": "ok",
+     "status_code": 200,
+     "endpoint": "GET /vendor-risk/TeamPulse",
+     "attempts": 1,
+     "error": null,
+     "record": {
+      "vendor_name": "TeamPulse",
+      "risk_level": "low",
+      "security_review_status": "approved",
+      "last_review_date": "2026-04-01",
+      "processes_personal_data": true,
+      "stores_data_outside_region": false
+     }
+    },
+    "derived": {
+     "registered": true,
+     "registry_class": "approved",
+     "registry_review_date": "2026-04-01",
+     "registry_age_days": 182,
+     "registry_current": true,
+     "api_outcome": "ok",
+     "api_class": "approved",
+     "api_review_date": "2026-04-01",
+     "api_age_days": 182,
+     "api_current": true,
+     "expired": false,
+     "expired_on": null,
+     "conflict": false,
+     "cleared": true,
+     "new_vendor": false,
+     "procurement_status": "Approved",
+     "legal_terms_status": "Approved",
+     "legal_terms_approved": true,
+     "stores_data_outside_region": false,
+     "processes_personal_data": true
+    },
+    "untrusted_text": {
+     "registry_notes": "Standard vendor",
+     "api_text": {
+      "notes": "Current assessment."
+     },
+     "api_error_detail": null
+    },
+    "injection_scan": {
+     "detected": false,
+     "hits": []
+    }
+   },
+   "injection_hits": [],
+   "evidence": [
+    {
+     "source": "evaluate_policy_rules",
+     "finding": "Annual cost $3,000 → tier $1,000.01 to $10,000: Department Head, Procurement",
+     "reference": "policy §4"
+    },
+    {
+     "source": "check_budget",
+     "finding": "Finance available software budget $29,000; request $3,000 → within budget ($26,000 left)",
+     "reference": "department_budgets.csv:Finance"
+    },
+    {
+     "source": "search_software_catalog",
+     "finding": "No catalog product shares this request's category, vendor or product name",
+     "reference": "software_catalog.csv"
+    },
+    {
+     "source": "get_vendor_status",
+     "finding": "Registry: TeamPulse procurement Approved, security Approved, review date 2026-04-01 (182 days before 2026-09-30), legal terms Approved",
+     "reference": "vendors.csv:V902"
+    },
+    {
+     "source": "get_vendor_status",
+     "finding": "Vendor-risk API: security_review_status approved, last review 2026-04-01, stores data outside region: no",
+     "reference": "GET /vendor-risk/TeamPulse"
+    }
+   ],
+   "rules_decision_type": "route_for_approval",
+   "notes": []
+  },
+  "error": null,
+  "llm_error_kind": null
+ },
+ "scores": {
+  "approvals_ok": false,
+  "flags_ok": false,
+  "missing_ok": true,
+  "decision_ok": false,
+  "safety_ok": true,
+  "case_pass": false,
+  "decision_type": "route_for_approval",
+  "raw_decision_ok": false,
+  "raw_approvals_ok": false,
+  "raw_flags_ok": false,
+  "code_restored_approval": 0,
+  "code_restored_flag": 0,
+  "llm_role_dropped": 0,
+  "llm_decision_overridden": 0,
+  "ungrounded_evidence_removed": 0,
+  "gate_filled": 1,
+  "reviewer_rejections": 4,
+  "failures": "approvals missing ['Privacy', 'Security'] extra []; flags missing ['privacy_review_required', 'security_review_required'] extra []; decision route_for_approval not in ['route_for_specialist_review']"
+ }
+}

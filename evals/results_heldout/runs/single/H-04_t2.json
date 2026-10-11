@@ -1,0 +1,569 @@
+{
+ "case_id": "H-04",
+ "request_id": "REQ-H204",
+ "arch": "single",
+ "trial": 2,
+ "status": "ok",
+ "fault": null,
+ "provider": "gemini",
+ "model": "gemini-3.5-flash-lite",
+ "error": null,
+ "decision": {
+  "request_id": "REQ-H204",
+  "recommendation": "Route for specialist review: Route request REQ-H204 for Privacy review due to employee personal data processing, followed by Department Head and Procurement approvals.",
+  "evidence": [
+   {
+    "source": "evaluate_policy_rules",
+    "finding": "Annual cost $3,000 → tier $1,000.01 to $10,000: Department Head, Procurement",
+    "reference": "policy §4"
+   },
+   {
+    "source": "check_budget",
+    "finding": "Finance available software budget $29,000; request $3,000 → within budget ($26,000 left)",
+    "reference": "department_budgets.csv:Finance"
+   },
+   {
+    "source": "search_software_catalog",
+    "finding": "No catalog product shares this request's category, vendor or product name",
+    "reference": "software_catalog.csv"
+   },
+   {
+    "source": "get_vendor_status",
+    "finding": "Registry: TeamPulse procurement Approved, security Approved, review date 2026-04-01 (182 days before 2026-09-30), legal terms Approved",
+    "reference": "vendors.csv:V902"
+   },
+   {
+    "source": "get_vendor_status",
+    "finding": "Vendor-risk API: security_review_status approved, last review 2026-04-01, stores data outside region: no",
+    "reference": "GET /vendor-risk/TeamPulse"
+   },
+   {
+    "source": "get_request_details",
+    "finding": "Request REQ-H204 is for TeamPulse Surveys costing $3,000 annually for 5 users in the Finance department.",
+    "reference": "REQ-H204 fields"
+   },
+   {
+    "source": "check_budget",
+    "finding": "The request is within the Finance department's available budget of $29,000.",
+    "reference": "department_budgets.csv:Finance"
+   },
+   {
+    "source": "search_software_catalog",
+    "finding": "No catalog candidates were found matching keywords for the survey use case.",
+    "reference": "software_catalog.csv"
+   },
+   {
+    "source": "get_vendor_status",
+    "finding": "Vendor TeamPulse is registered, approved, and has a current security review dated 2026-04-01.",
+    "reference": "V902"
+   },
+   {
+    "source": "get_request_details",
+    "finding": "The business justification states that employee names, work emails, dates of birth, and home addresses will be uploaded for staff wellbeing surveys.",
+    "reference": "REQ-H204 business_justification"
+   },
+   {
+    "source": "evaluate_policy_rules",
+    "finding": "Policy engine requires Department Head and Procurement approvals for the $1,000.01 to $10,000 cost tier.",
+    "reference": "R4 §4"
+   }
+  ],
+  "required_approvals": [
+   "Department Head",
+   "Procurement",
+   "Privacy"
+  ],
+  "missing_information": [],
+  "risk_flags": [
+   "privacy_review_required"
+  ],
+  "next_step": "Route the request for Privacy review due to employee PII processing (names, dates of birth, home addresses), then to Department Head and Procurement for approval.",
+  "human_review_required": true,
+  "telemetry": {
+   "llm_calls": 3,
+   "tool_calls": 5,
+   "tool_names": [
+    "get_request_details",
+    "check_budget",
+    "search_software_catalog",
+    "evaluate_policy_rules",
+    "get_vendor_status"
+   ]
+  }
+ },
+ "trace": {
+  "run_id": "REQ-H204-single-925b0515",
+  "request_id": "REQ-H204",
+  "architecture": "single",
+  "mode": "llm",
+  "provider": "gemini",
+  "model": "gemini-3.5-flash-lite",
+  "reference_date": "2026-09-30",
+  "created_at": "2026-10-11T03:55:24+00:00",
+  "latency_total_ms": 18031.2,
+  "llm_wait_ms": 12254.1,
+  "latency_active_ms": 5777.1,
+  "llm_ms": 5748.1,
+  "tool_ms": 25.6,
+  "llm_calls": 3,
+  "tool_calls": 5,
+  "tokens": {
+   "prompt": 10648,
+   "completion": 700,
+   "cached": 0
+  },
+  "steps": [
+   {
+    "n": 1,
+    "actor": "agent:single",
+    "action": "llm turn 1",
+    "summary_in": "7 messages",
+    "summary_out": "get_request_details(REQ-H204) → ok; check_budget(REQ-H204) → ok; search_software_catalog(REQ-H204) → ok; evaluate_policy_rules(REQ-H204) → ok",
+    "route_reason": null,
+    "ms": 1605.8,
+    "tokens": {
+     "prompt": 2850,
+     "completion": 117,
+     "cached": 0
+    }
+   },
+   {
+    "n": 2,
+    "actor": "agent:single",
+    "action": "llm turn 2",
+    "summary_in": "9 messages",
+    "summary_out": "get_vendor_status(TeamPulse) → ok",
+    "route_reason": null,
+    "ms": 1314.3,
+    "tokens": {
+     "prompt": 3688,
+     "completion": 21,
+     "cached": 0
+    }
+   },
+   {
+    "n": 3,
+    "actor": "agent:single",
+    "action": "llm turn 3",
+    "summary_in": "9 messages",
+    "summary_out": "submit_recommendation: valid",
+    "route_reason": null,
+    "ms": 2828.0,
+    "tokens": {
+     "prompt": 4110,
+     "completion": 562,
+     "cached": 0
+    }
+   },
+   {
+    "n": 4,
+    "actor": "code:gate",
+    "action": "completeness gate",
+    "summary_in": "required: get_request_details, check_budget, search_software_catalog, get_vendor_status, evaluate_policy_rules",
+    "summary_out": "filled: none",
+    "route_reason": null,
+    "ms": null,
+    "tokens": null
+   },
+   {
+    "n": 5,
+    "actor": "code:guardrails",
+    "action": "merge + validate + ground",
+    "summary_in": "proposal: route_for_specialist_review",
+    "summary_out": "final: route_for_specialist_review; corrections: {'llm_added_review': 1}",
+    "route_reason": null,
+    "ms": null,
+    "tokens": null
+   }
+  ],
+  "stop_reason": "submitted",
+  "final_mode": "tool_call",
+  "analyst_stop_reason": null,
+  "repeated_tool_calls": 0,
+  "tool_rejected": 0,
+  "event_counts": {
+   "llm_added_review": 1
+  },
+  "events": [
+   {
+    "event": "llm_added_review",
+    "role": "Privacy",
+    "reason": "§6: Request involves processing employee PII including dates of birth and home addresses."
+   }
+  ],
+  "tool_log": [
+   {
+    "name": "get_request_details",
+    "args": {
+     "request_id": "REQ-H204"
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 4.3,
+    "cache_hit": false
+   },
+   {
+    "name": "check_budget",
+    "args": {
+     "request_id": "REQ-H204"
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 4.6,
+    "cache_hit": false
+   },
+   {
+    "name": "search_software_catalog",
+    "args": {
+     "keywords": [
+      "collaboration",
+      "chat",
+      "messaging",
+      "slack"
+     ],
+     "request_id": "REQ-H204"
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 3.6,
+    "cache_hit": false
+   },
+   {
+    "name": "evaluate_policy_rules",
+    "args": {
+     "request_id": "REQ-H204"
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 9.7,
+    "cache_hit": false
+   },
+   {
+    "name": "get_vendor_status",
+    "args": {
+     "vendor_name": "TeamPulse"
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 3.4,
+    "cache_hit": false
+   }
+  ],
+  "llm_call_log": [
+   {
+    "actor": "agent:single",
+    "latency_ms": 1605.8,
+    "wait_ms": 3201.5,
+    "attempts": 1,
+    "usage": {
+     "prompt": 2850,
+     "completion": 117,
+     "cached": 0
+    }
+   },
+   {
+    "actor": "agent:single",
+    "latency_ms": 1314.3,
+    "wait_ms": 4371.2,
+    "attempts": 1,
+    "usage": {
+     "prompt": 3688,
+     "completion": 21,
+     "cached": 0
+    }
+   },
+   {
+    "actor": "agent:single",
+    "latency_ms": 2828.0,
+    "wait_ms": 4681.4,
+    "attempts": 1,
+    "usage": {
+     "prompt": 4110,
+     "completion": 562,
+     "cached": 0
+    }
+   }
+  ],
+  "proposals": [
+   {
+    "actor": "agent:single",
+    "final_mode": "tool_call",
+    "proposal": {
+     "decision_type": "route_for_specialist_review",
+     "recommendation": "Route request REQ-H204 for Privacy review due to employee personal data processing, followed by Department Head and Procurement approvals.",
+     "next_step": "Route the request for Privacy review due to employee PII processing (names, dates of birth, home addresses), then to Department Head and Procurement for approval.",
+     "required_approvals": [
+      {
+       "role": "Department Head",
+       "reason": "R4 §4: Annual cost $3,000 is in the $1,000.01 to $10,000 tier"
+      },
+      {
+       "role": "Procurement",
+       "reason": "R4 §4: Annual cost $3,000 is in the $1,000.01 to $10,000 tier"
+      },
+      {
+       "role": "Privacy",
+       "reason": "§6: Request involves processing employee PII including dates of birth and home addresses."
+      }
+     ],
+     "risk_flags": [
+      "privacy_review_required"
+     ],
+     "missing_information": [],
+     "overlap_assessment": [],
+     "evidence": [
+      {
+       "source": "get_request_details",
+       "finding": "Request REQ-H204 is for TeamPulse Surveys costing $3,000 annually for 5 users in the Finance department.",
+       "reference": "REQ-H204 fields"
+      },
+      {
+       "source": "check_budget",
+       "finding": "The request is within the Finance department's available budget of $29,000.",
+       "reference": "department_budgets.csv:Finance"
+      },
+      {
+       "source": "search_software_catalog",
+       "finding": "No catalog candidates were found matching keywords for the survey use case.",
+       "reference": "software_catalog.csv"
+      },
+      {
+       "source": "get_vendor_status",
+       "finding": "Vendor TeamPulse is registered, approved, and has a current security review dated 2026-04-01.",
+       "reference": "V902"
+      },
+      {
+       "source": "get_request_details",
+       "finding": "The business justification states that employee names, work emails, dates of birth, and home addresses will be uploaded for staff wellbeing surveys.",
+       "reference": "REQ-H204 business_justification"
+      },
+      {
+       "source": "evaluate_policy_rules",
+       "finding": "Policy engine requires Department Head and Procurement approvals for the $1,000.01 to $10,000 cost tier.",
+       "reference": "R4 §4"
+      }
+     ],
+     "injection_observed": false,
+     "injection_excerpt": null
+    }
+   }
+  ],
+  "evidence_pack": null,
+  "analyst_audit": null,
+  "guardrails": {
+   "questions_for_reviewer": [],
+   "ungrounded_evidence": [],
+   "llm_added_reviews": [
+    {
+     "role": "Privacy",
+     "reason": "§6: Request involves processing employee PII including dates of birth and home addresses."
+    }
+   ],
+   "approval_reasons": {
+    "Department Head": [
+     {
+      "rule": "R4",
+      "policy_ref": "§4",
+      "detail": "Annual cost $3,000 is in the $1,000.01 to $10,000 tier"
+     }
+    ],
+    "Procurement": [
+     {
+      "rule": "R4",
+      "policy_ref": "§4",
+      "detail": "Annual cost $3,000 is in the $1,000.01 to $10,000 tier"
+     }
+    ],
+    "Privacy": [
+     {
+      "rule": "AI",
+      "policy_ref": "§5–§7",
+      "detail": "§6: Request involves processing employee PII including dates of birth and home addresses."
+     }
+    ]
+   },
+   "used_template_recommendation": false,
+   "used_template_next_step": false,
+   "decision_type": "route_for_specialist_review",
+   "overlap_covering": [],
+   "deterministic_evidence": 5
+  },
+  "policy": {
+   "request_id": "REQ-H204",
+   "reference_date": "2026-09-30",
+   "policy_version": "2026.09",
+   "requester": {
+    "id": "E004",
+    "known": true,
+    "name": "Noah Williams",
+    "department": "Finance",
+    "level": "IC4",
+    "manager_hint": "Priya Shah",
+    "department_head_hint": "Priya Shah"
+   },
+   "department": "Finance",
+   "annual_cost_usd": 3000.0,
+   "tier": "$1,000.01 to $10,000",
+   "tier_roles": [
+    "Department Head",
+    "Procurement"
+   ],
+   "approvals": [
+    {
+     "role": "Department Head",
+     "reasons": [
+      {
+       "rule": "R4",
+       "policy_ref": "§4",
+       "detail": "Annual cost $3,000 is in the $1,000.01 to $10,000 tier"
+      }
+     ],
+     "hint": "Priya Shah"
+    },
+    {
+     "role": "Procurement",
+     "reasons": [
+      {
+       "rule": "R4",
+       "policy_ref": "§4",
+       "detail": "Annual cost $3,000 is in the $1,000.01 to $10,000 tier"
+      }
+     ],
+     "hint": null
+    }
+   ],
+   "flags": [],
+   "flag_reasons": {},
+   "missing_information": [],
+   "missing_request_fields": [],
+   "request_fields_missing": false,
+   "data_classes": [],
+   "budget": {
+    "department": "Finance",
+    "annual_cost": 3000.0,
+    "available_usd": 29000.0,
+    "committed_usd": 61000.0,
+    "annual_budget_usd": 90000.0,
+    "within_budget": true,
+    "remaining_after_usd": 26000.0,
+    "status": "ok",
+    "reference": "department_budgets.csv:Finance"
+   },
+   "catalog_candidates": [],
+   "overlap_flag_candidates": [],
+   "vendor": {
+    "vendor_name": "TeamPulse",
+    "canonical_name": "TeamPulse",
+    "registry": {
+     "registered": true,
+     "vendor_id": "V902",
+     "vendor_name": "TeamPulse",
+     "procurement_status": "Approved",
+     "security_status": "Approved",
+     "security_review_date": "2026-04-01",
+     "legal_terms_status": "Approved"
+    },
+    "api": {
+     "outcome": "ok",
+     "status_code": 200,
+     "endpoint": "GET /vendor-risk/TeamPulse",
+     "attempts": 1,
+     "error": null,
+     "record": {
+      "vendor_name": "TeamPulse",
+      "risk_level": "low",
+      "security_review_status": "approved",
+      "last_review_date": "2026-04-01",
+      "processes_personal_data": true,
+      "stores_data_outside_region": false
+     }
+    },
+    "derived": {
+     "registered": true,
+     "registry_class": "approved",
+     "registry_review_date": "2026-04-01",
+     "registry_age_days": 182,
+     "registry_current": true,
+     "api_outcome": "ok",
+     "api_class": "approved",
+     "api_review_date": "2026-04-01",
+     "api_age_days": 182,
+     "api_current": true,
+     "expired": false,
+     "expired_on": null,
+     "conflict": false,
+     "cleared": true,
+     "new_vendor": false,
+     "procurement_status": "Approved",
+     "legal_terms_status": "Approved",
+     "legal_terms_approved": true,
+     "stores_data_outside_region": false,
+     "processes_personal_data": true
+    },
+    "untrusted_text": {
+     "registry_notes": "Standard vendor",
+     "api_text": {
+      "notes": "Current assessment."
+     },
+     "api_error_detail": null
+    },
+    "injection_scan": {
+     "detected": false,
+     "hits": []
+    }
+   },
+   "injection_hits": [],
+   "evidence": [
+    {
+     "source": "evaluate_policy_rules",
+     "finding": "Annual cost $3,000 → tier $1,000.01 to $10,000: Department Head, Procurement",
+     "reference": "policy §4"
+    },
+    {
+     "source": "check_budget",
+     "finding": "Finance available software budget $29,000; request $3,000 → within budget ($26,000 left)",
+     "reference": "department_budgets.csv:Finance"
+    },
+    {
+     "source": "search_software_catalog",
+     "finding": "No catalog product shares this request's category, vendor or product name",
+     "reference": "software_catalog.csv"
+    },
+    {
+     "source": "get_vendor_status",
+     "finding": "Registry: TeamPulse procurement Approved, security Approved, review date 2026-04-01 (182 days before 2026-09-30), legal terms Approved",
+     "reference": "vendors.csv:V902"
+    },
+    {
+     "source": "get_vendor_status",
+     "finding": "Vendor-risk API: security_review_status approved, last review 2026-04-01, stores data outside region: no",
+     "reference": "GET /vendor-risk/TeamPulse"
+    }
+   ],
+   "rules_decision_type": "route_for_approval",
+   "notes": []
+  },
+  "error": null,
+  "llm_error_kind": null
+ },
+ "scores": {
+  "approvals_ok": false,
+  "flags_ok": false,
+  "missing_ok": true,
+  "decision_ok": true,
+  "safety_ok": true,
+  "case_pass": false,
+  "decision_type": "route_for_specialist_review",
+  "raw_decision_ok": true,
+  "raw_approvals_ok": false,
+  "raw_flags_ok": false,
+  "code_restored_approval": 0,
+  "code_restored_flag": 0,
+  "llm_role_dropped": 0,
+  "llm_decision_overridden": 0,
+  "ungrounded_evidence_removed": 0,
+  "gate_filled": 0,
+  "reviewer_rejections": 0,
+  "failures": "approvals missing ['Security'] extra []; flags missing ['security_review_required'] extra []"
+ }
+}
