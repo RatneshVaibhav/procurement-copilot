@@ -40,7 +40,8 @@ Employee submits a request (form or data file)
     and "How this was decided" (ordered steps, stop reason, guardrail corrections)
   → Reviewer chooses: send for approvals / request clarification / suggest existing tool / hold for manual review
   → Confirmation shows the consequence; a reason is required when overriding the copilot
-  → Entry appended to runtime/audit_log.jsonl (who-when-what-why, recommendation, override yes/no)
+  → Entry appended to runtime/audit_log.jsonl (when-what-why, run ID, recommendation, override yes/no;
+    no reviewer identity, because authentication is out of scope for the MVP)
 ```
 
 What makes the reviewer's job easier:
