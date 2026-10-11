@@ -40,7 +40,7 @@ PROVIDERS: dict[str, dict] = {
     "gemini": {
         "base_url": "https://generativelanguage.googleapis.com/v1beta/openai/",
         "key_envs": ["GEMINI_API_KEY", "GOOGLE_API_KEY"],
-        "default_model": "gemini-2.5-flash",
+        "default_model": "gemini-3.5-flash-lite",  # the evaluated model (D-23, D-24)
         "default_min_interval": 6.0,
     },
 }
@@ -101,7 +101,7 @@ class Settings:
 
 def get_settings() -> Settings:
     """Read every setting from the environment now (never cached)."""
-    provider = _env("LLM_PROVIDER", "groq").casefold() or "groq"
+    provider = _env("LLM_PROVIDER", "gemini").casefold() or "gemini"  # default = evaluated config (D-24)
     if provider in PROVIDERS:
         spec = PROVIDERS[provider]
         api_key = next((_env(k) for k in spec["key_envs"] if _env(k)), "")

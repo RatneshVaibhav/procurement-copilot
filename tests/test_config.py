@@ -45,6 +45,13 @@ class SettingsTests(unittest.TestCase):
         self.assertEqual(s.llm_min_interval_seconds, 2.5)
         self.assertEqual(s.llm_base_url, "https://api.groq.com/openai/v1")
 
+    def test_default_is_the_evaluated_configuration(self):
+        """With no provider settings at all, the app uses the model the reported eval used (D-24)."""
+        env = {k: v for k, v in os.environ.items() if k not in {"LLM_PROVIDER", "MODEL_NAME", "LLM_REASONING_EFFORT"}}
+        with mock.patch.dict(os.environ, env, clear=True):
+            s = get_settings()
+        self.assertEqual((s.llm_provider, s.model_name, s.llm_reasoning_effort), ("gemini", "gemini-3.5-flash-lite", None))
+
     def test_unknown_provider_is_unconfigured(self):
         with mock.patch.dict(os.environ, {"LLM_PROVIDER": "nope", "GROQ_API_KEY": "x"}):
             self.assertFalse(get_settings().llm_configured)
@@ -53,7 +60,7 @@ class SettingsTests(unittest.TestCase):
         from src.config import apply_provider
         with mock.patch.dict(os.environ, {"LLM_PROVIDER": "groq", "MODEL_NAME": "openai/gpt-oss-20b"}):
             apply_provider("gemini")
-            self.assertEqual(get_settings().model_name, "gemini-2.5-flash")
+            self.assertEqual(get_settings().model_name, "gemini-3.5-flash-lite")
         with mock.patch.dict(os.environ, {"LLM_PROVIDER": "groq", "MODEL_NAME": "openai/gpt-oss-120b"}):
             apply_provider("groq")
             self.assertEqual(get_settings().model_name, "openai/gpt-oss-120b")

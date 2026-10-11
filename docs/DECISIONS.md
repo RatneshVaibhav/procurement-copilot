@@ -213,7 +213,7 @@ D-01, D-02 and D-04 below were proposed in the kickoff report and are **accepted
 ## D-24: The default configuration is the evaluated one (Sun 11 Oct 2026)
 
 - F §6 names Groq `openai/gpt-oss-20b` as the default. That model was never evaluated, it makes about 7 calls per run on the free tier (BUILD_LOG Phase 3), and the README says it cannot carry the eval. Someone cloning the repo should get the model whose numbers we report.
-- `.env.example` now defaults to the primary evaluated configuration: `LLM_PROVIDER=gemini`, `MODEL_NAME=gemini-3.5-flash-lite`, `LLM_REASONING_EFFORT=` (not sent; D-23). The qwen settings (D-20) are a comment. The code defaults in `src/config.py` are unchanged.
+- `.env.example` now defaults to the primary evaluated configuration: `LLM_PROVIDER=gemini`, `MODEL_NAME=gemini-3.5-flash-lite`, `LLM_REASONING_EFFORT=` (not sent; D-23). The qwen settings (D-20) are a comment. The code defaults in `src/config.py` follow too (provider `gemini`, model `gemini-3.5-flash-lite`), so the app shows the evaluated model even before a `.env` exists; the Groq defaults are unchanged for anyone who selects Groq.
 - No key still means the rule-based result with the "AI analysis unavailable" banner.
 
 ## D-25: Held-out cases (Sun 11 Oct 2026)
