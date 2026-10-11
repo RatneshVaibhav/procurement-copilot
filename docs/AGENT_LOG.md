@@ -1,37 +1,50 @@
-# Agent log (written by me, not by Claude Code)
+# Agent log
 
-How I guided Claude Code through this build (Class 10: agentic coding with human ownership of correctness). A few lines per phase is enough.
-
-> **Before submitting:** the answers below are facts Claude Code compiled from the build (commits, `docs/BUILD_LOG.md`, `docs/DECISIONS.md`) so I don't forget anything. I must review each one and rewrite it in my own words, then delete this note.
+How I used Claude Code to build this project and where I stepped in (Class 10: agentic coding with human ownership of correctness).
 
 ## Setup
-- Provider / model chosen and why: Groq `openai/gpt-oss-20b` first (spec default, D-12). It made one tool call per turn, so an A run took 7 calls and ~17K tokens against a 200K tokens/day free cap. Gemini 2.5 Flash free (D-17) turned out to allow only 20 requests/day on my project. The reported eval uses Groq `qwen/qwen3.8-27b` (D-20): free, parallel tool calls, ~11.5K tokens per A run, with reasoning off because Groq caps it at 1,000 output tokens/minute.
-- Rate-limit headers seen in the smoke test: Groq `x-ratelimit-limit-tokens: 8000` (per minute), `x-ratelimit-limit-requests: 1000` (per day); qwen's daily cap from a 429: "tokens per day (TPD): Limit 200000". Gemini: `GenerateRequestsPerDayPerProjectPerModel-FreeTier`, limit 20.
-- LLM budget option chosen and why: free tiers only (my decision; I did not want to pay). Consequence: the LLM eval is partial and run in paired order (A and B per case) so the comparison stays fair when the quota stops it.
+- **Provider and model.** I started on Groq `openai/gpt-oss-20b`, free tier, the spec's default (D-12). It made only one tool call per turn, so one A run took about 7 calls and ~17K tokens against a free cap of 200K tokens a day. I didn't want to pay for this project, so I asked for free Gemini 2.5 Flash for the reported eval and Groq for development checks (D-17). Gemini then turned out to allow only 20 requests a day on my project, far below the ~150 the eval needs. So I moved the reported eval to `qwen/qwen3.8-27b` on Groq (D-20): free, parallel tool calls, about 11.5K tokens per A run. Reasoning is off because Groq limits that model to 1,000 output tokens a minute.
+- **Rate limits I ran into.** Groq: 8,000 tokens per minute and 1,000 requests per day (smoke-test headers), and a 200,000 tokens/day cap for qwen (from a 429 error). Gemini: `GenerateRequestsPerDayPerProjectPerModel-FreeTier`, limit 20.
+- **Budget.** Free tiers only, my call. The price is a partial LLM eval, so I chose a paired order: A and B run on the same case before moving to the next one. That way the A-vs-B comparison stays fair wherever the quota runs out.
 
 ## Inspection and plan
-- Kickoff prompt used: see PLAN.md. What its repository summary got wrong or missed: the kickoff report was not saved to the repo, so its defaults were re-listed one by one as D-07.1–D-07.11.
-- Spec conflicts or ambiguities it reported, and how I resolved them: forced `tool_choice` removed (D1 vs T7); Analyst has 5 tools (D5 vs T18 diagram); public runner changes limited to startup/output/exit code (D-08); registered vendor with a vendor-risk 404 adds Security (D-01); no product names in rule patterns (D-02); overlap flag is code-only (D-03); LLM-added injection flag needs a verbatim excerpt (D-04).
+- I started with the kickoff prompt from PLAN.md. Claude Code read the specs and listed scaffold defects, spec conflicts and open questions before changing any code. I answered the open questions and recorded the answers in `docs/DECISIONS.md` before Phase 0.
+- The kickoff report itself wasn't saved in the repo, so I had its proposed defaults written out one by one as D-07.1 to D-07.11. That way nothing depended on chat history.
+- How I resolved the conflicts:
+  - forced `tool_choice` is removed, because three spec sections contradicted it (D-07.11);
+  - the Analyst gets 5 tools;
+  - the public runner changes only its startup, output path and exit code (D-08);
+  - a registered vendor that the vendor-risk API doesn't know adds Security (D-01);
+  - no product names inside rule patterns (D-02);
+  - the overlap flag is decided by code only (D-03);
+  - an injection flag added by the LLM must quote the exact text (D-04).
+- **Working mode.** I had it run Phases 0 to 7 back to back instead of stopping after each one (D-11). Every phase still had to end with tests, a diff-reviewer pass, a commit and a build-log entry. It could pause for only four reasons:
+  - a business rule DECISIONS.md doesn't cover;
+  - a check still failing after three honest attempts;
+  - provider, key or budget problems;
+  - anything that needs secrets or a push.
 
 ## Per phase
-| Phase | What I checked | Something I corrected or overruled | Tests run |
-|---|---|---|---|
-| P0 | Smoke test output, rate-limit headers | Switched to continuous mode (D-11) instead of a STOP per phase | starter tests + config/mock tests |
-| P1 | Engine evidence for REQ-1007 (conflict) and REQ-1009 (unavailable) | Reviewer: server error text was leaking into engine output (made untrusted); R7 keyword fallback matched "product" as "prod" | 93 |
-| P2 | Rules-only safety net: public runner 6/6 under LLM outage | Reviewer: grounding check could be gamed (substring matches, echoed agent arguments) | 124 |
-| P3 | Three real Groq runs (REQ-1006, 1008, 1009), public 6/6 | A unit test had silently called the real LLM; fixed by blanking keys in tests. 400-error handling misread a "reasoning" word | 155+ |
-| P4 | Supervisor route reasons; reviewer audit | Reviewer `tool_use_failed` escaped to the last-resort path; policy block lacked the untrusted prefix | 181 |
-| P5 | Rules-only baseline 20/23; decision rule committed before any LLM run | Provider-mixing guard covered only one column; missing key would have produced fake "A/B" runs | 197 |
-| P6 | Browser checks (my checklist) | Stale analysis result could show under another request; Confirm enabled before the consequence loaded | 192+ |
-| P7 | Eval results, README, memo | Paired eval order; dashboard, compare view, evidence pack; overlap prompt clarified with eval evidence | 199 |
+| Phase | What got built | What the review caught (fixed before moving on) |
+|---|---|---|
+| P0 | Setup, scaffold fixes F1–F7, config, LLM smoke test | My change: continuous mode (D-11) instead of a stop after every phase |
+| P1 | Deterministic core: data access, injection scan, policy engine R0–R12, tools | Server error text was leaking into engine output (now treated as untrusted); a keyword fallback matched "product" as "prod" |
+| P2 | Guardrails, fallback, tracing: a rules-only safety net that passes the public checks with the LLM off | The grounding check could be fooled by substring matches and by the agent's own tool arguments |
+| P3 | LLM client, bounded loop, Architecture A | A unit test was silently calling the real LLM (fixed by blanking keys in tests); 400-error handling misread the word "reasoning" in model output |
+| P4 | Architecture B: deterministic supervisor, analyst, reviewer | A reviewer `tool_use_failed` error skipped the normal fallback; the policy block was missing the untrusted-data prefix |
+| P5 | Eval harness; decision rule committed before any LLM run; rules-only baseline 20/23 | The provider-mixing guard covered only one column; a missing key would have produced fake A/B runs |
+| P6 | Web app: queue, analysis, evidence, trace panel, actions with confirmation, audit log | An old result could show under a different request; Confirm was clickable before the consequence loaded |
+| P7 | Docs, eval runs, compare view, evaluation dashboard, evidence pack | The README still said results came from Gemini; the evidence pack didn't escape request text; numbers like "3.10" failed the grounding check |
+
+The unit tests went from the starter set to 209 by the end. None of them calls a real LLM.
 
 ## Evidence (Class 10 checklist)
-- One diff I reviewed line by line (commit hash + what I looked for): `de38e04` (guardrails): that the LLM path can only add Security/Privacy/Legal and never remove a policy approval, flag or missing item.
-- One incorrect assumption or fabricated API I caught: the spec assumed Gemini's free tier allows "a few hundred" requests/day; the real limit on my project was 20. Also: a 400-error check matched the word "reasoning" inside model output and would have silently changed model settings mid-eval.
-- One decision where I redirected the agent, and why: no paid plan and no extra accounts to get around quotas; instead a paired eval order and honest partial coverage.
+- **One diff I reviewed line by line:** commit `a5555c1`, the evidence-pack part of `webapp/main.py` and its test in `tests/test_webapp.py`. I checked two things. First, every piece of request, vendor or LLM text goes through `_md()` before it lands in the Markdown, so a justification can't fake a heading, a table row, a link or HTML. Second, the test really tries `<img src=x onerror=alert(1)>` and a fake "## Approvals required" line.
+- **One wrong assumption that came up:** the plan expected Gemini's free tier to allow "a few hundred" requests a day. On my project it was 20, so running the reported eval on Gemini (D-17) couldn't work and I moved it to qwen on Groq (D-20). A smaller one: a 400-error check matched the word "reasoning" inside model output and would have quietly changed model settings in the middle of the eval.
+- **Where I redirected the agent:** I kept the project on free tiers, even though it meant partial coverage. When the quota became the bottleneck, I chose the paired order and honest reporting of what didn't run. I asked about getting more API keys from extra accounts, then dropped the idea: it breaks the providers' terms, and the reported numbers have to come from one model anyway. When the deadline got tight, I gave the build one more day and asked for every deliverable to be finished properly.
 
-## My judgement calls (I can defend each in a viva)
-1. Decision rule (evals/DECISION_RULE.md): B must win by at least 2 golden cases (or fix a safety failure) at no more than 2× latency, because a second agent doubles the moving parts and must earn them.
-2. Assumption 11 (overlap flag on same category or identical name): the flag is literal and deterministic; whether the tool actually meets the need is the AI's judgement and only drives `use_existing_tool`.
-3. Assumption 13 (vendor API down, registry current, data not sensitive → no extra Security): the gap is recorded and flagged, but it is not material when nothing sensitive is involved (policy §10 "if material").
-4. Ship decision and what I would validate before production: ship A per the rule; validate on the full case set with more trials, add a deterministic check for personal data implied by free text (G-23), and complete the manual review.
+## My judgement calls
+1. **Decision rule.** I kept the spec's default rule (D-13) and had it committed before the first LLM eval run, so the result couldn't be tuned afterwards. B ships only if it passes at least 2 more golden cases than A, or fixes a safety failure A has, at no more than 2× A's latency. A second agent doubles the moving parts, so it has to earn them.
+2. **Overlap flag (assumption 11).** The flag is literal and set by code: same category or an identical product name. Whether the existing tool actually meets the need is the AI's judgement, and that only drives `use_existing_tool`. That judgement is exactly where B went wrong on G-04 and G-07.
+3. **Vendor API down (assumption 13).** If the registry review is current and no sensitive data is involved, the gap is recorded and flagged but doesn't add Security. Policy §10 only escalates when the gap is material.
+4. **Ship A.** Before production I'd want the full case set with several trials, plus a deterministic check for personal data that's only implied in the free text (G-23).

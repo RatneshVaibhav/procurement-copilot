@@ -1,12 +1,12 @@
 # Architecture Decision Memo
 
-DRAFT: rewrite in your own voice.
-
 ## Decision
-Ship **A: the single bounded agent**. The pre-registered rule (`evals/DECISION_RULE.md`) ships B only if it passes at least 2 more golden cases than A, or fixes a safety failure A has, at no more than 2× A's latency. On the 10 cases both architectures completed, A passed 9 and B passed 7, and neither had a safety failure.
+I would ship **A, the single bounded agent**.
+
+Before any LLM evaluation ran, I committed a rule (`evals/DECISION_RULE.md`): B ships only if it passes at least 2 more golden cases than A, or fixes a safety failure that A has, within 2× A's latency. On the 10 cases both architectures completed, A passed 9 and B passed 7, and neither had a safety failure.
 
 ## Evidence
-Same 23 golden cases, same model for both architectures (Groq `qwen/qwen3.8-27b`, free tier), exact-set scoring that penalises over-escalation. Numbers from `evals/results/summary.md`:
+Both architectures ran the same 23 golden cases with the same model (Groq `qwen/qwen3.8-27b`, free tier). Scoring is strict, so over-escalating also fails a case. Numbers from `evals/results/summary.md`:
 
 | Metric | A: bounded agent | B: sequential specialists | Rules-only |
 |---|---:|---:|---:|
@@ -18,13 +18,17 @@ Same 23 golden cases, same model for both architectures (Groq `qwen/qwen3.8-27b`
 | Avg tokens / run | 11526.6 | 13326 | 0 |
 | Ungrounded evidence removed | 0 | 5 | n/a |
 
-The free-tier daily token cap stopped the run before all cases finished: A completed 12 LLM cases, B 10. The comparison therefore uses the 10 paired cases.
+A daily token cap on the free tier stopped some runs. A completed 12 LLM cases, B 10. The comparison therefore uses the 10 paired cases.
 
 ## Trade-offs
-Both agents sit on the same deterministic core: code computes thresholds, budget, vendor currency and conflicts, the Security/Privacy/Legal triggers and the injection scan, and the guardrails never let the LLM remove what code decided. The AI adds what rules cannot: recognising that a licensed tool already covers the need (G-08 passed with both agents, failed with rules only). B's independent reviewer caught 5 evidence items that were not grounded in tool results, which is a real benefit for trust, but it cost more LLM calls (3.6 vs 2.8 per run) and more tokens (13326 vs 11526.6 per run) and did not improve any final decision. B lost G-04 and G-07 because both of its agents judged an existing product as covering the need; its reviewer repeated the analyst's judgement instead of correcting it.
+Both versions share one rules engine: code computes the approval thresholds, the budget check, vendor-review status, the Security/Privacy/Legal triggers and the injection scan. The AI can add a review but can never remove what code decided.
+
+The AI adds judgement that rules can't, like spotting that a tool we already pay for covers the request (G-08: both agents pass, rules-only fails).
+
+B's reviewer removed evidence items that weren't backed by tool results, which helps trust. But it cost more LLM calls (3.6 vs 2.8 per run) and more tokens (13326 vs 11526.6 per run), and fixed none of A's failures. It also lost G-04 and G-07: both B agents decided an existing product already covered the need, and the reviewer repeated the analyst's mistake.
 
 ## Risks / limitations
-Partial coverage and one trial: the result could change with the full 22 cases. Neither agent reliably adds Security/Privacy when personal data is only implied by free text (G-23 failed for A and B); the rules-only fallback cannot catch it either. Before production I would run the full set with more trials and add a deterministic personal-data keyword check to the policy engine.
+Coverage is partial and I ran one trial, so the result could shift on the full set. Neither agent reliably adds Security or Privacy when personal data is only implied by the text (G-23 fails for A, B and rules-only). Before production I would run every case several times and add a deterministic personal-data check.
 
 ## Why this is the right MVP
-The product's safety comes from code, not from agents: approvals, flags and missing information are computed deterministically, every recommendation goes to a human, and there are no action tools. A single bounded agent adds the judgement the reviewer needs at the lowest cost; a second agent did not earn its extra calls on this evidence.
+Safety here comes from code, not from the number of agents: approvals, flags and missing information are deterministic, a human makes every decision, and no tool can approve, buy or notify anyone. One bounded agent adds the judgement a reviewer needs at the lowest cost; a second agent didn't earn its extra calls.
