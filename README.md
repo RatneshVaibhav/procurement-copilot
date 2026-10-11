@@ -12,12 +12,13 @@ An internal tool for procurement reviewers. Open a software purchase request and
 
 | Same test set for every column, Gemini `gemini-3.5-flash-lite` | A: one agent | B: analyst → reviewer | Rules only |
 |---|---:|---:|---:|
-| Golden cases passed | 21/23 | 18/23 | 20/23 |
+| Golden cases passed, first trial (the pre-registered measure) | 21/23 | 18/23 | 20/23 |
+| Golden cases passed in each of 3 trials | 21, 21, 21 | 18, 17, 18 | 20 (deterministic) |
 | Held-out cases passed, first trial (written after the prompts were frozen) | 4/5 | 4/5 | 2/5 |
-| Avg LLM calls per request | 3.3 | 3.9 | 0 |
-| Avg active time per request (ms) | 6791.3 | 8286.1 | 63.9 |
+| Avg LLM calls per request | 3.3 | 3.8 | 0 |
+| Avg active time per request (ms) | 6857.1 | 8558.2 | 63.9 |
 
-A never failed a golden case that the rules passed, and the rule for choosing between A and B was committed before the first LLM evaluation run. The reasoning is in [§6](#6-ship-decision) and [`docs/DECISION_MEMO.md`](docs/DECISION_MEMO.md).
+A passed 21 of 23 cases in each trial and never fell back to the rules except in the deliberate LLM-outage case. The rule for choosing between A and B was committed before the first LLM evaluation run. The reasoning is in [§6](#6-ship-decision) and [`docs/DECISION_MEMO.md`](docs/DECISION_MEMO.md).
 
 | Brief deliverable | Where |
 |---|---|
@@ -203,36 +204,38 @@ Agent cards, the failure-mode table and the analyst → reviewer handoff schema 
 
 **Method.** 23 hand-labelled golden cases (`evals/golden_cases.json`): the 10 official requests, 11 eval-only fixtures (threshold boundaries, name casing, unregistered vendor, injection in the product name and in vendor-API notes, HR integration, unknown requester, PII implied only by text) and 2 fault cases (vendor-risk API down, LLM down). Scoring is strict, so over-escalating fails a case: approvals and flags must satisfy required ⊆ final ⊆ required ∪ optional, plus the missing-information groups, the accepted decision types and a safety check (human review, no forbidden approver, no "approved" claim). Raw-agent metrics score the LLM's proposal before the guardrails, which shows how much code corrected. Runs that hit provider rate limits are recorded as `infra_error`, re-run, and never counted as model failures. Details: [`evals/README.md`](evals/README.md).
 
-**Two models, never mixed.** Within each result set, A and B use the same model. The primary eval runs Gemini `gemini-3.5-flash-lite` (free tier) on all 23 cases for both architectures (46 runs, no infra errors), plus two extra trials of a 6-case consistency subset. The second eval runs Groq `qwen/qwen3.8-27b` (free tier, D-20), a stronger model; its 200K tokens/day cap stopped it after 12 cases for A and 10 for B. Rules-only covers all 23 in both. Flash-Lite is the primary eval because it is the only one with every case on both architectures (the brief asks for the same test set on both), the reporting order was fixed before its full run (D-23), and both evals give the same ship decision. The held-out set uses the primary model.
+**Two models, never mixed.** Within each result set, A and B use the same model. The primary eval runs Gemini `gemini-3.5-flash-lite` (free tier) on all 23 cases for both architectures, 3 trials each (138 LLM runs, no infra errors). The second eval runs Groq `qwen/qwen3.8-27b` (free tier, D-20), a stronger model; its 200K tokens/day cap stopped it after 12 cases for A and 10 for B. Rules-only covers all 23 in both. Flash-Lite is the primary eval because it is the only one with every case on both architectures (the brief asks for the same test set on both), the reporting order was fixed before its full run (D-23), and both evals give the same ship decision. The held-out set uses the primary model.
 
-**Primary results** (`evals/results/summary.md`; averages include the consistency trials):
+**Primary results** (`evals/results/summary.md`; 3 trials per case. "Golden cases passed" counts the first trial, as the decision rule was registered; the next two rows cover every trial):
 
 | Metric | A: bounded agent | B: sequential specialists | Workflow (rules-only) |
 |---|---:|---:|---:|
 | Golden cases passed (final output) | 21/23 | 18/23 | 20/23 |
+| Cases passed in each trial (t1, t2, t3) | 21/23, 21/23, 21/23 | 18/23, 17/23, 18/23 | 20/23 |
+| All runs passed (every trial) | 63/69 | 53/69 | 20/23 |
 | Cases only the AI can get right (G-08, G-23) | 0/2 | 0/2 | 0/2 |
 | Injection cases passed (3) | 3/3 | 2/3 | 3/3 |
 | Fault cases passed (2) | 2/2 | 2/2 | 1/2 |
-| Raw agent decision accuracy | 29/34 | 24/34 | n/a |
-| Decision consistency across trials | 4/6 | 3/6 | n/a (1 trial) |
-| Fallback runs (LLM path failed) | 1 | 5 | n/a |
-| Finalizer runs | 3 | 0 | n/a |
-| Gate-filled tool calls (total) | 12 | 19 | n/a |
-| Ungrounded evidence items removed (total) | 0 | 1 | n/a |
-| Avg active latency (ms) | 6791.3 | 8286.1 | 63.9 |
-| Avg LLM calls / run | 3.3 | 3.9 | 0 |
-| Avg tool calls / run | 5.3 | 6.2 | 5 |
-| Avg tokens / run | 13600.6 | 13816.7 | 0 |
+| Raw agent decision accuracy | 60/66 | 52/66 | n/a |
+| Decision consistency across trials | 19/23 | 17/23 | n/a (1 trial) |
+| Fallback runs (LLM path failed) | 3 | 11 | n/a |
+| Finalizer runs | 6 | 0 | n/a |
+| Gate-filled tool calls (total) | 33 | 46 | n/a |
+| Ungrounded evidence items removed (total) | 1 | 1 | n/a |
+| Avg active latency (ms) | 6857.1 | 8558.2 | 63.9 |
+| Avg LLM calls / run | 3.3 | 3.8 | 0 |
+| Avg tool calls / run | 5.4 | 6.2 | 5 |
+| Avg tokens / run | 13357.2 | 13290.3 | 0 |
 | Public runner minimum checks | 6/6 | 6/6 | 6/6 |
 | Infra errors excluded (runs) | 0 | 0 | 0 |
 
 **What the numbers say.**
 - **Both models agree:** A passes more cases than B with fewer LLM calls (Flash-Lite 21 vs 18 of 23; qwen 9 vs 7 on the 10 paired cases).
-- **A is never worse than the workflow, case by case.** On both models, every case A fails, rules-only also fails (per-case matrices in both `summary.md` files). B fails cases that rules-only passes: G-04, G-10, G-16 on Flash-Lite and G-04, G-07 on qwen. The deterministic core is a floor for A; B's extra stage adds failure modes without adding passes.
+- **A stays at the workflow's floor; B often drops below it.** On the first trial, on both models, every case A fails rules-only also fails (per-case matrices in both `summary.md` files), while B fails G-04, G-10, G-16 on Flash-Lite and G-04, G-07 on qwen. Over all three Flash-Lite trials, A failed 2 of 69 runs on cases rules-only passes (G-14, G-16: it suggested an existing tool); B failed 11 (8 analyst fallbacks, G-04 and G-16 "use existing tool", G-13 an extra Privacy review). A passed 19 of 23 cases in all three trials, B 12.
 - **Code-owned decisions held:** every required approval and flag was present in every final output except in G-23 (personal data implied only by the justification text), which rules-only fails and 7 of 8 agent runs across both models fail. Code never had to restore an approval or flag the LLM dropped.
 - **The model sets the AI's added value; the architecture doesn't.** With qwen, A also gets G-08 (a licensed tool already covers the need), which rules cannot. Flash-Lite misses G-08 on the first trial and gets it in 1 of 3 trials. On Flash-Lite's golden set, A beats rules-only only on G-22 (the LLM-outage flag); the held-out set below is where the AI's judgement shows.
-- **B is less robust on the small model.** Its LLM path failed in 4 of 34 B runs outside the LLM-outage case (the analyst ran out of turns; the code fallback took over safely but adds `llm_unavailable`), A's in none; A's structured finalizer rescued 3 invalid submissions. B's analyst also called the vendor tool with vendor names that exist nowhere in the data (4 of 6 manually reviewed runs); the deterministic gate re-ran the right lookup each time.
-- **Consistency** (6 cases × 3 trials): A gave the same decision in all three trials on 4 of 6 cases, B on 3 of 6; G-08 and G-23 flip between trials.
+- **B is less robust on the small model.** Its LLM path failed in 8 of 66 B runs outside the LLM-outage case (the analyst ran out of turns 6 times and produced invalid output twice; the code fallback took over safely but adds `llm_unavailable`), A's in none; A's structured finalizer rescued 6 invalid submissions. B's analyst also called the vendor tool with vendor names that exist nowhere in the data (4 of 6 manually reviewed runs); the deterministic gate re-ran the right lookup each time.
+- **Consistency** (23 cases × 3 trials): A gave the same decision in all three trials on 19 of 23 cases, B on 17 of 23; G-08 and G-23 flip between trials for both.
 
 **Held-out cases** (`evals/results_heldout/summary.md`; Gemini `gemini-3.5-flash-lite`, 3 trials each; D-25). Two golden requests (G-08, G-01) shaped the overlap wording in the prompts, so five more cases were written after the prompts were frozen and never used to change one:
 
@@ -273,7 +276,7 @@ Agent cards, the failure-mode table and the analyst → reviewer handoff schema 
 ```bash
 python evals/run_all.py --no-llm                                  # rules-only column
 python evals/run_all.py --provider gemini --model gemini-3.5-flash-lite --reasoning-effort off --trials 1 --resume --interleave   # primary eval, A and B
-python evals/run_all.py --provider gemini --model gemini-3.5-flash-lite --reasoning-effort off --trials 3 --resume                # consistency subset
+python evals/run_all.py --provider gemini --model gemini-3.5-flash-lite --reasoning-effort off --trials 3 --resume --interleave --cases G-01,G-02,G-03,G-04,G-05,G-06,G-07,G-08,G-09,G-10,G-11,G-12,G-13,G-14,G-15,G-16,G-17,G-18,G-19,G-20,G-21,G-22,G-23   # trials 2 and 3 for every case
 python evals/run_all.py --provider groq --model qwen/qwen3.8-27b --reasoning-effort none --trials 1 --resume --interleave --results-dir evals/results_qwen   # second model
 python evals/run_all.py --provider gemini --model gemini-3.5-flash-lite --reasoning-effort off --trials 3 --resume --interleave --cases-file evals/heldout_cases.json --results-dir evals/results_heldout   # held-out
 python evals/run_all.py --summary-only                            # rebuild a summary from the stored runs (no LLM)
@@ -301,9 +304,9 @@ Pre-registered rule (`evals/DECISION_RULE.md`, committed before the first LLM ev
 - **Primary (Flash-Lite, 23 paired cases):** A passes 21, B 18. Clause (a) fails (B is 3 cases behind and fixes no `safety_ok` failure); clause (b) holds (B/A active latency 1.16). **Ship A.** A beats rules-only on the same cases (21 vs 20).
 - **Second model (qwen, 10 paired cases):** A 9, B 7. Clause (a) fails, clause (b) holds (0.93). **Ship A.** A beats rules-only (9 vs 7).
 
-Both models give the same answer. B's reviewer is a second check on the evidence, but here it cost more calls, failed more often and never turned one of A's failures into a pass. The bigger lever is the model: a stronger model adds real judgement (G-08) on top of the rules; a second agent does not.
+Both models give the same answer, and the extra trials confirm it: A passed 21/23 in every trial, B 18, 17 and 18 (all runs: A 63/69, B 53/69). B's reviewer is a second check on the evidence, but here it cost more calls, failed more often and never turned one of A's failures into a pass. The bigger lever is the model: a stronger model adds real judgement (G-08) on top of the rules; a second agent does not.
 
-**Held-out check** (reported next to the rule, not part of it; the rule was registered for the golden set). First-trial passes tie at 4/5; across all 15 trials B passes 11 and A 9. Even read with the rule's own bar (at least 2 more cases), that is not enough to switch. It does show where B's extra stage helps: it says "an existing tool covers this" more readily, which found H-01 every time. The same tendency is behind some of its golden failures: it told reviewers to reuse a tool when the case needed specialist review or a new purchase (G-16 on Flash-Lite; G-04 and G-07 on qwen). A's misses are the safer kind: it routes for approval with the overlap flag in front of the reviewer.
+**Held-out check** (reported next to the rule, not part of it; the rule was registered for the golden set). First-trial passes tie at 4/5; across all 15 trials B passes 11 and A 9. Even read with the rule's own bar (at least 2 more cases), that is not enough to switch. It does show where B's extra stage helps: it says "an existing tool covers this" more readily, which found H-01 every time. The same tendency is behind some of its golden failures: it told reviewers to reuse a tool when the case needed specialist review or a new purchase (G-04 and G-16 on Flash-Lite; G-04 and G-07 on qwen). A made that mistake too, in 2 of 69 golden runs (G-14, G-16), but B fails far more often overall.
 
 ## 7. Assumptions
 
@@ -333,7 +336,7 @@ Further judgement calls made during the build are recorded in `docs/DECISIONS.md
 ## 8. Known limitations
 
 - Personal data implied only by free text (G-23, H-04) is not reliably caught: 1 pass in 12 Flash-Lite agent runs (A passed G-23 once in 3 trials). A deterministic check for personal data named in the text is the first fix I would make. On Flash-Lite the existing-tool judgement is also unreliable for A (G-08 1 of 3 trials, H-01 1 of 3).
-- The primary eval uses a small free model; the stronger qwen covered only 12 (A) and 10 (B) cases because of the free-tier token cap. The golden set has one trial per case except the 6-case consistency subset (3 trials).
+- The primary eval uses a small free model; the stronger qwen covered only 12 (A) and 10 (B) cases because of the free-tier token cap. The Flash-Lite golden and held-out sets have 3 trials per case; the qwen runs have one.
 - Most qwen runs were made while the grounding check was too strict for decimals written like "3.10" (introduced in `499104f`, fixed in `a5555c1`, before the Flash-Lite runs). It can only drop evidence items, which are not scored, so no pass or fail changed.
 - When B's analyst runs out of turns, the fallback adds `llm_unavailable` although the provider was reachable (the flag means "the AI path failed").
 - The grounding check verifies numbers, dates and IDs, not status words (AC-2.2, D-07.7).

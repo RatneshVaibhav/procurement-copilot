@@ -31,6 +31,7 @@ Recorded 9 Oct 2026, before Phase 0. These rulings answer the kickoff report (F1
 | D-24 | Setup | `.env.example` defaults to the evaluated Flash-Lite configuration | P7 | F §6, T3 |
 | D-25 | Eval | Five held-out cases, scored separately; the pre-registered rule stays on the golden set | P7 | D11 |
 | D-26 | Review | Pre-submission review: rollback by revoke, bounded form input, restart-safe actions, CI | P7 | US-5, T17 |
+| D-27 | Eval | Three trials for every golden case; the pre-registered rule still reads the first trial | P7 | D11.5, D-13 |
 
 D-01, D-02 and D-04 below were proposed in the kickoff report and are **accepted as written** (9 Oct 2026).
 
@@ -232,3 +233,9 @@ D-01, D-02 and D-04 below were proposed in the kickoff report and are **accepted
 - **CI** (`.github/workflows/ci.yml`): unit tests on Python 3.11 and 3.12, the rules-only baselines (golden 20/23, held-out 2/5), and a check that every committed summary rebuilds byte-identical from its stored runs. No secrets, no LLM calls.
 - **Scorer.** The AI-only, injection and fault groups are read from each case's labels instead of hardcoded IDs, so the held-out set is scored the same way; both existing summaries rebuild unchanged.
 - **Docs.** README audit-log wording (no reviewer identity without authentication), before/after workflow and success metrics (`docs/WORKFLOW.md`), per-case comparison with rules-only, both manual reviews checked against their run files.
+
+## D-27: Three trials for every golden case (Sun 11 Oct 2026, evening)
+
+- **Why.** Two independent reviews of the repo flagged "mostly one trial per case" as the main weakness of the evaluation. The consistency subset (D11.5) covered 6 cases.
+- **What.** Trials 2 and 3 for the other 17 golden cases on A and B (68 runs, Gemini `gemini-3.5-flash-lite`, 0 infra errors). No prompt, agent or engine change.
+- **Reporting.** The decision rule (D-13) was registered on "golden cases passed", the first trial, and is applied unchanged (ship A). The summaries add two rows, "Cases passed in each trial" and "All runs passed", so every trial is visible: A 21/23 in each trial (63/69 runs), B 18, 17 and 18 (53/69).

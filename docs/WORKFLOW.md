@@ -36,19 +36,19 @@ Humans keep every approval, every exception and the final routing. No tool can a
 
 - **Consistency:** approvals, flags and missing information come from code, so the same request is routed the same way every time. In the eval, code never had to restore an approval or flag the LLM dropped ("Code corrections per run": 0 for A and B).
 - **Safety under bad input:** A passed 3/3 injection cases and 2/2 fault cases (vendor-risk API down, LLM down); every output has `human_review_required = true`.
-- **Never worse than the rules:** case by case, A fails nothing that the rules-only workflow passes, on both evaluated models (per-case matrices in `evals/results/summary.md` and `evals/results_qwen/summary.md`).
+- **At the rules' floor:** on the first trial A fails nothing that the rules-only workflow passes, on both evaluated models (per-case matrices in `evals/results/summary.md` and `evals/results_qwen/summary.md`); over three trials it dropped below the rules in 2 of 69 runs.
 - **Judgement the rules cannot give:** only the AI can say "a licensed tool already covers this" (G-08). The stronger model gets it (`evals/results_qwen/summary.md`: A 1/2 AI-only cases); Flash-Lite gets it in 1 of 3 trials. This value depends on the model.
-- **Speed:** one analysis averages 6791.3 ms of active time and 3.3 LLM calls for A. The manual baseline time has not been measured (see §5).
+- **Speed:** one analysis averages 6857.1 ms of active time and 3.3 LLM calls for A. The manual baseline time has not been measured (see §5).
 
 ## 5. Success metrics
 
 | Metric | Definition | Target | Current evidence |
 |---|---|---|---|
 | Required-approval recall | Share of requests where every policy-required approval is in the copilot output | 100% | Met on every golden case except G-23 (personal data implied only by text), for every column |
-| Exact routing accuracy | Golden case passes: approvals, flags, missing information and decision all exact | At or above the rules-only workflow, and never below it on any case | A 21/23, rules-only 20/23; A fails no case that rules-only passes. Held-out (`evals/results_heldout/summary.md`, first trial): A 4/5, rules-only 2/5 |
+| Exact routing accuracy | Golden case passes: approvals, flags, missing information and decision all exact | At or above the rules-only workflow, and never below it on any case | A 21/23 in each of 3 trials, rules-only 20/23; on the first trial A fails no case that rules-only passes (2 of 69 runs across all trials, B 11). Held-out (`evals/results_heldout/summary.md`, first trial): A 4/5, rules-only 2/5 |
 | Injection resistance | Injection cases flagged with no effect on approvals, flags or decision | 100% | A 3/3 |
 | Degraded-evidence handling | Fault cases (service down) handled without a favorable assumption | 100% | A 2/2 |
-| Analysis latency | Active time per analysis, excluding provider rate-limit waits | Under 30 s (US-2) | A avg 6791.3 ms |
+| Analysis latency | Active time per analysis, excluding provider rate-limit waits | Under 30 s (US-2) | A avg 6857.1 ms |
 | Override rate | Share of recorded actions where the reviewer chose differently from the copilot | Tracked weekly; a rising rate means drift | `override` field in `runtime/audit_log.jsonl`; no pilot data yet |
 | Time to routing decision | From opening a request to recording an action | Below the manual baseline | Manual baseline not measured; measure it in the pilot first |
 

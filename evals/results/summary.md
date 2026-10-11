@@ -7,6 +7,8 @@ Provider/model for the LLM columns: gemini `gemini-3.5-flash-lite`. Trials: 3. C
 |---|---:|---:|---:|
 | Golden cases passed (final output) | 21/23 | 18/23 | 20/23 |
 | Golden cases passed, paired A/B cases only | 21/23 | 18/23 | n/a |
+| Cases passed in each trial (t1, t2, t3) | 21/23, 21/23, 21/23 | 18/23, 17/23, 18/23 | 20/23 |
+| All runs passed (every trial) | 63/69 | 53/69 | 20/23 |
 | Cases only the AI can get right (G-08, G-23) | 0/2 | 0/2 | 0/2 |
 | Raw agent decision accuracy | 60/66 | 52/66 | n/a |
 | Raw agent approvals exact | 64/66 | 54/66 | n/a |

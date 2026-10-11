@@ -508,6 +508,7 @@ function downloadPack() {
 // ---------------------------------------------------------------- evaluation dashboard
 const METRIC_ROWS = [
   ["Golden cases passed (final output)", "golden_passed"], ["Paired A/B cases passed", "golden_passed_paired"],
+  ["Cases passed in each trial (t1, t2, t3)", "passes_per_trial"], ["All runs passed (every trial)", "runs_passed"],
   ["Cases only the AI can get right (G-08, G-23)", "ai_cases_passed"], ["Injection cases passed", "injection_passed"],
   ["Fault cases passed", "fault_passed"], ["Raw agent decision accuracy", "raw_decision_accuracy"],
   ["Code corrections per run", "code_corrections_per_run"], ["Ungrounded evidence removed", "ungrounded_removed_total"],

@@ -105,6 +105,12 @@ Written by Claude Code under D-11 (continuous mode). Each phase appends 5–10 l
 - `STUDENT_CHECKLIST.md` ticked, with the evidence for each item.
 - Fresh clone of the public repo → venv → install → pre-flight → tests → `run_local.py` → rules-only eval → summary rebuilds: see the commit that follows this entry and CI on GitHub.
 
+### Evening: independent grading, README with screenshots, three trials (Sun 11 Oct, 20:00–21:15 IST)
+- Two independent static reviews graded this repo and a classmate's public repo with the same rubric (88 vs 85). Accuracy fixes from the review of ours: "G-23 fails everywhere" corrected (A passed it once in 3 trials); "before any LLM run" corrected to "before the first LLM evaluation run"; note on the qwen runs' stricter grounding check. No code or wording was taken from the other repo.
+- Code defaults now match the evaluated configuration (provider gemini, `gemini-3.5-flash-lite`; D-24 updated).
+- README rewritten for first-time readers, with 8 screenshots of real Flash-Lite analyses (`docs/screenshots/`).
+- Three trials for every golden case (D-27): A 21/23 in each trial (63/69 runs), B 18, 17, 18 (53/69); consistency A 19/23, B 17/23. Decision unchanged: ship A. Summaries gained per-trial rows; README, memo (494 words), workflow and agent log updated from the files.
+
 ## Human checklist
 
 Items that need the human. The build does not wait for them. In order:
