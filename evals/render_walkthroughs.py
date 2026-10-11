@@ -39,10 +39,17 @@ def step_text(step: dict) -> str:
     return cell(f"{step['actor']}: {step['action']} → {step['summary_out']}{route}")
 
 
+def _rel(path: Path) -> str:
+    try:
+        return path.resolve().relative_to(ROOT).as_posix()
+    except ValueError:
+        return path.as_posix()
+
+
 def render(results: Path) -> str:
     golden = {c["case_id"]: c for c in json.loads((ROOT / "evals" / "golden_cases.json").read_text(encoding="utf-8"))}
     out = ["# Scenario walkthroughs: A vs B", "",
-           "Rendered from `evals/results/runs/` by `evals/render_walkthroughs.py` (first trial with status ok).", ""]
+           f"Rendered from `{_rel(results)}/runs/` by `evals/render_walkthroughs.py` (first trial with status ok).", ""]
     for case_id, title in SCENARIOS:
         case = golden[case_id]
         recs = {arch: load(results, arch, case_id) for arch, _ in ARCHS}

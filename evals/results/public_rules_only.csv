@@ -1,7 +1,7 @@
 case_id,request_id,architecture,passed_minimum_checks,latency_ms,llm_calls,tool_calls,failures,source
-PUB-01,REQ-1001,rules_only,True,21.9,0,5,,golden run G-01 t1
-PUB-02,REQ-1002,rules_only,True,19.8,0,5,,golden run G-02 t1
-PUB-03,REQ-1003,rules_only,True,19.5,0,5,,golden run G-03 t1
-PUB-04,REQ-1005,rules_only,True,19.6,0,5,,golden run G-05 t1
-PUB-05,REQ-1006,rules_only,True,18.0,0,5,,golden run G-06 t1
-PUB-06,REQ-1009,rules_only,True,527.4,0,5,,golden run G-09 t1
+PUB-01,REQ-1001,rules_only,True,21.6,0,5,,golden run G-01 t1
+PUB-02,REQ-1002,rules_only,True,22.6,0,5,,golden run G-02 t1
+PUB-03,REQ-1003,rules_only,True,19.6,0,5,,golden run G-03 t1
+PUB-04,REQ-1005,rules_only,True,19.3,0,5,,golden run G-05 t1
+PUB-05,REQ-1006,rules_only,True,17.6,0,5,,golden run G-06 t1
+PUB-06,REQ-1009,rules_only,True,526.9,0,5,,golden run G-09 t1

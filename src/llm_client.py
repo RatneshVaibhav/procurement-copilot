@@ -68,6 +68,7 @@ class ToolCall:
     arguments: str
     args: dict | None = None
     parse_error: str | None = None
+    extra: dict | None = None  # provider data to echo back unchanged (Gemini 3 thought signatures, D-23)
 
 
 @dataclass
@@ -100,7 +101,9 @@ def parse_tool_calls(raw_calls) -> list[ToolCall]:
             args = args if isinstance(args, dict) else None
         except json.JSONDecodeError as exc:
             args, error = None, f"invalid JSON arguments: {exc}"
-        calls.append(ToolCall(id=tc.id, name=name, arguments=arguments, args=args, parse_error=error))
+        extra = (getattr(tc, "model_extra", None) or {}).get("extra_content")
+        calls.append(ToolCall(id=tc.id, name=name, arguments=arguments, args=args, parse_error=error,
+                              extra=extra if isinstance(extra, dict) else None))
     return calls
 
 
@@ -108,7 +111,8 @@ def assistant_message(content: str | None, tool_calls: list[ToolCall]) -> dict:
     message: dict = {"role": "assistant", "content": content or ""}
     if tool_calls:
         message["tool_calls"] = [
-            {"id": c.id, "type": "function", "function": {"name": c.name, "arguments": c.arguments}} for c in tool_calls
+            {"id": c.id, "type": "function", "function": {"name": c.name, "arguments": c.arguments},
+             **({"extra_content": c.extra} if c.extra else {})} for c in tool_calls
         ]
     return message
 

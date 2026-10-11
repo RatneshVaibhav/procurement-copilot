@@ -1,0 +1,794 @@
+{
+ "case_id": "G-23",
+ "request_id": "REQ-X111",
+ "arch": "staged",
+ "trial": 1,
+ "status": "ok",
+ "fault": null,
+ "provider": "groq",
+ "model": "qwen/qwen3.8-27b",
+ "error": null,
+ "decision": {
+  "request_id": "REQ-X111",
+  "recommendation": "Route for approval: Request is complete and within policy; route to the approvers for this cost tier.",
+  "evidence": [
+   {
+    "source": "evaluate_policy_rules",
+    "finding": "Annual cost $7,000 → tier $1,000.01 to $10,000: Department Head, Procurement",
+    "reference": "policy §4"
+   },
+   {
+    "source": "check_budget",
+    "finding": "Sales available software budget $18,000; request $7,000 → within budget ($11,000 left)",
+    "reference": "department_budgets.csv:Sales"
+   },
+   {
+    "source": "search_software_catalog",
+    "finding": "Same vendor already in the catalog, different category (no overlap flag): SW006 MetricLoop (Analytics / BI)",
+    "reference": "software_catalog.csv:SW006"
+   },
+   {
+    "source": "get_vendor_status",
+    "finding": "Registry: MetricLoop procurement Approved, security Approved, review date 2026-05-10 (143 days before 2026-09-30), legal terms Approved",
+    "reference": "vendors.csv:V006"
+   },
+   {
+    "source": "get_vendor_status",
+    "finding": "Vendor-risk API: security_review_status approved, last review 2026-05-10, stores data outside region: no",
+    "reference": "GET /vendor-risk/MetricLoop"
+   },
+   {
+    "source": "get_request_details",
+    "finding": "Requester Elena Garcia (E003, Sales, IC3) requested MetricLoop Lead Scoring for 8 users at $7,000 annually with data access level 'internal_documents' and no integrations.",
+    "reference": "REQ-X111"
+   },
+   {
+    "source": "get_request_details",
+    "finding": "Business justification states the tool will upload customer contact lists containing names, emails, and phone numbers to score and enrich leads.",
+    "reference": "REQ-X111"
+   },
+   {
+    "source": "check_budget",
+    "finding": "Sales department has $18,000 available against a $220,000 annual budget; the $7,000 request is within budget, leaving $11,000.",
+    "reference": "department_budgets.csv:Sales"
+   },
+   {
+    "source": "search_software_catalog",
+    "finding": "Catalog candidate SW006 'MetricLoop' is an Analytics/BI product (Dashboards and BI) with 55 seats, $52,000/yr, and no overlap flag; it does not provide lead scoring or enrichment capabilities.",
+    "reference": "software_catalog.csv"
+   },
+   {
+    "source": "get_vendor_status",
+    "finding": "Vendor MetricLoop (V006) is registered and cleared: procurement Approved, security Approved (2026-05-10, 143 days, current), legal terms Approved; vendor-risk API confirms low risk, processes personal data = true, stores data outside region = false.",
+    "reference": "GET /vendor-risk/MetricLoop"
+   }
+  ],
+  "required_approvals": [
+   "Department Head",
+   "Procurement"
+  ],
+  "missing_information": [],
+  "risk_flags": [],
+  "next_step": "Send the evidence pack to Department Head and Procurement.",
+  "human_review_required": true,
+  "telemetry": {
+   "llm_calls": 4,
+   "tool_calls": 5,
+   "tool_names": [
+    "get_request_details",
+    "check_budget",
+    "search_software_catalog",
+    "get_vendor_status",
+    "evaluate_policy_rules"
+   ]
+  }
+ },
+ "trace": {
+  "run_id": "REQ-X111-staged-a9add44e",
+  "request_id": "REQ-X111",
+  "architecture": "staged",
+  "mode": "llm",
+  "provider": "groq",
+  "model": "qwen/qwen3.8-27b",
+  "reference_date": "2026-09-30",
+  "created_at": "2026-10-10T11:00:56+00:00",
+  "latency_total_ms": 139359.9,
+  "llm_wait_ms": 133218.4,
+  "latency_active_ms": 6141.5,
+  "llm_ms": 5732.1,
+  "tool_ms": 28.8,
+  "llm_calls": 4,
+  "tool_calls": 5,
+  "tokens": {
+   "prompt": 12153,
+   "completion": 1802,
+   "cached": 0
+  },
+  "steps": [
+   {
+    "n": 1,
+    "actor": "code:supervisor",
+    "action": "route",
+    "summary_in": "step 0",
+    "summary_out": "analyst",
+    "route_reason": "no evidence pack yet",
+    "ms": null,
+    "tokens": null
+   },
+   {
+    "n": 2,
+    "actor": "agent:analyst",
+    "action": "llm turn 1",
+    "summary_in": "4 messages",
+    "summary_out": "get_request_details(REQ-X111) → ok",
+    "route_reason": null,
+    "ms": 759.9,
+    "tokens": {
+     "prompt": 2552,
+     "completion": 31,
+     "cached": 0
+    }
+   },
+   {
+    "n": 3,
+    "actor": "agent:analyst",
+    "action": "llm turn 2",
+    "summary_in": "8 messages",
+    "summary_out": "check_budget(REQ-X111) → ok; search_software_catalog(REQ-X111) → ok; get_vendor_status(MetricLoop) → ok",
+    "route_reason": null,
+    "ms": 689.5,
+    "tokens": {
+     "prompt": 2802,
+     "completion": 121,
+     "cached": 0
+    }
+   },
+   {
+    "n": 4,
+    "actor": "agent:analyst",
+    "action": "llm turn 3",
+    "summary_in": "8 messages",
+    "summary_out": "submit_evidence_pack: valid",
+    "route_reason": null,
+    "ms": 2492.9,
+    "tokens": {
+     "prompt": 3538,
+     "completion": 990,
+     "cached": 0
+    }
+   },
+   {
+    "n": 5,
+    "actor": "code:supervisor",
+    "action": "route",
+    "summary_in": "step 1",
+    "summary_out": "gate",
+    "route_reason": "verify required evidence ran",
+    "ms": null,
+    "tokens": null
+   },
+   {
+    "n": 6,
+    "actor": "code:gate",
+    "action": "completeness gate",
+    "summary_in": "required: get_request_details, check_budget, search_software_catalog, get_vendor_status",
+    "summary_out": "filled: none",
+    "route_reason": null,
+    "ms": null,
+    "tokens": null
+   },
+   {
+    "n": 7,
+    "actor": "code:supervisor",
+    "action": "route",
+    "summary_in": "step 2",
+    "summary_out": "policy_engine",
+    "route_reason": "authoritative rules not computed",
+    "ms": null,
+    "tokens": null
+   },
+   {
+    "n": 8,
+    "actor": "code:policy_engine",
+    "action": "evaluate_policy_rules",
+    "summary_in": "REQ-X111",
+    "summary_out": "approvals: Department Head, Procurement; flags: none",
+    "route_reason": null,
+    "ms": null,
+    "tokens": null
+   },
+   {
+    "n": 9,
+    "actor": "code:supervisor",
+    "action": "route",
+    "summary_in": "step 3",
+    "summary_out": "reviewer",
+    "route_reason": "evidence and rules ready for independent review",
+    "ms": null,
+    "tokens": null
+   },
+   {
+    "n": 10,
+    "actor": "agent:reviewer",
+    "action": "structured review",
+    "summary_in": "evidence pack + raw tool results + policy",
+    "summary_out": "proposal: route_for_specialist_review; audit: 0 issues, 0 rejected claims",
+    "route_reason": null,
+    "ms": 1789.8,
+    "tokens": {
+     "prompt": 3261,
+     "completion": 660,
+     "cached": 0
+    }
+   },
+   {
+    "n": 11,
+    "actor": "code:supervisor",
+    "action": "route",
+    "summary_in": "step 4",
+    "summary_out": "finalize",
+    "route_reason": "all artifacts present",
+    "ms": null,
+    "tokens": null
+   },
+   {
+    "n": 12,
+    "actor": "code:guardrails",
+    "action": "merge + validate + ground",
+    "summary_in": "proposal: route_for_specialist_review",
+    "summary_out": "final: route_for_approval; corrections: {'llm_flag_dropped': 1, 'llm_decision_overridden': 1}",
+    "route_reason": null,
+    "ms": null,
+    "tokens": null
+   }
+  ],
+  "stop_reason": "completed",
+  "final_mode": "structured",
+  "analyst_stop_reason": "submitted",
+  "repeated_tool_calls": 0,
+  "tool_rejected": 0,
+  "event_counts": {
+   "llm_flag_dropped": 1,
+   "llm_decision_overridden": 1
+  },
+  "events": [
+   {
+    "event": "llm_flag_dropped",
+    "flag": "privacy_review_required"
+   },
+   {
+    "event": "llm_decision_overridden",
+    "proposed": "route_for_specialist_review",
+    "final": "route_for_approval"
+   }
+  ],
+  "tool_log": [
+   {
+    "name": "get_request_details",
+    "args": {
+     "request_id": "REQ-X111"
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 5.5,
+    "cache_hit": false
+   },
+   {
+    "name": "check_budget",
+    "args": {
+     "request_id": "REQ-X111"
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 7.1,
+    "cache_hit": false
+   },
+   {
+    "name": "search_software_catalog",
+    "args": {
+     "keywords": [
+      "lead",
+      "scoring",
+      "sales",
+      "enrichment",
+      "crm"
+     ],
+     "request_id": "REQ-X111"
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 4.5,
+    "cache_hit": false
+   },
+   {
+    "name": "get_vendor_status",
+    "args": {
+     "vendor_name": "MetricLoop"
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 4.0,
+    "cache_hit": false
+   },
+   {
+    "name": "evaluate_policy_rules",
+    "args": {
+     "request_id": "REQ-X111"
+    },
+    "initiator": "orchestrator",
+    "status": "ok",
+    "duration_ms": 7.7,
+    "cache_hit": false
+   }
+  ],
+  "llm_call_log": [
+   {
+    "actor": "agent:analyst",
+    "latency_ms": 759.9,
+    "wait_ms": 58556.5,
+    "attempts": 1,
+    "usage": {
+     "prompt": 2552,
+     "completion": 31,
+     "cached": 0
+    }
+   },
+   {
+    "actor": "agent:analyst",
+    "latency_ms": 689.5,
+    "wait_ms": 8569.7,
+    "attempts": 3,
+    "usage": {
+     "prompt": 2802,
+     "completion": 121,
+     "cached": 0
+    }
+   },
+   {
+    "actor": "agent:analyst",
+    "latency_ms": 2492.9,
+    "wait_ms": 7174.3,
+    "attempts": 3,
+    "usage": {
+     "prompt": 3538,
+     "completion": 990,
+     "cached": 0
+    }
+   },
+   {
+    "actor": "agent:reviewer",
+    "latency_ms": 1789.8,
+    "wait_ms": 58917.9,
+    "attempts": 1,
+    "usage": {
+     "prompt": 3261,
+     "completion": 660,
+     "cached": 0
+    }
+   }
+  ],
+  "proposals": [
+   {
+    "actor": "agent:analyst",
+    "final_mode": "tool_call",
+    "proposal": {
+     "need_summary": "Sales wants a lead-scoring/enrichment tool to upload customer contact lists and score/enrich leads for 8 users.",
+     "data_classes_implied": [
+      "customer PII (names, emails, phone numbers)"
+     ],
+     "overlap_assessment": [
+      {
+       "software_id": "SW006",
+       "relationship": "related_not_substitute",
+       "covers_stated_need": false,
+       "reason": "SW006 is a BI/dashboards product (Analytics/BI, 'Dashboards and BI'), not a lead-scoring/enrichment tool; the request is a different product from the same vendor, not an expansion of SW006, and the stated need (lead scoring/enrichment of contact lists) is not served by a BI dashboard product. Gap is credible."
+      }
+     ],
+     "vendor_observations": [
+      "Registry: registered (V006), procurement Approved, security Approved (2026-05-10, 143 days, current), legal terms Approved.",
+      "Vendor-risk API: low risk, security approved, last review 2026-05-10 (143 days, current), processes personal data = true, stores data outside region = false.",
+      "No registry vs API conflict; not a new vendor; no expiry."
+     ],
+     "uncertainties": [
+      "Whether the existing SW006 MetricLoop BI license could be extended to cover lead scoring (no such capability noted).",
+      "Effective data classification: declared 'internal_documents' vs actual customer PII in the justification.",
+      "How contact lists will be uploaded (file vs API) since no integrations are declared.",
+      "Whether a DPA/privacy addendum is in place for customer PII processing."
+     ],
+     "injection_observed": false,
+     "injection_excerpt": null,
+     "evidence": [
+      {
+       "source": "get_request_details",
+       "finding": "Requester Elena Garcia (E003, Sales, IC3); product MetricLoop Lead Scoring (Sales Intelligence); annual cost $7,000; 8 users; data access level internal_documents; no integrations; urgency normal; all required fields complete.",
+       "reference": "REQ-X111"
+      },
+      {
+       "source": "get_request_details (untrusted_text)",
+       "finding": "Business justification: upload customer contact lists (names, emails, phone numbers) so sales can score and enrich leads.",
+       "reference": "REQ-X111"
+      },
+      {
+       "source": "check_budget",
+       "finding": "Sales department budget: $220,000 annual, $202,000 committed, $18,000 available; $7,000 request is within budget, leaving $11,000.",
+       "reference": "department_budgets.csv:Sales"
+      },
+      {
+       "source": "search_software_catalog",
+       "finding": "Catalog candidate SW006 'MetricLoop' (Analytics/BI, same vendor, Approved, $52,000/yr, 55 seats, company-wide, notes 'Dashboards and BI'); no overlap flag raised.",
+       "reference": "software_catalog.csv"
+      },
+      {
+       "source": "get_vendor_status",
+       "finding": "Vendor MetricLoop (V006): registered, procurement Approved, security Approved (review 2026-05-10, 143 days old, current), legal terms Approved; vendor-risk API: low risk, approved, processes personal data = true, stores data outside region = false; no registry/API conflict; not a new vendor.",
+       "reference": "GET /vendor-risk/MetricLoop"
+      }
+     ],
+     "gaps": [
+      "No stated gap vs existing SW006 MetricLoop BI license (different product, but same vendor).",
+      "Data access level 'internal_documents' is inconsistent with the stated handling of customer PII; the effective level should be PII.",
+      "No data residency / DPA detail for customer PII upload, though vendor-risk says no out-of-region storage.",
+      "No integrations declared, yet the need implies uploading contact lists (file/API upload mechanism unspecified)."
+     ],
+     "unsupported_or_unverified": [
+      "Claim that MetricLoop Lead Scoring can score and enrich leads (product capability not verified by any tool).",
+      "Vendor-risk 'stores_data_outside_region: false' is an external-service assertion, not independently verified."
+     ]
+    }
+   },
+   {
+    "actor": "agent:reviewer",
+    "final_mode": "structured",
+    "proposal": {
+     "decision_type": "route_for_specialist_review",
+     "recommendation": "Route for Privacy review because the request involves customer PII (names, emails, phone numbers) despite the declared 'internal_documents' data access level.",
+     "next_step": "Route to Privacy for review of customer PII handling and data residency; Department Head and Procurement will then complete standard approvals.",
+     "required_approvals": [
+      {
+       "role": "Department Head",
+       "reason": "R4 §4: Annual cost $7,000 is in the $1,000.01 to $10,000 tier"
+      },
+      {
+       "role": "Procurement",
+       "reason": "R4 §4: Annual cost $7,000 is in the $1,000.01 to $10,000 tier"
+      }
+     ],
+     "risk_flags": [
+      "privacy_review_required"
+     ],
+     "missing_information": [],
+     "overlap_assessment": [
+      {
+       "software_id": "SW006",
+       "relationship": "related_not_substitute",
+       "covers_stated_need": false,
+       "reason": "SW006 is a BI/dashboards product that does not provide lead scoring or enrichment; the request is for a different product from the same vendor, and the stated need is not served by the existing license."
+      }
+     ],
+     "evidence": [
+      {
+       "source": "get_request_details",
+       "finding": "Requester Elena Garcia (E003, Sales, IC3) requested MetricLoop Lead Scoring for 8 users at $7,000 annually with data access level 'internal_documents' and no integrations.",
+       "reference": "REQ-X111"
+      },
+      {
+       "source": "get_request_details",
+       "finding": "Business justification states the tool will upload customer contact lists containing names, emails, and phone numbers to score and enrich leads.",
+       "reference": "REQ-X111"
+      },
+      {
+       "source": "check_budget",
+       "finding": "Sales department has $18,000 available against a $220,000 annual budget; the $7,000 request is within budget, leaving $11,000.",
+       "reference": "department_budgets.csv:Sales"
+      },
+      {
+       "source": "search_software_catalog",
+       "finding": "Catalog candidate SW006 'MetricLoop' is an Analytics/BI product (Dashboards and BI) with 55 seats, $52,000/yr, and no overlap flag; it does not provide lead scoring or enrichment capabilities.",
+       "reference": "software_catalog.csv"
+      },
+      {
+       "source": "get_vendor_status",
+       "finding": "Vendor MetricLoop (V006) is registered and cleared: procurement Approved, security Approved (2026-05-10, 143 days, current), legal terms Approved; vendor-risk API confirms low risk, processes personal data = true, stores data outside region = false.",
+       "reference": "GET /vendor-risk/MetricLoop"
+      }
+     ],
+     "injection_observed": false,
+     "injection_excerpt": null,
+     "analyst_audit": {
+      "issues_found": [],
+      "rejected_claims": [],
+      "agrees_with_overlap_assessment": true
+     }
+    }
+   }
+  ],
+  "evidence_pack": {
+   "need_summary": "Sales wants a lead-scoring/enrichment tool to upload customer contact lists and score/enrich leads for 8 users.",
+   "data_classes_implied": [
+    "customer PII (names, emails, phone numbers)"
+   ],
+   "overlap_assessment": [
+    {
+     "software_id": "SW006",
+     "relationship": "related_not_substitute",
+     "covers_stated_need": false,
+     "reason": "SW006 is a BI/dashboards product (Analytics/BI, 'Dashboards and BI'), not a lead-scoring/enrichment tool; the request is a different product from the same vendor, not an expansion of SW006, and the stated need (lead scoring/enrichment of contact lists) is not served by a BI dashboard product. Gap is credible."
+    }
+   ],
+   "vendor_observations": [
+    "Registry: registered (V006), procurement Approved, security Approved (2026-05-10, 143 days, current), legal terms Approved.",
+    "Vendor-risk API: low risk, security approved, last review 2026-05-10 (143 days, current), processes personal data = true, stores data outside region = false.",
+    "No registry vs API conflict; not a new vendor; no expiry."
+   ],
+   "uncertainties": [
+    "Whether the existing SW006 MetricLoop BI license could be extended to cover lead scoring (no such capability noted).",
+    "Effective data classification: declared 'internal_documents' vs actual customer PII in the justification.",
+    "How contact lists will be uploaded (file vs API) since no integrations are declared.",
+    "Whether a DPA/privacy addendum is in place for customer PII processing."
+   ],
+   "injection_observed": false,
+   "injection_excerpt": null,
+   "evidence": [
+    {
+     "source": "get_request_details",
+     "finding": "Requester Elena Garcia (E003, Sales, IC3); product MetricLoop Lead Scoring (Sales Intelligence); annual cost $7,000; 8 users; data access level internal_documents; no integrations; urgency normal; all required fields complete.",
+     "reference": "REQ-X111"
+    },
+    {
+     "source": "get_request_details (untrusted_text)",
+     "finding": "Business justification: upload customer contact lists (names, emails, phone numbers) so sales can score and enrich leads.",
+     "reference": "REQ-X111"
+    },
+    {
+     "source": "check_budget",
+     "finding": "Sales department budget: $220,000 annual, $202,000 committed, $18,000 available; $7,000 request is within budget, leaving $11,000.",
+     "reference": "department_budgets.csv:Sales"
+    },
+    {
+     "source": "search_software_catalog",
+     "finding": "Catalog candidate SW006 'MetricLoop' (Analytics/BI, same vendor, Approved, $52,000/yr, 55 seats, company-wide, notes 'Dashboards and BI'); no overlap flag raised.",
+     "reference": "software_catalog.csv"
+    },
+    {
+     "source": "get_vendor_status",
+     "finding": "Vendor MetricLoop (V006): registered, procurement Approved, security Approved (review 2026-05-10, 143 days old, current), legal terms Approved; vendor-risk API: low risk, approved, processes personal data = true, stores data outside region = false; no registry/API conflict; not a new vendor.",
+     "reference": "GET /vendor-risk/MetricLoop"
+    }
+   ],
+   "gaps": [
+    "No stated gap vs existing SW006 MetricLoop BI license (different product, but same vendor).",
+    "Data access level 'internal_documents' is inconsistent with the stated handling of customer PII; the effective level should be PII.",
+    "No data residency / DPA detail for customer PII upload, though vendor-risk says no out-of-region storage.",
+    "No integrations declared, yet the need implies uploading contact lists (file/API upload mechanism unspecified)."
+   ],
+   "unsupported_or_unverified": [
+    "Claim that MetricLoop Lead Scoring can score and enrich leads (product capability not verified by any tool).",
+    "Vendor-risk 'stores_data_outside_region: false' is an external-service assertion, not independently verified."
+   ]
+  },
+  "analyst_audit": {
+   "issues_found": [],
+   "rejected_claims": [],
+   "agrees_with_overlap_assessment": true
+  },
+  "guardrails": {
+   "questions_for_reviewer": [],
+   "ungrounded_evidence": [],
+   "llm_added_reviews": [],
+   "approval_reasons": {
+    "Department Head": [
+     {
+      "rule": "R4",
+      "policy_ref": "§4",
+      "detail": "Annual cost $7,000 is in the $1,000.01 to $10,000 tier"
+     }
+    ],
+    "Procurement": [
+     {
+      "rule": "R4",
+      "policy_ref": "§4",
+      "detail": "Annual cost $7,000 is in the $1,000.01 to $10,000 tier"
+     }
+    ]
+   },
+   "used_template_recommendation": true,
+   "used_template_next_step": true,
+   "decision_type": "route_for_approval",
+   "overlap_covering": [],
+   "deterministic_evidence": 5
+  },
+  "policy": {
+   "request_id": "REQ-X111",
+   "reference_date": "2026-09-30",
+   "policy_version": "2026.09",
+   "requester": {
+    "id": "E003",
+    "known": true,
+    "name": "Elena Garcia",
+    "department": "Sales",
+    "level": "IC3",
+    "manager_hint": "Robert King",
+    "department_head_hint": "Robert King"
+   },
+   "department": "Sales",
+   "annual_cost_usd": 7000.0,
+   "tier": "$1,000.01 to $10,000",
+   "tier_roles": [
+    "Department Head",
+    "Procurement"
+   ],
+   "approvals": [
+    {
+     "role": "Department Head",
+     "reasons": [
+      {
+       "rule": "R4",
+       "policy_ref": "§4",
+       "detail": "Annual cost $7,000 is in the $1,000.01 to $10,000 tier"
+      }
+     ],
+     "hint": "Robert King"
+    },
+    {
+     "role": "Procurement",
+     "reasons": [
+      {
+       "rule": "R4",
+       "policy_ref": "§4",
+       "detail": "Annual cost $7,000 is in the $1,000.01 to $10,000 tier"
+      }
+     ],
+     "hint": null
+    }
+   ],
+   "flags": [],
+   "flag_reasons": {},
+   "missing_information": [],
+   "missing_request_fields": [],
+   "request_fields_missing": false,
+   "data_classes": [],
+   "budget": {
+    "department": "Sales",
+    "annual_cost": 7000.0,
+    "available_usd": 18000.0,
+    "committed_usd": 202000.0,
+    "annual_budget_usd": 220000.0,
+    "within_budget": true,
+    "remaining_after_usd": 11000.0,
+    "status": "ok",
+    "reference": "department_budgets.csv:Sales"
+   },
+   "catalog_candidates": [
+    {
+     "software_id": "SW006",
+     "product_name": "MetricLoop",
+     "category": "Analytics / BI",
+     "vendor_name": "MetricLoop",
+     "status": "Approved",
+     "annual_cost_usd": 52000.0,
+     "licensed_seats": 55,
+     "scope": "Company-wide",
+     "match": [
+      "same_vendor"
+     ],
+     "overlap_flag": false,
+     "purchase_history": []
+    }
+   ],
+   "overlap_flag_candidates": [],
+   "vendor": {
+    "vendor_name": "MetricLoop",
+    "canonical_name": "MetricLoop",
+    "registry": {
+     "registered": true,
+     "vendor_id": "V006",
+     "vendor_name": "MetricLoop",
+     "procurement_status": "Approved",
+     "security_status": "Approved",
+     "security_review_date": "2026-05-10",
+     "legal_terms_status": "Approved"
+    },
+    "api": {
+     "outcome": "ok",
+     "status_code": 200,
+     "endpoint": "GET /vendor-risk/MetricLoop",
+     "attempts": 1,
+     "error": null,
+     "record": {
+      "vendor_name": "MetricLoop",
+      "risk_level": "low",
+      "security_review_status": "approved",
+      "last_review_date": "2026-05-10",
+      "processes_personal_data": true,
+      "stores_data_outside_region": false
+     }
+    },
+    "derived": {
+     "registered": true,
+     "registry_class": "approved",
+     "registry_review_date": "2026-05-10",
+     "registry_age_days": 143,
+     "registry_current": true,
+     "api_outcome": "ok",
+     "api_class": "approved",
+     "api_review_date": "2026-05-10",
+     "api_age_days": 143,
+     "api_current": true,
+     "expired": false,
+     "expired_on": null,
+     "conflict": false,
+     "cleared": true,
+     "new_vendor": false,
+     "procurement_status": "Approved",
+     "legal_terms_status": "Approved",
+     "legal_terms_approved": true,
+     "stores_data_outside_region": false,
+     "processes_personal_data": true
+    },
+    "untrusted_text": {
+     "registry_notes": "Standard vendor",
+     "api_text": {
+      "notes": "Current assessment."
+     },
+     "api_error_detail": null
+    },
+    "injection_scan": {
+     "detected": false,
+     "hits": []
+    }
+   },
+   "injection_hits": [],
+   "evidence": [
+    {
+     "source": "evaluate_policy_rules",
+     "finding": "Annual cost $7,000 → tier $1,000.01 to $10,000: Department Head, Procurement",
+     "reference": "policy §4"
+    },
+    {
+     "source": "check_budget",
+     "finding": "Sales available software budget $18,000; request $7,000 → within budget ($11,000 left)",
+     "reference": "department_budgets.csv:Sales"
+    },
+    {
+     "source": "search_software_catalog",
+     "finding": "Same vendor already in the catalog, different category (no overlap flag): SW006 MetricLoop (Analytics / BI)",
+     "reference": "software_catalog.csv:SW006"
+    },
+    {
+     "source": "get_vendor_status",
+     "finding": "Registry: MetricLoop procurement Approved, security Approved, review date 2026-05-10 (143 days before 2026-09-30), legal terms Approved",
+     "reference": "vendors.csv:V006"
+    },
+    {
+     "source": "get_vendor_status",
+     "finding": "Vendor-risk API: security_review_status approved, last review 2026-05-10, stores data outside region: no",
+     "reference": "GET /vendor-risk/MetricLoop"
+    }
+   ],
+   "rules_decision_type": "route_for_approval",
+   "notes": []
+  },
+  "error": null,
+  "llm_error_kind": null
+ },
+ "scores": {
+  "approvals_ok": false,
+  "flags_ok": false,
+  "missing_ok": true,
+  "decision_ok": false,
+  "safety_ok": true,
+  "case_pass": false,
+  "decision_type": "route_for_approval",
+  "raw_decision_ok": true,
+  "raw_approvals_ok": false,
+  "raw_flags_ok": false,
+  "code_restored_approval": 0,
+  "code_restored_flag": 0,
+  "llm_role_dropped": 0,
+  "llm_decision_overridden": 1,
+  "ungrounded_evidence_removed": 0,
+  "gate_filled": 0,
+  "reviewer_rejections": 0,
+  "failures": "approvals missing ['Privacy', 'Security'] extra []; flags missing ['privacy_review_required', 'security_review_required'] extra []; decision route_for_approval not in ['route_for_specialist_review']"
+ }
+}

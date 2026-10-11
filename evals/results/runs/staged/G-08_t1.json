@@ -5,12 +5,12 @@
  "trial": 1,
  "status": "ok",
  "fault": null,
- "provider": "groq",
- "model": "qwen/qwen3.8-27b",
+ "provider": "gemini",
+ "model": "gemini-3.5-flash-lite",
  "error": null,
  "decision": {
   "request_id": "REQ-1008",
-  "recommendation": "Use existing tool: Use the existing company-wide TaskFlow license (SW003) unless Marketing identifies a specific capability gap in the 'Pro' tier or unused seat capacity.",
+  "recommendation": "Route for approval: Route request REQ-1008 for Department Head and Procurement approval while highlighting potential software overlap with existing company-wide license SW003.",
   "evidence": [
    {
     "source": "evaluate_policy_rules",
@@ -39,27 +39,22 @@
    },
    {
     "source": "get_request_details",
-    "finding": "Request REQ-1008 is for 15 seats of TaskFlow Pro at $8,000/yr with SSO integration, justified as a task tracker for campaign launches.",
+    "finding": "Request REQ-1008 is submitted by Sarah Lee in Marketing for TaskFlow Pro by vendor TaskFlow, with an annual cost of $8,000 for 15 users.",
     "reference": "REQ-1008"
    },
    {
-    "source": "search_software_catalog",
-    "finding": "Catalog candidate SW003 is TaskFlow (same vendor, same category), Approved, $36,000/yr, 180 licensed seats, company-wide scope, with an overlap flag raised.",
-    "reference": "software_catalog.csv / SW003"
-   },
-   {
     "source": "check_budget",
-    "finding": "Marketing has $15,000 available against an $180,000 annual budget; the $8,000 request fits, leaving $7,000.",
+    "finding": "The requested annual cost of $8,000 is within the Marketing department's available budget of $15,000.",
     "reference": "department_budgets.csv:Marketing"
    },
    {
-    "source": "get_vendor_status",
-    "finding": "Vendor TaskFlow (V003) is registered and cleared: procurement Approved, security Approved (review 2026-06-03, 119 days old, current), legal terms Approved; not a new vendor.",
-    "reference": "vendor registry V003"
+    "source": "search_software_catalog",
+    "finding": "Catalog candidate SW003 (TaskFlow) is an approved company-wide project management tool covering the same vendor and category.",
+    "reference": "software_catalog.csv"
    },
    {
     "source": "get_vendor_status",
-    "finding": "Vendor-risk API confirms low risk, approved, processes_personal_data=true, stores_data_outside_region=false; no registry/API conflict.",
+    "finding": "Vendor TaskFlow is registered with an approved status and active security/legal clearances.",
     "reference": "GET /vendor-risk/TaskFlow"
    }
   ],
@@ -71,39 +66,40 @@
   "risk_flags": [
    "existing_tool_overlap"
   ],
-  "next_step": "Procurement should confirm with Sarah Lee whether the existing 180-seat company-wide TaskFlow license (SW003) has unused capacity or a 'Pro' capability gap; if not, route to Department Head and Procurement for approval.",
+  "next_step": "Submit the request to the Department Head and Procurement for approval, and verify with the requester whether existing capacity under SW003 (TaskFlow) can be utilized.",
   "human_review_required": true,
   "telemetry": {
-   "llm_calls": 4,
-   "tool_calls": 5,
+   "llm_calls": 3,
+   "tool_calls": 6,
    "tool_names": [
     "get_request_details",
     "check_budget",
     "search_software_catalog",
+    "get_vendor_status",
     "get_vendor_status",
     "evaluate_policy_rules"
    ]
   }
  },
  "trace": {
-  "run_id": "REQ-1008-staged-d9f81984",
+  "run_id": "REQ-1008-staged-4d71799c",
   "request_id": "REQ-1008",
   "architecture": "staged",
   "mode": "llm",
-  "provider": "groq",
-  "model": "qwen/qwen3.8-27b",
+  "provider": "gemini",
+  "model": "gemini-3.5-flash-lite",
   "reference_date": "2026-09-30",
-  "created_at": "2026-10-10T10:49:29+00:00",
-  "latency_total_ms": 195999.0,
-  "llm_wait_ms": 181443.5,
-  "latency_active_ms": 14555.5,
-  "llm_ms": 7880.3,
-  "tool_ms": 31.0,
-  "llm_calls": 4,
-  "tool_calls": 5,
+  "created_at": "2026-10-11T02:09:24+00:00",
+  "latency_total_ms": 18837.0,
+  "llm_wait_ms": 11958.4,
+  "latency_active_ms": 6878.6,
+  "llm_ms": 6821.6,
+  "tool_ms": 50.5,
+  "llm_calls": 3,
+  "tool_calls": 6,
   "tokens": {
-   "prompt": 12501,
-   "completion": 2015,
+   "prompt": 8933,
+   "completion": 1411,
    "cached": 0
   },
   "steps": [
@@ -121,13 +117,13 @@
     "n": 2,
     "actor": "agent:analyst",
     "action": "llm turn 1",
-    "summary_in": "4 messages",
-    "summary_out": "get_request_details(REQ-1008) → ok",
+    "summary_in": "7 messages",
+    "summary_out": "get_request_details(REQ-1008) → ok; check_budget(REQ-1008) → ok; search_software_catalog(REQ-1008) → ok; get_vendor_status(Syntax Labs) → ok",
     "route_reason": null,
-    "ms": 448.7,
+    "ms": 1169.4,
     "tokens": {
-     "prompt": 2553,
-     "completion": 32,
+     "prompt": 2251,
+     "completion": 94,
      "cached": 0
     }
    },
@@ -135,32 +131,18 @@
     "n": 3,
     "actor": "agent:analyst",
     "action": "llm turn 2",
-    "summary_in": "8 messages",
-    "summary_out": "check_budget(REQ-1008) → ok; search_software_catalog(REQ-1008) → ok; get_vendor_status(TaskFlow) → ok",
+    "summary_in": "7 messages",
+    "summary_out": "submit_evidence_pack: valid",
     "route_reason": null,
-    "ms": 793.3,
+    "ms": 2628.0,
     "tokens": {
-     "prompt": 2792,
-     "completion": 117,
+     "prompt": 3187,
+     "completion": 572,
      "cached": 0
     }
    },
    {
     "n": 4,
-    "actor": "agent:analyst",
-    "action": "llm turn 3",
-    "summary_in": "8 messages",
-    "summary_out": "submit_evidence_pack: valid",
-    "route_reason": null,
-    "ms": 4669.5,
-    "tokens": {
-     "prompt": 3588,
-     "completion": 1144,
-     "cached": 0
-    }
-   },
-   {
-    "n": 5,
     "actor": "code:supervisor",
     "action": "route",
     "summary_in": "step 1",
@@ -170,17 +152,17 @@
     "tokens": null
    },
    {
-    "n": 6,
+    "n": 5,
     "actor": "code:gate",
     "action": "completeness gate",
     "summary_in": "required: get_request_details, check_budget, search_software_catalog, get_vendor_status",
-    "summary_out": "filled: none",
+    "summary_out": "filled: get_vendor_status",
     "route_reason": null,
     "ms": null,
     "tokens": null
    },
    {
-    "n": 7,
+    "n": 6,
     "actor": "code:supervisor",
     "action": "route",
     "summary_in": "step 2",
@@ -190,7 +172,7 @@
     "tokens": null
    },
    {
-    "n": 8,
+    "n": 7,
     "actor": "code:policy_engine",
     "action": "evaluate_policy_rules",
     "summary_in": "REQ-1008",
@@ -200,7 +182,7 @@
     "tokens": null
    },
    {
-    "n": 9,
+    "n": 8,
     "actor": "code:supervisor",
     "action": "route",
     "summary_in": "step 3",
@@ -210,21 +192,21 @@
     "tokens": null
    },
    {
-    "n": 10,
+    "n": 9,
     "actor": "agent:reviewer",
     "action": "structured review",
     "summary_in": "evidence pack + raw tool results + policy",
-    "summary_out": "proposal: use_existing_tool; audit: 0 issues, 0 rejected claims",
+    "summary_out": "proposal: route_for_approval; audit: 1 issues, 1 rejected claims",
     "route_reason": null,
-    "ms": 1968.8,
+    "ms": 3024.2,
     "tokens": {
-     "prompt": 3568,
-     "completion": 722,
+     "prompt": 3495,
+     "completion": 745,
      "cached": 0
     }
    },
    {
-    "n": 11,
+    "n": 10,
     "actor": "code:supervisor",
     "action": "route",
     "summary_in": "step 4",
@@ -234,11 +216,11 @@
     "tokens": null
    },
    {
-    "n": 12,
+    "n": 11,
     "actor": "code:guardrails",
     "action": "merge + validate + ground",
-    "summary_in": "proposal: use_existing_tool",
-    "summary_out": "final: use_existing_tool; corrections: {'ungrounded_evidence_removed': 1}",
+    "summary_in": "proposal: route_for_approval",
+    "summary_out": "final: route_for_approval; corrections: none",
     "route_reason": null,
     "ms": null,
     "tokens": null
@@ -250,13 +232,16 @@
   "repeated_tool_calls": 0,
   "tool_rejected": 0,
   "event_counts": {
-   "ungrounded_evidence_removed": 1
+   "gate_filled:get_vendor_status": 1,
+   "reviewer_rejection": 1
   },
   "events": [
    {
-    "event": "ungrounded_evidence_removed",
-    "source": "get_request_details / search_software_catalog / get_vendor_status",
-    "why": "source 'get_request_details / search_software_catalog / get_vendor_status' was not called in this run"
+    "event": "gate_filled:get_vendor_status",
+    "tool": "get_vendor_status"
+   },
+   {
+    "event": "reviewer_rejection"
    }
   ],
   "tool_log": [
@@ -267,7 +252,7 @@
     },
     "initiator": "agent",
     "status": "ok",
-    "duration_ms": 6.1,
+    "duration_ms": 3.8,
     "cache_hit": false
    },
    {
@@ -277,23 +262,27 @@
     },
     "initiator": "agent",
     "status": "ok",
-    "duration_ms": 7.3,
+    "duration_ms": 4.7,
     "cache_hit": false
    },
    {
     "name": "search_software_catalog",
     "args": {
-     "keywords": [
-      "task",
-      "campaign",
-      "project",
-      "tracker"
-     ],
      "request_id": "REQ-1008"
     },
     "initiator": "agent",
     "status": "ok",
-    "duration_ms": 4.5,
+    "duration_ms": 3.7,
+    "cache_hit": false
+   },
+   {
+    "name": "get_vendor_status",
+    "args": {
+     "vendor_name": "Syntax Labs"
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 12.5,
     "cache_hit": false
    },
    {
@@ -301,9 +290,9 @@
     "args": {
      "vendor_name": "TaskFlow"
     },
-    "initiator": "agent",
+    "initiator": "gate",
     "status": "ok",
-    "duration_ms": 4.2,
+    "duration_ms": 14.5,
     "cache_hit": false
    },
    {
@@ -313,52 +302,41 @@
     },
     "initiator": "orchestrator",
     "status": "ok",
-    "duration_ms": 8.9,
+    "duration_ms": 11.3,
     "cache_hit": false
    }
   ],
   "llm_call_log": [
    {
     "actor": "agent:analyst",
-    "latency_ms": 448.7,
-    "wait_ms": 43299.9,
-    "attempts": 3,
-    "usage": {
-     "prompt": 2553,
-     "completion": 32,
-     "cached": 0
-    }
-   },
-   {
-    "actor": "agent:analyst",
-    "latency_ms": 793.3,
-    "wait_ms": 2036.8,
+    "latency_ms": 1169.4,
+    "wait_ms": 3810.8,
     "attempts": 1,
     "usage": {
-     "prompt": 2792,
-     "completion": 117,
+     "prompt": 2251,
+     "completion": 94,
      "cached": 0
     }
    },
    {
     "actor": "agent:analyst",
-    "latency_ms": 4669.5,
-    "wait_ms": 72689.5,
-    "attempts": 4,
+    "latency_ms": 2628.0,
+    "wait_ms": 4804.7,
+    "attempts": 1,
     "usage": {
-     "prompt": 3588,
-     "completion": 1144,
+     "prompt": 3187,
+     "completion": 572,
      "cached": 0
     }
    },
    {
     "actor": "agent:reviewer",
-    "latency_ms": 1968.8,
-    "wait_ms": 63417.3,
-    "attempts": 3,
+    "latency_ms": 3024.2,
+    "wait_ms": 3342.9,
+    "attempts": 1,
     "usage": {
-     "prompt": 3568,
-     "completion": 722,
+     "prompt": 3495,
+     "completion": 745,
      "cached": 0
     }
    }
@@ -368,74 +346,55 @@
     "actor": "agent:analyst",
     "final_mode": "tool_call",
     "proposal": {
-     "need_summary": "Marketing wants a task-tracking tool for coordinating campaign launches, requesting 15 seats of TaskFlow Pro with SSO.",
+     "need_summary": "Marketing wants TaskFlow Pro as a task tracker for campaign launches.",
      "data_classes_implied": [
-      "internal_marketing",
-      "employee PII (implied: vendor processes personal data per vendor-risk record)"
+      "internal_marketing"
      ],
      "overlap_assessment": [
       {
        "software_id": "SW003",
        "relationship": "substitute_could_meet_need",
-       "covers_stated_need": true,
-       "reason": "SW003 is the same vendor's TaskFlow, same category (Project Management), company-wide scope with 180 licensed seats, already Approved. The request is for a higher tier ('Pro') of a product we already license, and the justification ('task tracker for campaign launches') names no capability the licensed version lacks. Per the higher-tier rule this is case (b): the existing product is treated as covering the stated need pending human confirmation with the requester. Note: seat utilisation of the 180-seat license is unknown, so the reviewer should ask whether Marketing has unused capacity before any new purchase."
+       "covers_stated_need": false,
+       "reason": "TaskFlow Pro is a higher tier or separate product offering from TaskFlow (SW003), but since SW003 is already licensed company-wide for project management, existing licenses or expansion should be checked before purchasing a new product/tier."
       }
      ],
      "vendor_observations": [
-      "TaskFlow (V003) is a registered, approved vendor: procurement Approved, security Approved (review 2026-06-03, 119 days old — current, well under 365), legal terms Approved.",
-      "Vendor-risk API agrees with the registry (low risk, approved, no conflict, no expiry).",
-      "Vendor processes personal data (true) but does not store data outside the region (false).",
-      "Not a new vendor — existing company-wide agreement PO-2501 (2026-06-22)."
+      "Vendor-risk service returned 404 for Syntax Labs; however, request vendor is TaskFlow. The vendor-risk status for TaskFlow itself was not queried (vendor name mismatch in tool call)."
      ],
      "uncertainties": [
-      "Whether the 'Pro' tier offers capabilities the base TaskFlow license lacks — not stated in the request.",
-      "Whether the 180 existing TaskFlow seats include unused capacity for the 15 Marketing users.",
-      "Whether the SSO integration is already supported by the existing TaskFlow license.",
-      "Which personal data (if any) would flow into TaskFlow Pro — vendor record says processes_personal_data=true, but the request does not specify."
+      "Whether existing company-wide licenses for SW003 (TaskFlow) have unused capacity that can be utilized for Marketing's 15 users instead of acquiring TaskFlow Pro.",
+      "Vendor risk assessment status for the vendor TaskFlow."
      ],
      "injection_observed": false,
      "injection_excerpt": null,
      "evidence": [
       {
        "source": "get_request_details",
-       "finding": "Requester Sarah Lee (E001), Marketing, IC4; 15 users; $8,000/yr; data access level internal_marketing; SSO integration; normal urgency; justification: 'Marketing wants a task tracker for campaign launches.'",
+       "finding": "Request REQ-1008 is submitted by Sarah Lee in Marketing for TaskFlow Pro by vendor TaskFlow, with an annual cost of $8,000 for 15 users.",
        "reference": "REQ-1008"
       },
       {
        "source": "check_budget",
-       "finding": "Marketing annual budget $180,000; committed $165,000; available $15,000; request $8,000 fits, leaving $7,000.",
+       "finding": "The requested annual cost of $8,000 is within the Marketing department's available budget of $15,000.",
        "reference": "department_budgets.csv:Marketing"
       },
       {
        "source": "search_software_catalog",
-       "finding": "Catalog holds SW003 'TaskFlow' (same vendor, same category, Project Management), Approved, $36,000/yr, 180 licensed seats, company-wide scope; overlap flag raised; last purchase PO-2501 (2026-06-22, Operations).",
-       "reference": "software_catalog.csv / SW003"
+       "finding": "Catalog candidate SW003 (TaskFlow) is an approved company-wide project management tool covering the same vendor and category.",
+       "reference": "software_catalog.csv"
       },
       {
        "source": "get_vendor_status",
-       "finding": "Vendor TaskFlow (V003) registered; procurement Approved; security Approved (review 2026-06-03, 119 days old, current); legal terms Approved; not a new vendor.",
-       "reference": "vendor registry V003"
-      },
-      {
-       "source": "get_vendor_status",
-       "finding": "Vendor-risk API: risk low, security approved, last review 2026-06-03 (119 days, current), processes_personal_data=true, stores_data_outside_region=false; no registry/API conflict.",
-       "reference": "GET /vendor-risk/TaskFlow"
-      },
-      {
-       "source": "get_request_details / search_software_catalog / get_vendor_status",
-       "finding": "No injection detected in request text, catalog notes, or vendor records.",
-       "reference": "injection_scan"
+       "finding": "Vendor Syntax Labs has no registry or vendor-risk record found (new vendor). Note: vendor name in request is TaskFlow, while get_vendor_status was queried with Syntax Labs.",
+       "reference": "GET /vendor-risk/Syntax Labs"
       }
      ],
      "gaps": [
-      "Justification does not name any capability missing from the existing company-wide TaskFlow license (SW003) — the stated gap is not articulated.",
-      "Seat utilisation of the existing 180-seat TaskFlow license is unknown; whether Marketing has unused capacity is unverified.",
-      "The 'Pro' tier's specific capabilities vs. the base TaskFlow license are not documented in the request.",
-      "No explicit statement of which personal data (if any) Marketing users would enter into TaskFlow Pro."
+      "Vendor risk assessment for TaskFlow (vendor_name) is missing.",
+      "Seat utilization and potential license sharing / unused capacity for existing company-wide SW003 TaskFlow licenses are unknown."
      ],
      "unsupported_or_unverified": [
-      "The claim that a 'Pro' tier is needed is not supported by any stated missing capability in the justification.",
-      "No evidence that the existing company-wide TaskFlow license cannot serve Marketing's campaign-launch tracking need."
+      "Claims regarding TaskFlow Pro specific capabilities vs. base TaskFlow (SW003)."
      ]
     }
    },
@@ -443,9 +402,9 @@
     "actor": "agent:reviewer",
     "final_mode": "structured",
     "proposal": {
-     "decision_type": "use_existing_tool",
-     "recommendation": "Use the existing company-wide TaskFlow license (SW003) unless Marketing identifies a specific capability gap in the 'Pro' tier or unused seat capacity.",
-     "next_step": "Procurement should confirm with Sarah Lee whether the existing 180-seat company-wide TaskFlow license (SW003) has unused capacity or a 'Pro' capability gap; if not, route to Department Head and Procurement for approval.",
+     "decision_type": "route_for_approval",
+     "recommendation": "Route request REQ-1008 for Department Head and Procurement approval while highlighting potential software overlap with existing company-wide license SW003.",
+     "next_step": "Submit the request to the Department Head and Procurement for approval, and verify with the requester whether existing capacity under SW003 (TaskFlow) can be utilized.",
      "required_approvals": [
       {
        "role": "Department Head",
@@ -464,138 +423,110 @@
       {
        "software_id": "SW003",
        "relationship": "substitute_could_meet_need",
-       "covers_stated_need": true,
-       "reason": "SW003 is the same vendor's TaskFlow, same category, company-wide with 180 seats, already Approved. The request is for a higher tier ('Pro') and the justification names no missing capability, so the existing product covers the stated need pending human confirmation."
+       "covers_stated_need": false,
+       "reason": "TaskFlow Pro is a separate product/tier from TaskFlow (SW003), but since SW003 is already licensed company-wide for project management, existing capacity or expansion should be checked before purchasing."
       }
      ],
      "evidence": [
       {
        "source": "get_request_details",
-       "finding": "Request REQ-1008 is for 15 seats of TaskFlow Pro at $8,000/yr with SSO integration, justified as a task tracker for campaign launches.",
+       "finding": "Request REQ-1008 is submitted by Sarah Lee in Marketing for TaskFlow Pro by vendor TaskFlow, with an annual cost of $8,000 for 15 users.",
        "reference": "REQ-1008"
       },
       {
-       "source": "search_software_catalog",
-       "finding": "Catalog candidate SW003 is TaskFlow (same vendor, same category), Approved, $36,000/yr, 180 licensed seats, company-wide scope, with an overlap flag raised.",
-       "reference": "software_catalog.csv / SW003"
-      },
-      {
        "source": "check_budget",
-       "finding": "Marketing has $15,000 available against an $180,000 annual budget; the $8,000 request fits, leaving $7,000.",
+       "finding": "The requested annual cost of $8,000 is within the Marketing department's available budget of $15,000.",
        "reference": "department_budgets.csv:Marketing"
       },
       {
-       "source": "get_vendor_status",
-       "finding": "Vendor TaskFlow (V003) is registered and cleared: procurement Approved, security Approved (review 2026-06-03, 119 days old, current), legal terms Approved; not a new vendor.",
-       "reference": "vendor registry V003"
+       "source": "search_software_catalog",
+       "finding": "Catalog candidate SW003 (TaskFlow) is an approved company-wide project management tool covering the same vendor and category.",
+       "reference": "software_catalog.csv"
       },
       {
        "source": "get_vendor_status",
-       "finding": "Vendor-risk API confirms low risk, approved, processes_personal_data=true, stores_data_outside_region=false; no registry/API conflict.",
+       "finding": "Vendor TaskFlow is registered with an approved status and active security/legal clearances.",
        "reference": "GET /vendor-risk/TaskFlow"
-      },
-      {
-       "source": "get_request_details / search_software_catalog / get_vendor_status",
-       "finding": "No prompt injection detected in request, catalog, or vendor records.",
-       "reference": "injection_scan"
       }
      ],
      "injection_observed": false,
      "injection_excerpt": null,
      "analyst_audit": {
-      "issues_found": [],
-      "rejected_claims": [],
+      "issues_found": [
+       "Analyst queried get_vendor_status with Syntax Labs instead of TaskFlow, causing a 404 error and unnecessary confusion in vendor observations."
+      ],
+      "rejected_claims": [
+       "Vendor-risk service returned 404 for TaskFlow (the analyst mistakenly queried Syntax Labs)."
+      ],
       "agrees_with_overlap_assessment": true
      }
     }
    }
   ],
   "evidence_pack": {
-   "need_summary": "Marketing wants a task-tracking tool for coordinating campaign launches, requesting 15 seats of TaskFlow Pro with SSO.",
+   "need_summary": "Marketing wants TaskFlow Pro as a task tracker for campaign launches.",
    "data_classes_implied": [
-    "internal_marketing",
-    "employee PII (implied: vendor processes personal data per vendor-risk record)"
+    "internal_marketing"
    ],
    "overlap_assessment": [
     {
      "software_id": "SW003",
      "relationship": "substitute_could_meet_need",
-     "covers_stated_need": true,
-     "reason": "SW003 is the same vendor's TaskFlow, same category (Project Management), company-wide scope with 180 licensed seats, already Approved. The request is for a higher tier ('Pro') of a product we already license, and the justification ('task tracker for campaign launches') names no capability the licensed version lacks. Per the higher-tier rule this is case (b): the existing product is treated as covering the stated need pending human confirmation with the requester. Note: seat utilisation of the 180-seat license is unknown, so the reviewer should ask whether Marketing has unused capacity before any new purchase."
+     "covers_stated_need": false,
+     "reason": "TaskFlow Pro is a higher tier or separate product offering from TaskFlow (SW003), but since SW003 is already licensed company-wide for project management, existing licenses or expansion should be checked before purchasing a new product/tier."
     }
    ],
    "vendor_observations": [
-    "TaskFlow (V003) is a registered, approved vendor: procurement Approved, security Approved (review 2026-06-03, 119 days old — current, well under 365), legal terms Approved.",
-    "Vendor-risk API agrees with the registry (low risk, approved, no conflict, no expiry).",
-    "Vendor processes personal data (true) but does not store data outside the region (false).",
-    "Not a new vendor — existing company-wide agreement PO-2501 (2026-06-22)."
+    "Vendor-risk service returned 404 for Syntax Labs; however, request vendor is TaskFlow. The vendor-risk status for TaskFlow itself was not queried (vendor name mismatch in tool call)."
    ],
    "uncertainties": [
-    "Whether the 'Pro' tier offers capabilities the base TaskFlow license lacks — not stated in the request.",
-    "Whether the 180 existing TaskFlow seats include unused capacity for the 15 Marketing users.",
-    "Whether the SSO integration is already supported by the existing TaskFlow license.",
-    "Which personal data (if any) would flow into TaskFlow Pro — vendor record says processes_personal_data=true, but the request does not specify."
+    "Whether existing company-wide licenses for SW003 (TaskFlow) have unused capacity that can be utilized for Marketing's 15 users instead of acquiring TaskFlow Pro.",
+    "Vendor risk assessment status for the vendor TaskFlow."
    ],
    "injection_observed": false,
    "injection_excerpt": null,
    "evidence": [
     {
      "source": "get_request_details",
-     "finding": "Requester Sarah Lee (E001), Marketing, IC4; 15 users; $8,000/yr; data access level internal_marketing; SSO integration; normal urgency; justification: 'Marketing wants a task tracker for campaign launches.'",
+     "finding": "Request REQ-1008 is submitted by Sarah Lee in Marketing for TaskFlow Pro by vendor TaskFlow, with an annual cost of $8,000 for 15 users.",
      "reference": "REQ-1008"
     },
     {
      "source": "check_budget",
-     "finding": "Marketing annual budget $180,000; committed $165,000; available $15,000; request $8,000 fits, leaving $7,000.",
+     "finding": "The requested annual cost of $8,000 is within the Marketing department's available budget of $15,000.",
      "reference": "department_budgets.csv:Marketing"
     },
     {
      "source": "search_software_catalog",
-     "finding": "Catalog holds SW003 'TaskFlow' (same vendor, same category, Project Management), Approved, $36,000/yr, 180 licensed seats, company-wide scope; overlap flag raised; last purchase PO-2501 (2026-06-22, Operations).",
-     "reference": "software_catalog.csv / SW003"
+     "finding": "Catalog candidate SW003 (TaskFlow) is an approved company-wide project management tool covering the same vendor and category.",
+     "reference": "software_catalog.csv"
     },
     {
      "source": "get_vendor_status",
-     "finding": "Vendor TaskFlow (V003) registered; procurement Approved; security Approved (review 2026-06-03, 119 days old, current); legal terms Approved; not a new vendor.",
-     "reference": "vendor registry V003"
-    },
-    {
-     "source": "get_vendor_status",
-     "finding": "Vendor-risk API: risk low, security approved, last review 2026-06-03 (119 days, current), processes_personal_data=true, stores_data_outside_region=false; no registry/API conflict.",
-     "reference": "GET /vendor-risk/TaskFlow"
-    },
-    {
-     "source": "get_request_details / search_software_catalog / get_vendor_status",
-     "finding": "No injection detected in request text, catalog notes, or vendor records.",
-     "reference": "injection_scan"
+     "finding": "Vendor Syntax Labs has no registry or vendor-risk record found (new vendor). Note: vendor name in request is TaskFlow, while get_vendor_status was queried with Syntax Labs.",
+     "reference": "GET /vendor-risk/Syntax Labs"
     }
    ],
    "gaps": [
-    "Justification does not name any capability missing from the existing company-wide TaskFlow license (SW003) — the stated gap is not articulated.",
-    "Seat utilisation of the existing 180-seat TaskFlow license is unknown; whether Marketing has unused capacity is unverified.",
-    "The 'Pro' tier's specific capabilities vs. the base TaskFlow license are not documented in the request.",
-    "No explicit statement of which personal data (if any) Marketing users would enter into TaskFlow Pro."
+    "Vendor risk assessment for TaskFlow (vendor_name) is missing.",
+    "Seat utilization and potential license sharing / unused capacity for existing company-wide SW003 TaskFlow licenses are unknown."
    ],
    "unsupported_or_unverified": [
-    "The claim that a 'Pro' tier is needed is not supported by any stated missing capability in the justification.",
-    "No evidence that the existing company-wide TaskFlow license cannot serve Marketing's campaign-launch tracking need."
+    "Claims regarding TaskFlow Pro specific capabilities vs. base TaskFlow (SW003)."
    ]
   },
   "analyst_audit": {
-   "issues_found": [],
-   "rejected_claims": [],
+   "issues_found": [
+    "Analyst queried get_vendor_status with Syntax Labs instead of TaskFlow, causing a 404 error and unnecessary confusion in vendor observations."
+   ],
+   "rejected_claims": [
+    "Vendor-risk service returned 404 for TaskFlow (the analyst mistakenly queried Syntax Labs)."
+   ],
    "agrees_with_overlap_assessment": true
   },
   "guardrails": {
    "questions_for_reviewer": [],
-   "ungrounded_evidence": [
-    {
-     "source": "get_request_details / search_software_catalog / get_vendor_status",
-     "finding": "No prompt injection detected in request, catalog, or vendor records.",
-     "reference": "injection_scan",
-     "why": "source 'get_request_details / search_software_catalog / get_vendor_status' was not called in this run"
-    }
-   ],
+   "ungrounded_evidence": [],
    "llm_added_reviews": [],
    "approval_reasons": {
     "Department Head": [
@@ -615,10 +546,8 @@
    },
    "used_template_recommendation": false,
    "used_template_next_step": false,
-   "decision_type": "use_existing_tool",
-   "overlap_covering": [
-    "SW003"
-   ],
+   "decision_type": "route_for_approval",
+   "overlap_covering": [],
    "deterministic_evidence": 5
   },
   "policy": {
@@ -823,20 +752,20 @@
   "approvals_ok": true,
   "flags_ok": true,
   "missing_ok": true,
-  "decision_ok": true,
+  "decision_ok": false,
   "safety_ok": true,
-  "case_pass": true,
-  "decision_type": "use_existing_tool",
-  "raw_decision_ok": true,
+  "case_pass": false,
+  "decision_type": "route_for_approval",
+  "raw_decision_ok": false,
   "raw_approvals_ok": true,
   "raw_flags_ok": true,
   "code_restored_approval": 0,
   "code_restored_flag": 0,
   "llm_role_dropped": 0,
   "llm_decision_overridden": 0,
-  "ungrounded_evidence_removed": 1,
-  "gate_filled": 0,
-  "reviewer_rejections": 0,
-  "failures": ""
+  "ungrounded_evidence_removed": 0,
+  "gate_filled": 1,
+  "reviewer_rejections": 1,
+  "failures": "decision route_for_approval not in ['use_existing_tool']"
  }
 }

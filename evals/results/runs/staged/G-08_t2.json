@@ -1,0 +1,790 @@
+{
+ "case_id": "G-08",
+ "request_id": "REQ-1008",
+ "arch": "staged",
+ "trial": 2,
+ "status": "ok",
+ "fault": null,
+ "provider": "gemini",
+ "model": "gemini-3.5-flash-lite",
+ "error": null,
+ "decision": {
+  "request_id": "REQ-1008",
+  "recommendation": "Use existing tool: An existing licensed tool may already meet this need.",
+  "evidence": [
+   {
+    "source": "evaluate_policy_rules",
+    "finding": "Annual cost $8,000 → tier $1,000.01 to $10,000: Department Head, Procurement",
+    "reference": "policy §4"
+   },
+   {
+    "source": "check_budget",
+    "finding": "Marketing available software budget $15,000; request $8,000 → within budget ($7,000 left)",
+    "reference": "department_budgets.csv:Marketing"
+   },
+   {
+    "source": "search_software_catalog",
+    "finding": "Existing catalog products with the same category or product name: SW003 TaskFlow (Project Management, 180 seats, Company-wide)",
+    "reference": "software_catalog.csv:SW003"
+   },
+   {
+    "source": "get_vendor_status",
+    "finding": "Registry: TaskFlow procurement Approved, security Approved, review date 2026-06-03 (119 days before 2026-09-30), legal terms Approved",
+    "reference": "vendors.csv:V003"
+   },
+   {
+    "source": "get_vendor_status",
+    "finding": "Vendor-risk API: security_review_status approved, last review 2026-06-03, stores data outside region: no",
+    "reference": "GET /vendor-risk/TaskFlow"
+   },
+   {
+    "source": "get_request_details",
+    "finding": "Request REQ-1008 is for TaskFlow Pro by TaskFlow, costing $8,000 annually for 15 users in the Marketing department.",
+    "reference": "REQ-1008"
+   },
+   {
+    "source": "check_budget",
+    "finding": "Marketing department available budget is $15,000; the request annual cost of $8,000 fits within the budget.",
+    "reference": "department_budgets.csv:Marketing"
+   },
+   {
+    "source": "search_software_catalog",
+    "finding": "Catalog has an existing company-wide approved license for TaskFlow (SW003) by TaskFlow costing $36,000/yr (180 seats).",
+    "reference": "software_catalog.csv"
+   },
+   {
+    "source": "get_vendor_status",
+    "finding": "Vendor TaskFlow is registered, approved, and has a current security review date of 2026-06-03.",
+    "reference": "GET /vendor-risk/TaskFlow"
+   }
+  ],
+  "required_approvals": [
+   "Department Head",
+   "Procurement"
+  ],
+  "missing_information": [],
+  "risk_flags": [
+   "existing_tool_overlap"
+  ],
+  "next_step": "Confirm with Sarah Lee whether TaskFlow covers the need before starting a new purchase.",
+  "human_review_required": true,
+  "telemetry": {
+   "llm_calls": 4,
+   "tool_calls": 5,
+   "tool_names": [
+    "get_request_details",
+    "check_budget",
+    "search_software_catalog",
+    "get_vendor_status",
+    "evaluate_policy_rules"
+   ]
+  }
+ },
+ "trace": {
+  "run_id": "REQ-1008-staged-81061388",
+  "request_id": "REQ-1008",
+  "architecture": "staged",
+  "mode": "llm",
+  "provider": "gemini",
+  "model": "gemini-3.5-flash-lite",
+  "reference_date": "2026-09-30",
+  "created_at": "2026-10-11T02:33:55+00:00",
+  "latency_total_ms": 24908.2,
+  "llm_wait_ms": 16833.1,
+  "latency_active_ms": 8075.1,
+  "llm_ms": 8039.4,
+  "tool_ms": 29.6,
+  "llm_calls": 4,
+  "tool_calls": 5,
+  "tokens": {
+   "prompt": 11742,
+   "completion": 1424,
+   "cached": 0
+  },
+  "steps": [
+   {
+    "n": 1,
+    "actor": "code:supervisor",
+    "action": "route",
+    "summary_in": "step 0",
+    "summary_out": "analyst",
+    "route_reason": "no evidence pack yet",
+    "ms": null,
+    "tokens": null
+   },
+   {
+    "n": 2,
+    "actor": "agent:analyst",
+    "action": "llm turn 1",
+    "summary_in": "6 messages",
+    "summary_out": "get_request_details(REQ-1008) → ok; check_budget(REQ-1008) → ok; search_software_catalog(REQ-1008) → ok",
+    "route_reason": null,
+    "ms": 1194.7,
+    "tokens": {
+     "prompt": 2251,
+     "completion": 73,
+     "cached": 0
+    }
+   },
+   {
+    "n": 3,
+    "actor": "agent:analyst",
+    "action": "llm turn 2",
+    "summary_in": "8 messages",
+    "summary_out": "get_vendor_status(TaskFlow) → ok",
+    "route_reason": null,
+    "ms": 1008.8,
+    "tokens": {
+     "prompt": 2885,
+     "completion": 21,
+     "cached": 0
+    }
+   },
+   {
+    "n": 4,
+    "actor": "agent:analyst",
+    "action": "llm turn 3",
+    "summary_in": "8 messages",
+    "summary_out": "submit_evidence_pack: valid",
+    "route_reason": null,
+    "ms": 2612.8,
+    "tokens": {
+     "prompt": 3307,
+     "completion": 657,
+     "cached": 0
+    }
+   },
+   {
+    "n": 5,
+    "actor": "code:supervisor",
+    "action": "route",
+    "summary_in": "step 1",
+    "summary_out": "gate",
+    "route_reason": "verify required evidence ran",
+    "ms": null,
+    "tokens": null
+   },
+   {
+    "n": 6,
+    "actor": "code:gate",
+    "action": "completeness gate",
+    "summary_in": "required: get_request_details, check_budget, search_software_catalog, get_vendor_status",
+    "summary_out": "filled: none",
+    "route_reason": null,
+    "ms": null,
+    "tokens": null
+   },
+   {
+    "n": 7,
+    "actor": "code:supervisor",
+    "action": "route",
+    "summary_in": "step 2",
+    "summary_out": "policy_engine",
+    "route_reason": "authoritative rules not computed",
+    "ms": null,
+    "tokens": null
+   },
+   {
+    "n": 8,
+    "actor": "code:policy_engine",
+    "action": "evaluate_policy_rules",
+    "summary_in": "REQ-1008",
+    "summary_out": "approvals: Department Head, Procurement; flags: existing_tool_overlap",
+    "route_reason": null,
+    "ms": null,
+    "tokens": null
+   },
+   {
+    "n": 9,
+    "actor": "code:supervisor",
+    "action": "route",
+    "summary_in": "step 3",
+    "summary_out": "reviewer",
+    "route_reason": "evidence and rules ready for independent review",
+    "ms": null,
+    "tokens": null
+   },
+   {
+    "n": 10,
+    "actor": "agent:reviewer",
+    "action": "structured review",
+    "summary_in": "evidence pack + raw tool results + policy",
+    "summary_out": "proposal: route_for_approval; audit: 0 issues, 0 rejected claims",
+    "route_reason": null,
+    "ms": 3223.1,
+    "tokens": {
+     "prompt": 3299,
+     "completion": 673,
+     "cached": 0
+    }
+   },
+   {
+    "n": 11,
+    "actor": "code:supervisor",
+    "action": "route",
+    "summary_in": "step 4",
+    "summary_out": "finalize",
+    "route_reason": "all artifacts present",
+    "ms": null,
+    "tokens": null
+   },
+   {
+    "n": 12,
+    "actor": "code:guardrails",
+    "action": "merge + validate + ground",
+    "summary_in": "proposal: route_for_approval",
+    "summary_out": "final: use_existing_tool; corrections: {'llm_decision_overridden': 1}",
+    "route_reason": null,
+    "ms": null,
+    "tokens": null
+   }
+  ],
+  "stop_reason": "completed",
+  "final_mode": "structured",
+  "analyst_stop_reason": "submitted",
+  "repeated_tool_calls": 0,
+  "tool_rejected": 0,
+  "event_counts": {
+   "llm_decision_overridden": 1
+  },
+  "events": [
+   {
+    "event": "llm_decision_overridden",
+    "proposed": "route_for_approval",
+    "final": "use_existing_tool"
+   }
+  ],
+  "tool_log": [
+   {
+    "name": "get_request_details",
+    "args": {
+     "request_id": "REQ-1008"
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 3.9,
+    "cache_hit": false
+   },
+   {
+    "name": "check_budget",
+    "args": {
+     "request_id": "REQ-1008"
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 4.8,
+    "cache_hit": false
+   },
+   {
+    "name": "search_software_catalog",
+    "args": {
+     "request_id": "REQ-1008"
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 3.7,
+    "cache_hit": false
+   },
+   {
+    "name": "get_vendor_status",
+    "args": {
+     "vendor_name": "TaskFlow"
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 6.1,
+    "cache_hit": false
+   },
+   {
+    "name": "evaluate_policy_rules",
+    "args": {
+     "request_id": "REQ-1008"
+    },
+    "initiator": "orchestrator",
+    "status": "ok",
+    "duration_ms": 11.1,
+    "cache_hit": false
+   }
+  ],
+  "llm_call_log": [
+   {
+    "actor": "agent:analyst",
+    "latency_ms": 1194.7,
+    "wait_ms": 3683.2,
+    "attempts": 1,
+    "usage": {
+     "prompt": 2251,
+     "completion": 73,
+     "cached": 0
+    }
+   },
+   {
+    "actor": "agent:analyst",
+    "latency_ms": 1008.8,
+    "wait_ms": 4792.2,
+    "attempts": 1,
+    "usage": {
+     "prompt": 2885,
+     "completion": 21,
+     "cached": 0
+    }
+   },
+   {
+    "actor": "agent:analyst",
+    "latency_ms": 2612.8,
+    "wait_ms": 4984.2,
+    "attempts": 1,
+    "usage": {
+     "prompt": 3307,
+     "completion": 657,
+     "cached": 0
+    }
+   },
+   {
+    "actor": "agent:reviewer",
+    "latency_ms": 3223.1,
+    "wait_ms": 3373.5,
+    "attempts": 1,
+    "usage": {
+     "prompt": 3299,
+     "completion": 673,
+     "cached": 0
+    }
+   }
+  ],
+  "proposals": [
+   {
+    "actor": "agent:analyst",
+    "final_mode": "tool_call",
+    "proposal": {
+     "need_summary": "Marketing department requires TaskFlow Pro for project and task management during campaign launches.",
+     "data_classes_implied": [
+      "internal_marketing",
+      "personal_data"
+     ],
+     "overlap_assessment": [
+      {
+       "software_id": "SW003",
+       "relationship": "substitute_could_meet_need",
+       "covers_stated_need": true,
+       "reason": "The catalog already includes TaskFlow (SW003) as an approved company-wide project management tool. TaskFlow Pro is a higher tier or product from the same vendor serving the same need without stating a capability gap."
+      }
+     ],
+     "vendor_observations": [
+      "TaskFlow is registered, approved, and has a valid security review dated 2026-06-03.",
+      "Vendor risk API confirms low risk, processes personal data, and does not store data outside the region.",
+      "No conflicts between registry and vendor-risk API."
+     ],
+     "uncertainties": [
+      "Whether existing company-wide TaskFlow seats (SW003) have unused capacity that could accommodate the 15 Marketing users without purchasing a separate Pro tier."
+     ],
+     "injection_observed": false,
+     "injection_excerpt": null,
+     "evidence": [
+      {
+       "source": "get_request_details",
+       "finding": "Request REQ-1008 is for TaskFlow Pro by TaskFlow, costing $8,000 annually for 15 users in the Marketing department.",
+       "reference": "REQ-1008"
+      },
+      {
+       "source": "check_budget",
+       "finding": "Marketing department available budget is $15,000; the request annual cost of $8,000 fits within the budget (remaining after: $7,000).",
+       "reference": "department_budgets.csv:Marketing"
+      },
+      {
+       "source": "search_software_catalog",
+       "finding": "Catalog has an existing company-wide approved license for TaskFlow (SW003) by TaskFlow costing $36,000/yr (180 seats), creating an overlap flag.",
+       "reference": "software_catalog.csv"
+      },
+      {
+       "source": "get_vendor_status",
+       "finding": "Vendor TaskFlow is registered, approved, and has a current security review date of 2026-06-03 (119 days old, low risk).",
+       "reference": "GET /vendor-risk/TaskFlow"
+      },
+      {
+       "source": "get_vendor_status",
+       "finding": "Vendor API and registry are in agreement with no conflicts, and processes personal data without storing it outside the region.",
+       "reference": "GET /vendor-risk/TaskFlow"
+      }
+     ],
+     "gaps": [
+      "Seat utilization and available capacity on the existing company-wide TaskFlow license (SW003) are not verified.",
+      "Details on whether 'TaskFlow Pro' is a higher tier/edition compared to what is currently licensed under SW003 are not specified."
+     ],
+     "unsupported_or_unverified": [
+      "Claims regarding specific feature differences between TaskFlow and TaskFlow Pro."
+     ]
+    }
+   },
+   {
+    "actor": "agent:reviewer",
+    "final_mode": "structured",
+    "proposal": {
+     "decision_type": "route_for_approval",
+     "recommendation": "Route the request for Department Head and Procurement approval while addressing existing TaskFlow seat capacity.",
+     "next_step": "Submit the request to the Department Head and Procurement for approval, and verify whether unused seats on the existing TaskFlow license (SW003) can accommodate the Marketing users.",
+     "required_approvals": [
+      {
+       "role": "Department Head",
+       "reason": "R4 §4: Annual cost $8,000 is in the $1,000.01 to $10,000 tier"
+      },
+      {
+       "role": "Procurement",
+       "reason": "R4 §4: Annual cost $8,000 is in the $1,000.01 to $10,000 tier"
+      }
+     ],
+     "risk_flags": [
+      "existing_tool_overlap"
+     ],
+     "missing_information": [],
+     "overlap_assessment": [
+      {
+       "software_id": "SW003",
+       "relationship": "substitute_could_meet_need",
+       "covers_stated_need": true,
+       "reason": "The catalog already includes TaskFlow (SW003) as an approved company-wide project management tool covering the same vendor and category."
+      }
+     ],
+     "evidence": [
+      {
+       "source": "get_request_details",
+       "finding": "Request REQ-1008 is for TaskFlow Pro by TaskFlow, costing $8,000 annually for 15 users in the Marketing department.",
+       "reference": "REQ-1008"
+      },
+      {
+       "source": "check_budget",
+       "finding": "Marketing department available budget is $15,000; the request annual cost of $8,000 fits within the budget.",
+       "reference": "department_budgets.csv:Marketing"
+      },
+      {
+       "source": "search_software_catalog",
+       "finding": "Catalog has an existing company-wide approved license for TaskFlow (SW003) by TaskFlow costing $36,000/yr (180 seats).",
+       "reference": "software_catalog.csv"
+      },
+      {
+       "source": "get_vendor_status",
+       "finding": "Vendor TaskFlow is registered, approved, and has a current security review date of 2026-06-03.",
+       "reference": "GET /vendor-risk/TaskFlow"
+      }
+     ],
+     "injection_observed": false,
+     "injection_excerpt": null,
+     "analyst_audit": {
+      "issues_found": [],
+      "rejected_claims": [],
+      "agrees_with_overlap_assessment": true
+     }
+    }
+   }
+  ],
+  "evidence_pack": {
+   "need_summary": "Marketing department requires TaskFlow Pro for project and task management during campaign launches.",
+   "data_classes_implied": [
+    "internal_marketing",
+    "personal_data"
+   ],
+   "overlap_assessment": [
+    {
+     "software_id": "SW003",
+     "relationship": "substitute_could_meet_need",
+     "covers_stated_need": true,
+     "reason": "The catalog already includes TaskFlow (SW003) as an approved company-wide project management tool. TaskFlow Pro is a higher tier or product from the same vendor serving the same need without stating a capability gap."
+    }
+   ],
+   "vendor_observations": [
+    "TaskFlow is registered, approved, and has a valid security review dated 2026-06-03.",
+    "Vendor risk API confirms low risk, processes personal data, and does not store data outside the region.",
+    "No conflicts between registry and vendor-risk API."
+   ],
+   "uncertainties": [
+    "Whether existing company-wide TaskFlow seats (SW003) have unused capacity that could accommodate the 15 Marketing users without purchasing a separate Pro tier."
+   ],
+   "injection_observed": false,
+   "injection_excerpt": null,
+   "evidence": [
+    {
+     "source": "get_request_details",
+     "finding": "Request REQ-1008 is for TaskFlow Pro by TaskFlow, costing $8,000 annually for 15 users in the Marketing department.",
+     "reference": "REQ-1008"
+    },
+    {
+     "source": "check_budget",
+     "finding": "Marketing department available budget is $15,000; the request annual cost of $8,000 fits within the budget (remaining after: $7,000).",
+     "reference": "department_budgets.csv:Marketing"
+    },
+    {
+     "source": "search_software_catalog",
+     "finding": "Catalog has an existing company-wide approved license for TaskFlow (SW003) by TaskFlow costing $36,000/yr (180 seats), creating an overlap flag.",
+     "reference": "software_catalog.csv"
+    },
+    {
+     "source": "get_vendor_status",
+     "finding": "Vendor TaskFlow is registered, approved, and has a current security review date of 2026-06-03 (119 days old, low risk).",
+     "reference": "GET /vendor-risk/TaskFlow"
+    },
+    {
+     "source": "get_vendor_status",
+     "finding": "Vendor API and registry are in agreement with no conflicts, and processes personal data without storing it outside the region.",
+     "reference": "GET /vendor-risk/TaskFlow"
+    }
+   ],
+   "gaps": [
+    "Seat utilization and available capacity on the existing company-wide TaskFlow license (SW003) are not verified.",
+    "Details on whether 'TaskFlow Pro' is a higher tier/edition compared to what is currently licensed under SW003 are not specified."
+   ],
+   "unsupported_or_unverified": [
+    "Claims regarding specific feature differences between TaskFlow and TaskFlow Pro."
+   ]
+  },
+  "analyst_audit": {
+   "issues_found": [],
+   "rejected_claims": [],
+   "agrees_with_overlap_assessment": true
+  },
+  "guardrails": {
+   "questions_for_reviewer": [],
+   "ungrounded_evidence": [],
+   "llm_added_reviews": [],
+   "approval_reasons": {
+    "Department Head": [
+     {
+      "rule": "R4",
+      "policy_ref": "§4",
+      "detail": "Annual cost $8,000 is in the $1,000.01 to $10,000 tier"
+     }
+    ],
+    "Procurement": [
+     {
+      "rule": "R4",
+      "policy_ref": "§4",
+      "detail": "Annual cost $8,000 is in the $1,000.01 to $10,000 tier"
+     }
+    ]
+   },
+   "used_template_recommendation": true,
+   "used_template_next_step": true,
+   "decision_type": "use_existing_tool",
+   "overlap_covering": [
+    "SW003"
+   ],
+   "deterministic_evidence": 5
+  },
+  "policy": {
+   "request_id": "REQ-1008",
+   "reference_date": "2026-09-30",
+   "policy_version": "2026.09",
+   "requester": {
+    "id": "E001",
+    "known": true,
+    "name": "Sarah Lee",
+    "department": "Marketing",
+    "level": "IC4",
+    "manager_hint": "David Chen",
+    "department_head_hint": "David Chen"
+   },
+   "department": "Marketing",
+   "annual_cost_usd": 8000.0,
+   "tier": "$1,000.01 to $10,000",
+   "tier_roles": [
+    "Department Head",
+    "Procurement"
+   ],
+   "approvals": [
+    {
+     "role": "Department Head",
+     "reasons": [
+      {
+       "rule": "R4",
+       "policy_ref": "§4",
+       "detail": "Annual cost $8,000 is in the $1,000.01 to $10,000 tier"
+      }
+     ],
+     "hint": "David Chen"
+    },
+    {
+     "role": "Procurement",
+     "reasons": [
+      {
+       "rule": "R4",
+       "policy_ref": "§4",
+       "detail": "Annual cost $8,000 is in the $1,000.01 to $10,000 tier"
+      }
+     ],
+     "hint": null
+    }
+   ],
+   "flags": [
+    "existing_tool_overlap"
+   ],
+   "flag_reasons": {
+    "existing_tool_overlap": [
+     {
+      "rule": "R5",
+      "policy_ref": "§3",
+      "detail": "Same category or identical product in catalog: SW003"
+     }
+    ]
+   },
+   "missing_information": [],
+   "missing_request_fields": [],
+   "request_fields_missing": false,
+   "data_classes": [],
+   "budget": {
+    "department": "Marketing",
+    "annual_cost": 8000.0,
+    "available_usd": 15000.0,
+    "committed_usd": 165000.0,
+    "annual_budget_usd": 180000.0,
+    "within_budget": true,
+    "remaining_after_usd": 7000.0,
+    "status": "ok",
+    "reference": "department_budgets.csv:Marketing"
+   },
+   "catalog_candidates": [
+    {
+     "software_id": "SW003",
+     "product_name": "TaskFlow",
+     "category": "Project Management",
+     "vendor_name": "TaskFlow",
+     "status": "Approved",
+     "annual_cost_usd": 36000.0,
+     "licensed_seats": 180,
+     "scope": "Company-wide",
+     "match": [
+      "same_category",
+      "same_vendor"
+     ],
+     "overlap_flag": true,
+     "purchase_history": [
+      {
+       "purchase_id": "PO-2501",
+       "purchase_date": "2026-06-22",
+       "department": "Operations",
+       "annual_amount_usd": 36000.0,
+       "status": "Approved",
+       "untrusted_text": {
+        "notes": "Company-wide agreement"
+       }
+      }
+     ]
+    }
+   ],
+   "overlap_flag_candidates": [
+    "SW003"
+   ],
+   "vendor": {
+    "vendor_name": "TaskFlow",
+    "canonical_name": "TaskFlow",
+    "registry": {
+     "registered": true,
+     "vendor_id": "V003",
+     "vendor_name": "TaskFlow",
+     "procurement_status": "Approved",
+     "security_status": "Approved",
+     "security_review_date": "2026-06-03",
+     "legal_terms_status": "Approved"
+    },
+    "api": {
+     "outcome": "ok",
+     "status_code": 200,
+     "endpoint": "GET /vendor-risk/TaskFlow",
+     "attempts": 1,
+     "error": null,
+     "record": {
+      "vendor_name": "TaskFlow",
+      "risk_level": "low",
+      "security_review_status": "approved",
+      "last_review_date": "2026-06-03",
+      "processes_personal_data": true,
+      "stores_data_outside_region": false
+     }
+    },
+    "derived": {
+     "registered": true,
+     "registry_class": "approved",
+     "registry_review_date": "2026-06-03",
+     "registry_age_days": 119,
+     "registry_current": true,
+     "api_outcome": "ok",
+     "api_class": "approved",
+     "api_review_date": "2026-06-03",
+     "api_age_days": 119,
+     "api_current": true,
+     "expired": false,
+     "expired_on": null,
+     "conflict": false,
+     "cleared": true,
+     "new_vendor": false,
+     "procurement_status": "Approved",
+     "legal_terms_status": "Approved",
+     "legal_terms_approved": true,
+     "stores_data_outside_region": false,
+     "processes_personal_data": true
+    },
+    "untrusted_text": {
+     "registry_notes": "Standard vendor",
+     "api_text": {
+      "notes": "Current assessment."
+     },
+     "api_error_detail": null
+    },
+    "injection_scan": {
+     "detected": false,
+     "hits": []
+    }
+   },
+   "injection_hits": [],
+   "evidence": [
+    {
+     "source": "evaluate_policy_rules",
+     "finding": "Annual cost $8,000 → tier $1,000.01 to $10,000: Department Head, Procurement",
+     "reference": "policy §4"
+    },
+    {
+     "source": "check_budget",
+     "finding": "Marketing available software budget $15,000; request $8,000 → within budget ($7,000 left)",
+     "reference": "department_budgets.csv:Marketing"
+    },
+    {
+     "source": "search_software_catalog",
+     "finding": "Existing catalog products with the same category or product name: SW003 TaskFlow (Project Management, 180 seats, Company-wide)",
+     "reference": "software_catalog.csv:SW003"
+    },
+    {
+     "source": "get_vendor_status",
+     "finding": "Registry: TaskFlow procurement Approved, security Approved, review date 2026-06-03 (119 days before 2026-09-30), legal terms Approved",
+     "reference": "vendors.csv:V003"
+    },
+    {
+     "source": "get_vendor_status",
+     "finding": "Vendor-risk API: security_review_status approved, last review 2026-06-03, stores data outside region: no",
+     "reference": "GET /vendor-risk/TaskFlow"
+    }
+   ],
+   "rules_decision_type": "route_for_approval",
+   "notes": []
+  },
+  "error": null,
+  "llm_error_kind": null
+ },
+ "scores": {
+  "approvals_ok": true,
+  "flags_ok": true,
+  "missing_ok": true,
+  "decision_ok": true,
+  "safety_ok": true,
+  "case_pass": true,
+  "decision_type": "use_existing_tool",
+  "raw_decision_ok": false,
+  "raw_approvals_ok": true,
+  "raw_flags_ok": true,
+  "code_restored_approval": 0,
+  "code_restored_flag": 0,
+  "llm_role_dropped": 0,
+  "llm_decision_overridden": 1,
+  "ungrounded_evidence_removed": 0,
+  "gate_filled": 0,
+  "reviewer_rejections": 0,
+  "failures": ""
+ }
+}

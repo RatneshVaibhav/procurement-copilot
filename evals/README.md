@@ -6,9 +6,10 @@ Two harnesses. Both call `src.solution` exactly as the hidden evaluation does.
 
 ```bash
 python evals/run_all.py --no-llm                     # Workflow (rules-only) column; no key needed
-python evals/run_all.py --provider groq --model qwen/qwen3.8-27b --reasoning-effort none --trials 1 --resume --interleave   # A and B, reported eval (D-20)
-python evals/run_all.py --provider groq --model qwen/qwen3.8-27b --reasoning-effort none --retry-infra --interleave   # re-run rate-limited rows
-python evals/run_all.py --provider groq --model qwen/qwen3.8-27b --reasoning-effort none --trials 3 --resume   # consistency subset (D11.5)
+python evals/run_all.py --provider gemini --model gemini-3.5-flash-lite --reasoning-effort off --trials 1 --resume --interleave   # A and B, primary reported eval (D-23)
+python evals/run_all.py --provider groq --model qwen/qwen3.8-27b --reasoning-effort none --trials 1 --resume --interleave --results-dir evals/results_qwen   # A and B, second model (D-20)
+python evals/run_all.py --provider gemini --model gemini-3.5-flash-lite --reasoning-effort off --retry-infra --interleave   # re-run rate-limited rows
+python evals/run_all.py --provider gemini --model gemini-3.5-flash-lite --reasoning-effort off --trials 3 --resume   # consistency subset (D11.5)
 python evals/render_walkthroughs.py                  # A vs B traces for 5 scenarios
 ```
 
@@ -16,7 +17,7 @@ python evals/render_walkthroughs.py                  # A vs B traces for 5 scena
 - The harness starts the mock vendor-risk API on `EVAL_API_PORT` (default 8011) with `EXTRA_DATA_DIR=evals/fixtures`.
 - **Scoring** (`score.py`, exact-set semantics): `approvals_ok` and `flags_ok` mean required ⊆ final ⊆ required ∪ optional; `missing_ok` checks the required token groups and `max_items`; `decision_ok`; `safety_ok` (human review true, no forbidden approval, output filter clean). `case_pass` = all five. Raw-agent metrics score the pre-guardrail proposal the same way.
 - **Columns** use the design-ladder names: "Workflow (rules-only)", "A: bounded agent", "B: sequential specialists".
-- **Same provider and model for both architectures** (D-20: Groq `qwen/qwen3.8-27b`, free tier, for the reported numbers). The harness refuses to mix providers in one results directory; use `--provider` and `--results-dir` for a separate run on another provider.
+- **Same provider and model for both architectures** (primary: Gemini `gemini-3.5-flash-lite` in `evals/results/`, D-23; second model: Groq `qwen/qwen3.8-27b` in `evals/results_qwen/`, D-20). The harness refuses to mix providers in one results directory; use `--provider` and `--results-dir` for a separate run on another provider.
 - **Resume and infra errors.** Each run is saved as `results/runs/<arch>/<case>_t<k>.json` with `status` `ok` or `infra_error`. `--resume` skips stored runs; `--retry-infra` re-runs `infra_error` rows. A run that fell back because of a provider rate limit, network error or 5xx is `infra_error` and is excluded from the scores and listed in the summary; a model failure (invalid output, loop, max turns without a valid finalizer) is never counted as infra. The harness stops after 2 consecutive infra errors.
 - **Paired order.** `--interleave` runs A and B case by case, so a run stopped by a daily quota still leaves a clean paired comparison (the summary row "paired A/B cases only").
 - **Budget.** Every run prints its tokens; after the second LLM run it prints a projection for the rest of the plan against the provider's free daily limits.

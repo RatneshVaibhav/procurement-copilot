@@ -5,12 +5,12 @@
  "trial": 1,
  "status": "ok",
  "fault": null,
- "provider": "groq",
- "model": "qwen/qwen3.8-27b",
+ "provider": "gemini",
+ "model": "gemini-3.5-flash-lite",
  "error": null,
  "decision": {
   "request_id": "REQ-1002",
-  "recommendation": "Use existing tool: An existing licensed tool may already meet this need.",
+  "recommendation": "Route for specialist review: Route REQ-1002 for specialist reviews (Security, Legal) and required management approvals (Department Head, Finance, Procurement) due to cost tier and new vendor status.",
   "evidence": [
    {
     "source": "evaluate_policy_rules",
@@ -39,28 +39,28 @@
    },
    {
     "source": "get_request_details",
-    "finding": "Requester Sarah Lee (Marketing, IC4); product BrandBoard Enterprise, Design & Creative, $12,000/yr, 25 users, SSO integration, data access internal_marketing; all required fields present.",
+    "finding": "Request REQ-1002 is for BrandBoard Enterprise at $12,000 annually for 25 users in Marketing.",
     "reference": "REQ-1002"
    },
    {
     "source": "check_budget",
-    "finding": "Marketing annual budget $180,000, committed $165,000, available $15,000; $12,000 request fits, leaving $3,000.",
+    "finding": "Annual cost of $12,000 fits within Marketing's available budget of $15,000.",
     "reference": "department_budgets.csv:Marketing"
    },
    {
     "source": "search_software_catalog",
-    "finding": "Catalog overlap: PixelCraft Pro (SW001, $32,000/yr, 65 seats, company-wide) and CreativeSuite (SW002, $27,000/yr, 40 seats, Marketing) both in Design & Creative with overlap flags.",
+    "finding": "Catalog contains approved Design & Creative tools PixelCraft Pro (SW001) and CreativeSuite (SW002).",
     "reference": "software_catalog.csv"
    },
    {
-    "source": "get_vendor_status",
-    "finding": "BrandBoard is registered (V011) but procurement status New, security status Pending, legal terms Draft; vendor-risk API: risk medium, security review not_completed, processes personal data true, no out-of-region storage.",
-    "reference": "GET /vendor-risk/BrandBoard"
+    "source": "evaluate_policy_rules",
+    "finding": "Policy engine requires Department Head, Finance, Procurement, Security, and Legal approvals.",
+    "reference": "R4 §4, R6 §5, R9 §7"
    },
    {
-    "source": "evaluate_policy_rules",
-    "finding": "Policy engine: tier $10,000.01–$25,000; required approvals Department Head, Finance, Procurement, Security (vendor assessment not completed), Legal (new vendor ≥$10k, terms Draft); flags existing_tool_overlap, security_review_required, legal_review_required; decision route_for_specialist_review.",
-    "reference": "REQ-1002 policy engine"
+    "source": "get_vendor_status",
+    "finding": "Vendor BrandBoard is new with Draft legal terms and incomplete security review.",
+    "reference": "registry_v011 / vendor-risk API"
    }
   ],
   "required_approvals": [
@@ -76,7 +76,7 @@
    "security_review_required",
    "legal_review_required"
   ],
-  "next_step": "Confirm with Sarah Lee whether PixelCraft Pro and CreativeSuite covers the need before starting a new purchase.",
+  "next_step": "Route the request to Department Head, Finance, Procurement, Security, and Legal for review. The reviewer should check with Marketing whether existing design tools (PixelCraft Pro or CreativeSuite) can cover the campaign-template creation need before committing to a new product.",
   "human_review_required": true,
   "telemetry": {
    "llm_calls": 3,
@@ -85,44 +85,44 @@
     "get_request_details",
     "check_budget",
     "search_software_catalog",
-    "get_vendor_status",
-    "evaluate_policy_rules"
+    "evaluate_policy_rules",
+    "get_vendor_status"
    ]
   }
  },
  "trace": {
-  "run_id": "REQ-1002-single-eabe7de1",
+  "run_id": "REQ-1002-single-0609810f",
   "request_id": "REQ-1002",
   "architecture": "single",
   "mode": "llm",
-  "provider": "groq",
-  "model": "qwen/qwen3.8-27b",
+  "provider": "gemini",
+  "model": "gemini-3.5-flash-lite",
   "reference_date": "2026-09-30",
-  "created_at": "2026-10-09T21:05:44+00:00",
-  "latency_total_ms": 177476.4,
-  "llm_wait_ms": 171217.9,
-  "latency_active_ms": 6258.5,
-  "llm_ms": 4511.9,
-  "tool_ms": 20.3,
+  "created_at": "2026-10-11T02:10:51+00:00",
+  "latency_total_ms": 18569.9,
+  "llm_wait_ms": 12248.7,
+  "latency_active_ms": 6321.2,
+  "llm_ms": 6294.3,
+  "tool_ms": 22.5,
   "llm_calls": 3,
   "tool_calls": 5,
   "tokens": {
-   "prompt": 11197,
-   "completion": 1295,
-   "cached": 0
+   "prompt": 11514,
+   "completion": 925,
+   "cached": 2001
   },
   "steps": [
    {
     "n": 1,
     "actor": "agent:single",
     "action": "llm turn 1",
-    "summary_in": "4 messages",
-    "summary_out": "get_request_details(REQ-1002) → ok",
+    "summary_in": "7 messages",
+    "summary_out": "get_request_details(REQ-1002) → ok; check_budget(REQ-1002) → ok; search_software_catalog(REQ-1002) → ok; evaluate_policy_rules(REQ-1002) → ok",
     "route_reason": null,
-    "ms": 587.0,
+    "ms": 1562.5,
     "tokens": {
-     "prompt": 3112,
-     "completion": 32,
+     "prompt": 2850,
+     "completion": 109,
      "cached": 0
     }
    },
@@ -131,12 +131,12 @@
     "actor": "agent:single",
     "action": "llm turn 2",
     "summary_in": "9 messages",
-    "summary_out": "check_budget(REQ-1002) → ok; search_software_catalog(REQ-1002) → ok; get_vendor_status(BrandBoard) → ok; evaluate_policy_rules(REQ-1002) → ok",
+    "summary_out": "get_vendor_status(BrandBoard) → ok",
     "route_reason": null,
-    "ms": 855.0,
+    "ms": 1288.9,
     "tokens": {
-     "prompt": 3363,
-     "completion": 150,
+     "prompt": 4139,
+     "completion": 21,
      "cached": 0
     }
    },
@@ -147,11 +147,11 @@
     "summary_in": "9 messages",
     "summary_out": "submit_recommendation: valid",
     "route_reason": null,
-    "ms": 3069.9,
+    "ms": 3442.9,
     "tokens": {
-     "prompt": 4722,
-     "completion": 1113,
-     "cached": 0
+     "prompt": 4525,
+     "completion": 795,
+     "cached": 2001
     }
    },
    {
@@ -169,7 +169,7 @@
     "actor": "code:guardrails",
     "action": "merge + validate + ground",
     "summary_in": "proposal: route_for_specialist_review",
-    "summary_out": "final: use_existing_tool; corrections: {'llm_decision_overridden': 1}",
+    "summary_out": "final: route_for_specialist_review; corrections: none",
     "route_reason": null,
     "ms": null,
     "tokens": null
@@ -180,16 +180,8 @@
   "analyst_stop_reason": null,
   "repeated_tool_calls": 0,
   "tool_rejected": 0,
-  "event_counts": {
-   "llm_decision_overridden": 1
-  },
-  "events": [
-   {
-    "event": "llm_decision_overridden",
-    "proposed": "route_for_specialist_review",
-    "final": "use_existing_tool"
-   }
-  ],
+  "event_counts": {},
+  "events": [],
   "tool_log": [
    {
     "name": "get_request_details",
@@ -198,7 +190,7 @@
     },
     "initiator": "agent",
     "status": "ok",
-    "duration_ms": 2.6,
+    "duration_ms": 3.3,
     "cache_hit": false
    },
    {
@@ -208,33 +200,21 @@
     },
     "initiator": "agent",
     "status": "ok",
-    "duration_ms": 3.6,
+    "duration_ms": 3.1,
     "cache_hit": false
    },
    {
     "name": "search_software_catalog",
     "args": {
+     "request_id": "REQ-1002",
      "keywords": [
-      "design",
-      "template",
-      "campaign",
-      "creative"
-     ],
-     "request_id": "REQ-1002"
+      "customer feedback",
+      "survey"
+     ]
     },
     "initiator": "agent",
     "status": "ok",
-    "duration_ms": 2.6,
-    "cache_hit": false
-   },
-   {
-    "name": "get_vendor_status",
-    "args": {
-     "vendor_name": "BrandBoard"
-    },
-    "initiator": "agent",
-    "status": "ok",
-    "duration_ms": 4.0,
+    "duration_ms": 2.4,
     "cache_hit": false
    },
    {
@@ -244,42 +224,52 @@
     },
     "initiator": "agent",
     "status": "ok",
-    "duration_ms": 7.5,
+    "duration_ms": 9.3,
+    "cache_hit": false
+   },
+   {
+    "name": "get_vendor_status",
+    "args": {
+     "vendor_name": "BrandBoard"
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 4.4,
     "cache_hit": false
    }
   ],
   "llm_call_log": [
    {
     "actor": "agent:single",
-    "latency_ms": 587.0,
-    "wait_ms": 113932.0,
-    "attempts": 9,
-    "usage": {
-     "prompt": 3112,
-     "completion": 32,
-     "cached": 0
-    }
-   },
-   {
-    "actor": "agent:single",
-    "latency_ms": 855.0,
-    "wait_ms": 1909.9,
+    "latency_ms": 1562.5,
+    "wait_ms": 3124.6,
     "attempts": 1,
     "usage": {
-     "prompt": 3363,
-     "completion": 150,
+     "prompt": 2850,
+     "completion": 109,
      "cached": 0
     }
    },
    {
     "actor": "agent:single",
-    "latency_ms": 3069.9,
-    "wait_ms": 55376.0,
-    "attempts": 2,
+    "latency_ms": 1288.9,
+    "wait_ms": 4418.6,
+    "attempts": 1,
     "usage": {
-     "prompt": 4722,
-     "completion": 1113,
+     "prompt": 4139,
+     "completion": 21,
      "cached": 0
+    }
+   },
+   {
+    "actor": "agent:single",
+    "latency_ms": 3442.9,
+    "wait_ms": 4705.5,
+    "attempts": 1,
+    "usage": {
+     "prompt": 4525,
+     "completion": 795,
+     "cached": 2001
     }
    }
   ],
@@ -289,8 +279,8 @@
     "final_mode": "tool_call",
     "proposal": {
      "decision_type": "route_for_specialist_review",
-     "recommendation": "Route for specialist review: the request is within Marketing's budget but BrandBoard is a new vendor with an incomplete security assessment and draft legal terms, and two approved Design & Creative tools (PixelCraft Pro, CreativeSuite) may already cover the stated need.",
-     "next_step": "Route to Security and Legal for review of the new vendor (security assessment not completed; legal terms still Draft), and to the Department Head, Finance and Procurement for the $10,000.01–$25,000 tier. In parallel, the reviewer should confirm with the requester whether PixelCraft Pro or CreativeSuite can cover the campaign-template need or whether unused seats exist, before any purchase is made.",
+     "recommendation": "Route REQ-1002 for specialist reviews (Security, Legal) and required management approvals (Department Head, Finance, Procurement) due to cost tier and new vendor status.",
+     "next_step": "Route the request to Department Head, Finance, Procurement, Security, and Legal for review. The reviewer should check with Marketing whether existing design tools (PixelCraft Pro or CreativeSuite) can cover the campaign-template creation need before committing to a new product.",
      "required_approvals": [
       {
        "role": "Department Head",
@@ -310,7 +300,7 @@
       },
       {
        "role": "Legal",
-       "reason": "R9 §7: New vendor with annual spend $12,000 (≥ $10,000); legal terms status Draft (not approved/standard)"
+       "reason": "R9 §7: New vendor with annual spend $12,000 (≥ $10,000) and legal terms status Draft"
       }
      ],
      "risk_flags": [
@@ -323,41 +313,41 @@
       {
        "software_id": "SW001",
        "relationship": "substitute_could_meet_need",
-       "covers_stated_need": true,
-       "reason": "PixelCraft Pro is an approved company-wide Design & Creative tool (65 seats). The justification only says it is 'too specialist for non-designers' and names no missing capability, so per §3 the existing tool is treated as covering the stated need; the human reviewer confirms with the requester."
+       "covers_stated_need": false,
+       "reason": "PixelCraft Pro is an existing approved design tool, but the requester provides a credible gap stating it is too specialist for non-designers."
       },
       {
        "software_id": "SW002",
        "relationship": "substitute_could_meet_need",
-       "covers_stated_need": true,
-       "reason": "CreativeSuite is an approved Marketing-scoped Design & Creative suite (40 seats). The justification does not name a capability it lacks for campaign-template creation, so per §3 it is treated as covering the stated need; the human reviewer confirms with the requester."
+       "covers_stated_need": false,
+       "reason": "CreativeSuite is an existing approved design suite, but the requester notes BrandBoard provides faster campaign-template creation for non-designers."
       }
      ],
      "evidence": [
       {
        "source": "get_request_details",
-       "finding": "Requester Sarah Lee (Marketing, IC4); product BrandBoard Enterprise, Design & Creative, $12,000/yr, 25 users, SSO integration, data access internal_marketing; all required fields present.",
+       "finding": "Request REQ-1002 is for BrandBoard Enterprise at $12,000 annually for 25 users in Marketing.",
        "reference": "REQ-1002"
       },
       {
        "source": "check_budget",
-       "finding": "Marketing annual budget $180,000, committed $165,000, available $15,000; $12,000 request fits, leaving $3,000.",
+       "finding": "Annual cost of $12,000 fits within Marketing's available budget of $15,000.",
        "reference": "department_budgets.csv:Marketing"
       },
       {
        "source": "search_software_catalog",
-       "finding": "Catalog overlap: PixelCraft Pro (SW001, $32,000/yr, 65 seats, company-wide) and CreativeSuite (SW002, $27,000/yr, 40 seats, Marketing) both in Design & Creative with overlap flags.",
+       "finding": "Catalog contains approved Design & Creative tools PixelCraft Pro (SW001) and CreativeSuite (SW002).",
        "reference": "software_catalog.csv"
       },
       {
-       "source": "get_vendor_status",
-       "finding": "BrandBoard is registered (V011) but procurement status New, security status Pending, legal terms Draft; vendor-risk API: risk medium, security review not_completed, processes personal data true, no out-of-region storage.",
-       "reference": "GET /vendor-risk/BrandBoard"
+       "source": "evaluate_policy_rules",
+       "finding": "Policy engine requires Department Head, Finance, Procurement, Security, and Legal approvals.",
+       "reference": "R4 §4, R6 §5, R9 §7"
       },
       {
-       "source": "evaluate_policy_rules",
-       "finding": "Policy engine: tier $10,000.01–$25,000; required approvals Department Head, Finance, Procurement, Security (vendor assessment not completed), Legal (new vendor ≥$10k, terms Draft); flags existing_tool_overlap, security_review_required, legal_review_required; decision route_for_specialist_review.",
-       "reference": "REQ-1002 policy engine"
+       "source": "get_vendor_status",
+       "finding": "Vendor BrandBoard is new with Draft legal terms and incomplete security review.",
+       "reference": "registry_v011 / vendor-risk API"
       }
      ],
      "injection_observed": false,
@@ -413,13 +403,10 @@
      }
     ]
    },
-   "used_template_recommendation": true,
-   "used_template_next_step": true,
-   "decision_type": "use_existing_tool",
-   "overlap_covering": [
-    "SW001",
-    "SW002"
-   ],
+   "used_template_recommendation": false,
+   "used_template_next_step": false,
+   "decision_type": "route_for_specialist_review",
+   "overlap_covering": [],
    "deterministic_evidence": 5
   },
   "policy": {
@@ -713,14 +700,14 @@
   "decision_ok": true,
   "safety_ok": true,
   "case_pass": true,
-  "decision_type": "use_existing_tool",
+  "decision_type": "route_for_specialist_review",
   "raw_decision_ok": true,
   "raw_approvals_ok": true,
   "raw_flags_ok": true,
   "code_restored_approval": 0,
   "code_restored_flag": 0,
   "llm_role_dropped": 0,
-  "llm_decision_overridden": 1,
+  "llm_decision_overridden": 0,
   "ungrounded_evidence_removed": 0,
   "gate_filled": 0,
   "reviewer_rejections": 0,

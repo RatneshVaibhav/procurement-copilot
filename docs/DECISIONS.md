@@ -27,6 +27,7 @@ Recorded 9 Oct 2026, before Phase 0. These rulings answer the kickoff report (F1
 | D-20 | Provider | Reported eval on Groq `qwen/qwen3.8-27b` (free), both architectures (replaces D-17's Gemini) | P5 | D1, D4 |
 | D-21 (proposed) | Wording | Specialist-review template sentence no longer repeats the label that code prefixes | P7 | T11.1 |
 | D-22 (proposed) | Scope | Compare both (US-7), read-only evaluation dashboard, Markdown evidence-pack download | P6–P7 | T17, US-7 |
+| D-23 | Provider | Full-coverage eval on Gemini `gemini-3.5-flash-lite` (free) as the primary reported eval; qwen (D-20) kept as a second model | P7 | D1, D4, D11 |
 
 D-01, D-02 and D-04 below were proposed in the kickoff report and are **accepted as written** (9 Oct 2026).
 
@@ -197,4 +198,11 @@ D-01, D-02 and D-04 below were proposed in the kickoff report and are **accepted
 - **Evaluation dashboard** (`GET /api/eval`, `/api/eval/runs/{arch}/{case_id}`, `/api/eval/walkthroughs`): read-only view of the committed files in `evals/results/`. It runs nothing and calls no LLM. `arch` is an allow-list and `case_id` must match `G-\d{2}`.
 - **Evidence pack** (`GET /api/evidence-pack/{run_id}`): a Markdown download of what approvers would receive. It sends nothing. Business and LLM text is collapsed to one line and Markdown/HTML characters are escaped, so request text cannot forge headings, rows, links or HTML; served with `nosniff`.
 - None of these is a consequential action: no approval, purchase, notification or budget change. `human_review_required` stays true.
+
+## D-23: Full-coverage eval on Gemini 3.5 Flash-Lite (human decision, Sun 11 Oct 2026, 07:45 IST; amends D-20)
+
+- **Why.** The qwen eval (D-20) cannot finish on Groq's free tier before the deadline: the 200K tokens/day cap refills at about 8K tokens/hour, enough for roughly 8 more runs by 20:00 (about 14 of 23 paired cases). `gemini-3.5-flash-lite` on the existing Gemini key is free and has a much larger daily request allowance (Google no longer publishes the number; third-party measurements put Flash-Lite at about 500 requests/day). A full A + B run needs about 200 requests. No paid plan and no extra accounts (D-17).
+- **Code change (provider compatibility, no prompt change).** Gemini 3 models require each tool call's "thought signature" to be sent back on the next turn; without it every second call returned 400 and the run fell back to rules-only. `src/llm_client.py` now keeps a tool call's `extra_content` and echoes it back unchanged. Groq responses carry no such field, so the qwen runs send exactly the same messages as before (unit test). `gemini-2.5-flash-lite` is no longer available to new users. `reasoning_effort` is not sent: this model rejects `none`.
+- **Reporting, fixed before the full run** (after a 2-case trial: G-07 PASS for A and B, G-08 FAIL for A and B): the Flash-Lite eval is the primary reported eval because it is the only one that covers every case on both architectures (brief: same test set on both). The qwen results are reported next to it as a second, stronger model on the cases it covered. The pre-registered rule (D-13, unchanged) is applied to each eval; if they disagree, the README and memo say so.
+- Prompts are unchanged. Within each eval both architectures use the same model; models are never mixed in one comparison.
 

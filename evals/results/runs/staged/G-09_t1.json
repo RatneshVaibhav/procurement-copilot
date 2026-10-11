@@ -5,12 +5,12 @@
  "trial": 1,
  "status": "ok",
  "fault": null,
- "provider": "groq",
- "model": "qwen/qwen3.8-27b",
+ "provider": "gemini",
+ "model": "gemini-3.5-flash-lite",
  "error": null,
  "decision": {
   "request_id": "REQ-1009",
-  "recommendation": "Route for specialist review: Route for specialist review because the vendor security assessment is missing, data residency is unverified, and legal terms are unapproved for a new vendor with $15,000 annual spend.",
+  "recommendation": "Route for specialist review: Route the request for specialist Security, Privacy, and Legal reviews alongside Department Head, Finance, and Procurement approvals due to unverified vendor risk, confidential document access, document repository integration, and spend exceeding $10,000 with a new vendor.",
   "evidence": [
    {
     "source": "evaluate_policy_rules",
@@ -44,33 +44,28 @@
    },
    {
     "source": "get_request_details",
-    "finding": "Request REQ-1009 is for NimbusAI Contract Reviewer (Legal AI) at $15,000 annual cost for 8 users, with data access level 'confidential_documents' and a 'Document repository' integration.",
-    "reference": "REQ-1009"
+    "finding": "Request REQ-1009 is for NimbusAI Contract Reviewer by NimbusAI, cost $15,000.00/year for 8 users in Finance department.",
+    "reference": "REQ-1009 request details"
    },
    {
     "source": "check_budget",
-    "finding": "Finance department has $29,000 available against a $90,000 annual budget; the $15,000 request is within budget, leaving $14,000.",
+    "finding": "Finance department available budget is $29,000.00, committed $61,000.00, annual budget $90,000.00. Request fits within budget ($15,000.00).",
     "reference": "department_budgets.csv:Finance"
    },
    {
     "source": "search_software_catalog",
-    "finding": "Catalog search for contract/legal/agreement/review/summarize returned no candidates and no overlap-flag candidates.",
+    "finding": "Software catalog search found no overlapping candidates in category Legal AI or vendor NimbusAI.",
     "reference": "software_catalog.csv"
    },
    {
     "source": "get_vendor_status",
-    "finding": "NimbusAI (V013) is a registered new vendor with security_status 'Unknown' (no review date) and legal_terms_status 'Unknown'.",
-    "reference": "vendor registry V013"
+    "finding": "NimbusAI is registered in the internal vendor registry (V013), procurement status New, security status Unknown, security review date empty, legal terms status Unknown.",
+    "reference": "internal registry V013"
    },
    {
     "source": "get_vendor_status",
-    "finding": "External vendor-risk API returned HTTP 503 after 2 attempts; no external risk class, review date, or data-residency record could be retrieved.",
+    "finding": "Vendor-risk service API for NimbusAI returned HTTP 503 (service unavailable).",
     "reference": "GET /vendor-risk/NimbusAI"
-   },
-   {
-    "source": "evaluate_policy_rules",
-    "finding": "Policy engine requires Department Head, Finance, Procurement, Security, Privacy, and Legal approvals; flags security_review_required, privacy_review_required, legal_review_required, and vendor_risk_unavailable.",
-    "reference": "policy engine result REQ-1009"
    }
   ],
   "required_approvals": [
@@ -91,39 +86,42 @@
    "legal_review_required",
    "vendor_risk_unavailable"
   ],
-  "next_step": "Route to Security, Privacy, and Legal for specialist review; Procurement should re-query the vendor-risk service once available to verify data residency and security clearance before any approval decision.",
+  "next_step": "Route the request to Department Head, Finance, Procurement, Security, Privacy, and Legal for review and approval.",
   "human_review_required": true,
   "telemetry": {
-   "llm_calls": 4,
-   "tool_calls": 5,
+   "llm_calls": 6,
+   "tool_calls": 8,
    "tool_names": [
     "get_request_details",
     "check_budget",
     "search_software_catalog",
     "get_vendor_status",
+    "get_vendor_status",
+    "lookup_policy_section",
+    "lookup_policy_section",
     "evaluate_policy_rules"
    ]
   }
  },
  "trace": {
-  "run_id": "REQ-1009-staged-542d9889",
+  "run_id": "REQ-1009-staged-1eec4956",
   "request_id": "REQ-1009",
   "architecture": "staged",
   "mode": "llm",
-  "provider": "groq",
-  "model": "qwen/qwen3.8-27b",
+  "provider": "gemini",
+  "model": "gemini-3.5-flash-lite",
   "reference_date": "2026-09-30",
-  "created_at": "2026-10-10T18:52:04+00:00",
-  "latency_total_ms": 134951.7,
-  "llm_wait_ms": 126291.5,
-  "latency_active_ms": 8660.2,
-  "llm_ms": 7338.0,
-  "tool_ms": 536.0,
-  "llm_calls": 4,
-  "tool_calls": 5,
+  "created_at": "2026-10-11T02:14:33+00:00",
+  "latency_total_ms": 36566.2,
+  "llm_wait_ms": 24654.6,
+  "latency_active_ms": 11911.6,
+  "llm_ms": 11364.9,
+  "tool_ms": 537.1,
+  "llm_calls": 6,
+  "tool_calls": 8,
   "tokens": {
-   "prompt": 12448,
-   "completion": 1975,
+   "prompt": 20021,
+   "completion": 1825,
    "cached": 0
   },
   "steps": [
@@ -141,13 +139,13 @@
     "n": 2,
     "actor": "agent:analyst",
     "action": "llm turn 1",
-    "summary_in": "4 messages",
-    "summary_out": "get_request_details(REQ-1009) → ok",
+    "summary_in": "7 messages",
+    "summary_out": "get_request_details(REQ-1009) → ok; check_budget(REQ-1009) → ok; search_software_catalog(REQ-1009) → ok; get_vendor_status(Acme Corp) → ok",
     "route_reason": null,
-    "ms": 445.9,
+    "ms": 1496.4,
     "tokens": {
-     "prompt": 2553,
-     "completion": 32,
+     "prompt": 2251,
+     "completion": 95,
      "cached": 0
     }
    },
@@ -155,13 +153,13 @@
     "n": 3,
     "actor": "agent:analyst",
     "action": "llm turn 2",
-    "summary_in": "8 messages",
-    "summary_out": "check_budget(REQ-1009) → ok; search_software_catalog(REQ-1009) → ok; get_vendor_status(NimbusAI) → ok",
+    "summary_in": "9 messages",
+    "summary_out": "get_vendor_status(NimbusAI) → ok",
     "route_reason": null,
-    "ms": 717.7,
+    "ms": 1384.1,
     "tokens": {
-     "prompt": 2804,
-     "completion": 124,
+     "prompt": 3045,
+     "completion": 21,
      "cached": 0
     }
    },
@@ -169,18 +167,46 @@
     "n": 4,
     "actor": "agent:analyst",
     "action": "llm turn 3",
-    "summary_in": "8 messages",
-    "summary_out": "submit_evidence_pack: valid",
+    "summary_in": "11 messages",
+    "summary_out": "lookup_policy_section(5) → ok",
     "route_reason": null,
-    "ms": 2783.3,
+    "ms": 895.4,
     "tokens": {
-     "prompt": 3400,
-     "completion": 958,
+     "prompt": 3391,
+     "completion": 16,
      "cached": 0
     }
    },
    {
     "n": 5,
+    "actor": "agent:analyst",
+    "action": "llm turn 4",
+    "summary_in": "13 messages",
+    "summary_out": "lookup_policy_section(4) → ok",
+    "route_reason": null,
+    "ms": 1419.5,
+    "tokens": {
+     "prompt": 3614,
+     "completion": 16,
+     "cached": 0
+    }
+   },
+   {
+    "n": 6,
+    "actor": "agent:analyst",
+    "action": "llm turn 5",
+    "summary_in": "13 messages",
+    "summary_out": "submit_evidence_pack: valid",
+    "route_reason": null,
+    "ms": 2834.6,
+    "tokens": {
+     "prompt": 3824,
+     "completion": 696,
+     "cached": 0
+    }
+   },
+   {
+    "n": 7,
     "actor": "code:supervisor",
     "action": "route",
     "summary_in": "step 1",
@@ -190,7 +216,7 @@
     "tokens": null
    },
    {
-    "n": 6,
+    "n": 8,
     "actor": "code:gate",
     "action": "completeness gate",
     "summary_in": "required: get_request_details, check_budget, search_software_catalog, get_vendor_status",
@@ -200,7 +226,7 @@
     "tokens": null
    },
    {
-    "n": 7,
+    "n": 9,
     "actor": "code:supervisor",
     "action": "route",
     "summary_in": "step 2",
@@ -210,7 +236,7 @@
     "tokens": null
    },
    {
-    "n": 8,
+    "n": 10,
     "actor": "code:policy_engine",
     "action": "evaluate_policy_rules",
     "summary_in": "REQ-1009",
@@ -220,7 +246,7 @@
     "tokens": null
    },
    {
-    "n": 9,
+    "n": 11,
     "actor": "code:supervisor",
     "action": "route",
     "summary_in": "step 3",
@@ -230,21 +256,21 @@
     "tokens": null
    },
    {
-    "n": 10,
+    "n": 12,
     "actor": "agent:reviewer",
     "action": "structured review",
     "summary_in": "evidence pack + raw tool results + policy",
     "summary_out": "proposal: route_for_specialist_review; audit: 0 issues, 0 rejected claims",
     "route_reason": null,
-    "ms": 3391.1,
+    "ms": 3334.9,
     "tokens": {
-     "prompt": 3691,
-     "completion": 861,
+     "prompt": 3896,
+     "completion": 981,
      "cached": 0
     }
    },
    {
-    "n": 11,
+    "n": 13,
     "actor": "code:supervisor",
     "action": "route",
     "summary_in": "step 4",
@@ -254,7 +280,7 @@
     "tokens": null
    },
    {
-    "n": 12,
+    "n": 14,
     "actor": "code:guardrails",
     "action": "merge + validate + ground",
     "summary_in": "proposal: route_for_specialist_review",
@@ -279,7 +305,7 @@
     },
     "initiator": "agent",
     "status": "ok",
-    "duration_ms": 3.0,
+    "duration_ms": 4.1,
     "cache_hit": false
    },
    {
@@ -289,24 +315,27 @@
     },
     "initiator": "agent",
     "status": "ok",
-    "duration_ms": 3.5,
+    "duration_ms": 4.6,
     "cache_hit": false
    },
    {
     "name": "search_software_catalog",
     "args": {
-     "keywords": [
-      "contract",
-      "legal",
-      "agreement",
-      "review",
-      "summarize"
-     ],
      "request_id": "REQ-1009"
     },
     "initiator": "agent",
     "status": "ok",
-    "duration_ms": 2.5,
+    "duration_ms": 3.0,
+    "cache_hit": false
+   },
+   {
+    "name": "get_vendor_status",
+    "args": {
+     "vendor_name": "Acme Corp"
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 3.7,
     "cache_hit": false
    },
    {
@@ -316,7 +345,27 @@
     },
     "initiator": "agent",
     "status": "ok",
-    "duration_ms": 515.2,
+    "duration_ms": 509.5,
+    "cache_hit": false
+   },
+   {
+    "name": "lookup_policy_section",
+    "args": {
+     "section": 5
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 0.0,
+    "cache_hit": false
+   },
+   {
+    "name": "lookup_policy_section",
+    "args": {
+     "section": 4
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 0.0,
     "cache_hit": false
    },
    {
@@ -326,52 +375,74 @@
     },
     "initiator": "orchestrator",
     "status": "ok",
-    "duration_ms": 11.8,
+    "duration_ms": 12.2,
     "cache_hit": false
    }
   ],
   "llm_call_log": [
    {
     "actor": "agent:analyst",
-    "latency_ms": 445.9,
-    "wait_ms": 53443.3,
-    "attempts": 3,
-    "usage": {
-     "prompt": 2553,
-     "completion": 32,
-     "cached": 0
-    }
-   },
-   {
-    "actor": "agent:analyst",
-    "latency_ms": 717.7,
-    "wait_ms": 2050.7,
+    "latency_ms": 1496.4,
+    "wait_ms": 3229.3,
     "attempts": 1,
     "usage": {
-     "prompt": 2804,
-     "completion": 124,
+     "prompt": 2251,
+     "completion": 95,
      "cached": 0
     }
    },
    {
     "actor": "agent:analyst",
-    "latency_ms": 2783.3,
-    "wait_ms": 11661.2,
-    "attempts": 3,
+    "latency_ms": 1384.1,
+    "wait_ms": 4487.2,
+    "attempts": 1,
     "usage": {
-     "prompt": 3400,
-     "completion": 958,
+     "prompt": 3045,
+     "completion": 21,
+     "cached": 0
+    }
+   },
+   {
+    "actor": "agent:analyst",
+    "latency_ms": 895.4,
+    "wait_ms": 4105.2,
+    "attempts": 1,
+    "usage": {
+     "prompt": 3391,
+     "completion": 16,
+     "cached": 0
+    }
+   },
+   {
+    "actor": "agent:analyst",
+    "latency_ms": 1419.5,
+    "wait_ms": 5104.0,
+    "attempts": 1,
+    "usage": {
+     "prompt": 3614,
+     "completion": 16,
+     "cached": 0
+    }
+   },
+   {
+    "actor": "agent:analyst",
+    "latency_ms": 2834.6,
+    "wait_ms": 4579.8,
+    "attempts": 1,
+    "usage": {
+     "prompt": 3824,
+     "completion": 696,
      "cached": 0
     }
    },
    {
     "actor": "agent:reviewer",
-    "latency_ms": 3391.1,
-    "wait_ms": 59136.3,
+    "latency_ms": 3334.9,
+    "wait_ms": 3149.1,
     "attempts": 1,
     "usage": {
-     "prompt": 3691,
-     "completion": 861,
+     "prompt": 3896,
+     "completion": 981,
      "cached": 0
     }
    }
@@ -381,69 +452,72 @@
     "actor": "agent:analyst",
     "final_mode": "tool_call",
     "proposal": {
-     "need_summary": "Finance wants an AI tool to summarize vendor agreements and flag non-standard payment terms, processing confidential documents via a document-repository integration for 8 users.",
+     "need_summary": "Provide AI-assisted contract review and summarization with document repository integration for the Finance department.",
      "data_classes_implied": [
       "confidential_documents"
      ],
-     "overlap_assessment": [],
+     "overlap_assessment": [
+      {
+       "software_id": "none",
+       "relationship": "related_not_substitute",
+       "covers_stated_need": false,
+       "reason": "No existing catalog software matches this category or vendor."
+      }
+     ],
      "vendor_observations": [
-      "NimbusAI is a registered vendor (V013) with procurement status 'New' — a new vendor with annual spend $15,000 (≥$10,000) triggers Legal review (§7).",
-      "Registry security_status is 'Unknown' with no review date; no completed vendor security assessment on file (§5).",
-      "External vendor-risk service returned HTTP 503 (unavailable, 2 attempts); no external risk class, review date, or data-residency record could be retrieved (§10).",
-      "Legal terms status is 'Unknown' — not approved.",
-      "No registry/API conflict detected, but both sources are effectively unavailable/unknown, so the vendor cannot be considered cleared."
+      "NimbusAI is registered as a new vendor (V013) with Unknown security status and empty security review date.",
+      "Vendor-risk service returned HTTP 503 unavailable."
      ],
      "uncertainties": [
-      "Whether the Document repository integration exposes confidential documents to the vendor (data residency unknown).",
-      "Whether NimbusAI processes personal data (vendor-risk record unavailable).",
-      "Approval chain: $15,000 falls in the ≤$25,000 band (Department Head + Procurement + Finance per §4), but Security, Privacy and Legal reviews are also triggered.",
-      "No evidence of existing contract-review tooling in the catalog; the stated gap is plausible but unverified against current licenses."
+      "Vendor risk status cannot be verified due to API unavailability and missing registry security review date.",
+      "Unclear whether legal terms have been approved for new vendor NimbusAI."
      ],
      "injection_observed": false,
      "injection_excerpt": null,
      "evidence": [
       {
        "source": "get_request_details",
-       "finding": "Requester Noah Williams (E004), Finance, IC4; manager/department head hint Priya Shah. Product 'NimbusAI Contract Reviewer', vendor NimbusAI, category Legal AI; annual cost $15,000; 8 users; data access level confidential_documents; integration: Document repository; urgency normal.",
-       "reference": "REQ-1009"
+       "finding": "Request REQ-1009 is for NimbusAI Contract Reviewer by NimbusAI, cost $15,000.00/year for 8 users in Finance department.",
+       "reference": "REQ-1009 request details"
       },
       {
        "source": "check_budget",
-       "finding": "Finance department budget: $90,000 annual, $61,000 committed, $29,000 available; the $15,000 request fits within budget, leaving $14,000.",
+       "finding": "Finance department available budget is $29,000.00, committed $61,000.00, annual budget $90,000.00. Request fits within budget ($15,000.00).",
        "reference": "department_budgets.csv:Finance"
       },
       {
        "source": "search_software_catalog",
-       "finding": "Catalog search for contract/legal/agreement/review/summarize returned no candidates and no overlap-flag candidates.",
+       "finding": "Software catalog search found no overlapping candidates in category Legal AI or vendor NimbusAI.",
        "reference": "software_catalog.csv"
       },
       {
        "source": "get_vendor_status",
-       "finding": "NimbusAI is registered (vendor_id V013) with procurement_status 'New', security_status 'Unknown' (no review date), legal_terms_status 'Unknown'.",
-       "reference": "vendor registry V013"
+       "finding": "NimbusAI is registered in the internal vendor registry (V013), procurement status New, security status Unknown, security review date empty, legal terms status Unknown.",
+       "reference": "internal registry V013"
       },
       {
        "source": "get_vendor_status",
-       "finding": "External vendor-risk API returned HTTP 503 (unavailable) after 2 attempts; no risk record available.",
+       "finding": "Vendor-risk service API for NimbusAI returned HTTP 503 (service unavailable).",
        "reference": "GET /vendor-risk/NimbusAI"
       },
       {
-       "source": "get_request_details / search_software_catalog / get_vendor_status",
-       "finding": "No prompt-injection hits in request text, catalog results, or vendor data.",
-       "reference": "injection_scan"
+       "source": "lookup_policy_section",
+       "finding": "Request involves confidential documents and document repository integration, triggering security review under §5.",
+       "reference": "procurement_policy.md §5"
+      },
+      {
+       "source": "lookup_policy_section",
+       "finding": "Annual cost of $15,000.00 requires Department Head, Finance, and Procurement approvals under §4.",
+       "reference": "procurement_policy.md §4"
       }
      ],
      "gaps": [
-      "Vendor security review missing (status Unknown, no date) — required for confidential documents and AI tool (§5).",
-      "Vendor-risk service unavailable; external risk class unverifiable (§10).",
-      "Legal terms status Unknown for a new vendor with $15,000 annual spend (≥$10,000 threshold, §7).",
-      "Data residency / cross-region storage unknown (vendor-risk record unavailable).",
-      "No catalog overlap found, but no existing legal/contract tooling was identified to confirm the gap is real."
+      "Vendor security review is missing / security status is Unknown (security review date is empty).",
+      "Vendor-risk API service was unavailable (HTTP 503), preventing verification of external risk assessment.",
+      "Legal terms status is Unknown for a new vendor with annual spend >= $10,000."
      ],
      "unsupported_or_unverified": [
-      "Vendor security clearance — registry shows Unknown and the vendor-risk API is unavailable; cannot be assumed favorable (§10).",
-      "Legal terms approval — status Unknown; not verified.",
-      "Data residency / personal-data processing — no record available."
+      "Vendor security posture and legal terms compliance are unverified due to lack of completed review and upstream API outage."
      ]
     }
    },
@@ -452,32 +526,32 @@
     "final_mode": "structured",
     "proposal": {
      "decision_type": "route_for_specialist_review",
-     "recommendation": "Route for specialist review because the vendor security assessment is missing, data residency is unverified, and legal terms are unapproved for a new vendor with $15,000 annual spend.",
-     "next_step": "Route to Security, Privacy, and Legal for specialist review; Procurement should re-query the vendor-risk service once available to verify data residency and security clearance before any approval decision.",
+     "recommendation": "Route the request for specialist Security, Privacy, and Legal reviews alongside Department Head, Finance, and Procurement approvals due to unverified vendor risk, confidential document access, document repository integration, and spend exceeding $10,000 with a new vendor.",
+     "next_step": "Route the request to Department Head, Finance, Procurement, Security, Privacy, and Legal for review and approval.",
      "required_approvals": [
       {
        "role": "Department Head",
-       "reason": "R4 §4: Annual cost $15,000 is in the $10,000.01 to $25,000 tier"
+       "reason": "Annual cost $15,000 is in the $10,000.01 to $25,000 tier"
       },
       {
        "role": "Finance",
-       "reason": "R4 §4: Annual cost $15,000 is in the $10,000.01 to $25,000 tier"
+       "reason": "Annual cost $15,000 is in the $10,000.01 to $25,000 tier"
       },
       {
        "role": "Procurement",
-       "reason": "R4 §4: Annual cost $15,000 is in the $10,000.01 to $25,000 tier"
+       "reason": "Annual cost $15,000 is in the $10,000.01 to $25,000 tier"
       },
       {
        "role": "Security",
-       "reason": "R6 §5: Vendor security assessment missing, expired, not completed or conflicting: registry security status Unknown; R7 §5: Data class confidential_documents (data_access_level 'confidential_documents'); R7 §5: Data class confidential_documents (integration 'Document repository')"
+       "reason": "Vendor security assessment missing, expired, not completed or conflicting: registry security status Unknown; data class confidential_documents and document repository integration"
       },
       {
        "role": "Privacy",
-       "reason": "R8 §6, §10: Data residency unverified (vendor-risk service unavailable) for confidential_documents"
+       "reason": "Data residency unverified (vendor-risk service unavailable) for confidential_documents"
       },
       {
        "role": "Legal",
-       "reason": "R9 §7: New vendor with annual spend $15,000 (≥ $10,000); R9 §7: Legal terms status Unknown (not approved/standard)"
+       "reason": "New vendor with annual spend $15,000 (≥ $10,000) and legal terms status Unknown"
       }
      ],
      "risk_flags": [
@@ -490,37 +564,39 @@
       "vendor security assessment (vendor-risk service unavailable)",
       "vendor data-residency status (unverified)"
      ],
-     "overlap_assessment": [],
+     "overlap_assessment": [
+      {
+       "software_id": "none",
+       "relationship": "related_not_substitute",
+       "covers_stated_need": false,
+       "reason": "No existing catalog software matches this category or vendor."
+      }
+     ],
      "evidence": [
       {
        "source": "get_request_details",
-       "finding": "Request REQ-1009 is for NimbusAI Contract Reviewer (Legal AI) at $15,000 annual cost for 8 users, with data access level 'confidential_documents' and a 'Document repository' integration.",
-       "reference": "REQ-1009"
+       "finding": "Request REQ-1009 is for NimbusAI Contract Reviewer by NimbusAI, cost $15,000.00/year for 8 users in Finance department.",
+       "reference": "REQ-1009 request details"
       },
       {
        "source": "check_budget",
-       "finding": "Finance department has $29,000 available against a $90,000 annual budget; the $15,000 request is within budget, leaving $14,000.",
+       "finding": "Finance department available budget is $29,000.00, committed $61,000.00, annual budget $90,000.00. Request fits within budget ($15,000.00).",
        "reference": "department_budgets.csv:Finance"
       },
       {
        "source": "search_software_catalog",
-       "finding": "Catalog search for contract/legal/agreement/review/summarize returned no candidates and no overlap-flag candidates.",
+       "finding": "Software catalog search found no overlapping candidates in category Legal AI or vendor NimbusAI.",
        "reference": "software_catalog.csv"
       },
       {
        "source": "get_vendor_status",
-       "finding": "NimbusAI (V013) is a registered new vendor with security_status 'Unknown' (no review date) and legal_terms_status 'Unknown'.",
-       "reference": "vendor registry V013"
+       "finding": "NimbusAI is registered in the internal vendor registry (V013), procurement status New, security status Unknown, security review date empty, legal terms status Unknown.",
+       "reference": "internal registry V013"
       },
       {
        "source": "get_vendor_status",
-       "finding": "External vendor-risk API returned HTTP 503 after 2 attempts; no external risk class, review date, or data-residency record could be retrieved.",
+       "finding": "Vendor-risk service API for NimbusAI returned HTTP 503 (service unavailable).",
        "reference": "GET /vendor-risk/NimbusAI"
-      },
-      {
-       "source": "evaluate_policy_rules",
-       "finding": "Policy engine requires Department Head, Finance, Procurement, Security, Privacy, and Legal approvals; flags security_review_required, privacy_review_required, legal_review_required, and vendor_risk_unavailable.",
-       "reference": "policy engine result REQ-1009"
       }
      ],
      "injection_observed": false,
@@ -534,69 +610,72 @@
    }
   ],
   "evidence_pack": {
-   "need_summary": "Finance wants an AI tool to summarize vendor agreements and flag non-standard payment terms, processing confidential documents via a document-repository integration for 8 users.",
+   "need_summary": "Provide AI-assisted contract review and summarization with document repository integration for the Finance department.",
    "data_classes_implied": [
     "confidential_documents"
    ],
-   "overlap_assessment": [],
+   "overlap_assessment": [
+    {
+     "software_id": "none",
+     "relationship": "related_not_substitute",
+     "covers_stated_need": false,
+     "reason": "No existing catalog software matches this category or vendor."
+    }
+   ],
    "vendor_observations": [
-    "NimbusAI is a registered vendor (V013) with procurement status 'New' — a new vendor with annual spend $15,000 (≥$10,000) triggers Legal review (§7).",
-    "Registry security_status is 'Unknown' with no review date; no completed vendor security assessment on file (§5).",
-    "External vendor-risk service returned HTTP 503 (unavailable, 2 attempts); no external risk class, review date, or data-residency record could be retrieved (§10).",
-    "Legal terms status is 'Unknown' — not approved.",
-    "No registry/API conflict detected, but both sources are effectively unavailable/unknown, so the vendor cannot be considered cleared."
+    "NimbusAI is registered as a new vendor (V013) with Unknown security status and empty security review date.",
+    "Vendor-risk service returned HTTP 503 unavailable."
    ],
    "uncertainties": [
-    "Whether the Document repository integration exposes confidential documents to the vendor (data residency unknown).",
-    "Whether NimbusAI processes personal data (vendor-risk record unavailable).",
-    "Approval chain: $15,000 falls in the ≤$25,000 band (Department Head + Procurement + Finance per §4), but Security, Privacy and Legal reviews are also triggered.",
-    "No evidence of existing contract-review tooling in the catalog; the stated gap is plausible but unverified against current licenses."
+    "Vendor risk status cannot be verified due to API unavailability and missing registry security review date.",
+    "Unclear whether legal terms have been approved for new vendor NimbusAI."
    ],
    "injection_observed": false,
    "injection_excerpt": null,
    "evidence": [
     {
      "source": "get_request_details",
-     "finding": "Requester Noah Williams (E004), Finance, IC4; manager/department head hint Priya Shah. Product 'NimbusAI Contract Reviewer', vendor NimbusAI, category Legal AI; annual cost $15,000; 8 users; data access level confidential_documents; integration: Document repository; urgency normal.",
-     "reference": "REQ-1009"
+     "finding": "Request REQ-1009 is for NimbusAI Contract Reviewer by NimbusAI, cost $15,000.00/year for 8 users in Finance department.",
+     "reference": "REQ-1009 request details"
     },
     {
      "source": "check_budget",
-     "finding": "Finance department budget: $90,000 annual, $61,000 committed, $29,000 available; the $15,000 request fits within budget, leaving $14,000.",
+     "finding": "Finance department available budget is $29,000.00, committed $61,000.00, annual budget $90,000.00. Request fits within budget ($15,000.00).",
      "reference": "department_budgets.csv:Finance"
     },
     {
      "source": "search_software_catalog",
-     "finding": "Catalog search for contract/legal/agreement/review/summarize returned no candidates and no overlap-flag candidates.",
+     "finding": "Software catalog search found no overlapping candidates in category Legal AI or vendor NimbusAI.",
      "reference": "software_catalog.csv"
     },
     {
      "source": "get_vendor_status",
-     "finding": "NimbusAI is registered (vendor_id V013) with procurement_status 'New', security_status 'Unknown' (no review date), legal_terms_status 'Unknown'.",
-     "reference": "vendor registry V013"
+     "finding": "NimbusAI is registered in the internal vendor registry (V013), procurement status New, security status Unknown, security review date empty, legal terms status Unknown.",
+     "reference": "internal registry V013"
     },
     {
      "source": "get_vendor_status",
-     "finding": "External vendor-risk API returned HTTP 503 (unavailable) after 2 attempts; no risk record available.",
+     "finding": "Vendor-risk service API for NimbusAI returned HTTP 503 (service unavailable).",
      "reference": "GET /vendor-risk/NimbusAI"
     },
     {
-     "source": "get_request_details / search_software_catalog / get_vendor_status",
-     "finding": "No prompt-injection hits in request text, catalog results, or vendor data.",
-     "reference": "injection_scan"
+     "source": "lookup_policy_section",
+     "finding": "Request involves confidential documents and document repository integration, triggering security review under §5.",
+     "reference": "procurement_policy.md §5"
+    },
+    {
+     "source": "lookup_policy_section",
+     "finding": "Annual cost of $15,000.00 requires Department Head, Finance, and Procurement approvals under §4.",
+     "reference": "procurement_policy.md §4"
     }
    ],
    "gaps": [
-    "Vendor security review missing (status Unknown, no date) — required for confidential documents and AI tool (§5).",
-    "Vendor-risk service unavailable; external risk class unverifiable (§10).",
-    "Legal terms status Unknown for a new vendor with $15,000 annual spend (≥$10,000 threshold, §7).",
-    "Data residency / cross-region storage unknown (vendor-risk record unavailable).",
-    "No catalog overlap found, but no existing legal/contract tooling was identified to confirm the gap is real."
+    "Vendor security review is missing / security status is Unknown (security review date is empty).",
+    "Vendor-risk API service was unavailable (HTTP 503), preventing verification of external risk assessment.",
+    "Legal terms status is Unknown for a new vendor with annual spend >= $10,000."
    ],
    "unsupported_or_unverified": [
-    "Vendor security clearance — registry shows Unknown and the vendor-risk API is unavailable; cannot be assumed favorable (§10).",
-    "Legal terms approval — status Unknown; not verified.",
-    "Data residency / personal-data processing — no record available."
+    "Vendor security posture and legal terms compliance are unverified due to lack of completed review and upstream API outage."
    ]
   },
   "analyst_audit": {

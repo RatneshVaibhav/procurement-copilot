@@ -108,7 +108,7 @@ No tool can approve, purchase, notify, edit a budget or accept terms. A call to 
 
 The structured handoff is `EvidencePack` (`src/schemas.py`): `need_summary`, `data_classes_implied`, `overlap_assessment`, `vendor_observations`, `uncertainties`, `injection_observed`, `injection_excerpt`, `evidence`, `gaps`, `unsupported_or_unverified`. It is validated with pydantic (one repair, then fallback); prose is never passed between agents. The reviewer also receives the raw tool results, the policy-engine result and only the policy sections the engine cited, and returns a `ReviewerProposal` with an `analyst_audit` (issues found, rejected claims, agreement with the overlap assessment).
 
-Real example (`evals/results/runs/staged/G-02_t1.json`, REQ-1002, provider Groq `qwen/qwen3.8-27b`), lightly trimmed:
+Real example (`evals/results_qwen/runs/staged/G-02_t1.json`, REQ-1002, provider Groq `qwen/qwen3.8-27b`), lightly trimmed:
 
 ```json
 {

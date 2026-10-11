@@ -5,12 +5,12 @@
  "trial": 1,
  "status": "ok",
  "fault": null,
- "provider": "groq",
- "model": "qwen/qwen3.8-27b",
+ "provider": "gemini",
+ "model": "gemini-3.5-flash-lite",
  "error": null,
  "decision": {
   "request_id": "REQ-1005",
-  "recommendation": "Route for specialist review: Route for specialist review due to budget shortfall, missing security assessment, customer PII processing, cross-region data storage, and new-vendor legal terms.",
+  "recommendation": "Route for specialist review: Route the request for specialist reviews, budget exception review, and required management approvals due to insufficient department budget, new vendor status, and customer PII handling.",
   "evidence": [
    {
     "source": "evaluate_policy_rules",
@@ -49,27 +49,22 @@
    },
    {
     "source": "get_request_details",
-    "finding": "Request REQ-1005 is for ProspectPilot by GrowthForge, $22,000 annual cost, 35 users, data_access_level customer_pii, CRM integration.",
-    "reference": "REQ-1005"
+    "finding": "Request REQ-1005 is for ProspectPilot from GrowthForge, annual cost $22,000 for 35 users in Sales.",
+    "reference": "REQ-1005 details"
    },
    {
     "source": "check_budget",
-    "finding": "Sales department available budget is $18,000; requested $22,000 exceeds it by $4,000 (status: insufficient).",
+    "finding": "Sales department available budget is insufficient ($18,000 remaining, leaving a shortfall of $4,000).",
     "reference": "department_budgets.csv:Sales"
    },
    {
     "source": "search_software_catalog",
-    "finding": "No catalog candidates or overlap flags returned for keywords lead, enrichment, sales, outbound, crm.",
+    "finding": "No catalog candidates found matching the request category/product/vendor.",
     "reference": "software_catalog.csv"
    },
    {
     "source": "get_vendor_status",
-    "finding": "GrowthForge (V012) is registered as New; security status Pending with no review date; legal terms status Unknown.",
-    "reference": "vendor registry V012"
-   },
-   {
-    "source": "get_vendor_status",
-    "finding": "Vendor-risk API reports risk_level high, security_review_status not_completed, processes_personal_data true, stores_data_outside_region true.",
+    "finding": "Vendor GrowthForge is registered as a new vendor with pending security status, high risk level, and stores data outside the region.",
     "reference": "GET /vendor-risk/GrowthForge"
    }
   ],
@@ -88,38 +83,39 @@
    "privacy_review_required",
    "legal_review_required"
   ],
-  "next_step": "Route to Security, Privacy, Legal, and Finance for specialist review; Finance to address the $4,000 budget shortfall and Security to initiate the missing vendor assessment before any approval decision.",
+  "next_step": "Obtain budget exception approval from Finance, along with reviews from Department Head, Procurement, Security, Privacy, and Legal.",
   "human_review_required": true,
   "telemetry": {
    "llm_calls": 4,
-   "tool_calls": 5,
+   "tool_calls": 6,
    "tool_names": [
     "get_request_details",
     "check_budget",
     "search_software_catalog",
+    "get_vendor_status",
     "get_vendor_status",
     "evaluate_policy_rules"
    ]
   }
  },
  "trace": {
-  "run_id": "REQ-1005-staged-7b1aaf1e",
+  "run_id": "REQ-1005-staged-b6486b3e",
   "request_id": "REQ-1005",
   "architecture": "staged",
   "mode": "llm",
-  "provider": "groq",
-  "model": "qwen/qwen3.8-27b",
+  "provider": "gemini",
+  "model": "gemini-3.5-flash-lite",
   "reference_date": "2026-09-30",
-  "created_at": "2026-10-10T18:49:40+00:00",
-  "latency_total_ms": 144597.8,
-  "llm_wait_ms": 137261.0,
-  "latency_active_ms": 7336.8,
-  "llm_ms": 5831.8,
-  "tool_ms": 37.9,
+  "created_at": "2026-10-11T02:13:09+00:00",
+  "latency_total_ms": 25056.4,
+  "llm_wait_ms": 15357.4,
+  "latency_active_ms": 9699.0,
+  "llm_ms": 9660.0,
+  "tool_ms": 32.1,
   "llm_calls": 4,
-  "tool_calls": 5,
+  "tool_calls": 6,
   "tokens": {
-   "prompt": 12463,
+   "prompt": 12628,
    "completion": 1886,
    "cached": 0
   },
@@ -138,13 +134,13 @@
     "n": 2,
     "actor": "agent:analyst",
     "action": "llm turn 1",
-    "summary_in": "4 messages",
-    "summary_out": "get_request_details(REQ-1005) → ok",
+    "summary_in": "7 messages",
+    "summary_out": "get_request_details(REQ-1005) → ok; check_budget(REQ-1005) → ok; search_software_catalog(REQ-1005) → ok; get_vendor_status(Synthetix AI) → ok",
     "route_reason": null,
-    "ms": 442.1,
+    "ms": 1422.5,
     "tokens": {
-     "prompt": 2553,
-     "completion": 32,
+     "prompt": 2251,
+     "completion": 96,
      "cached": 0
     }
    },
@@ -152,13 +148,13 @@
     "n": 3,
     "actor": "agent:analyst",
     "action": "llm turn 2",
-    "summary_in": "8 messages",
-    "summary_out": "check_budget(REQ-1005) → ok; search_software_catalog(REQ-1005) → ok; get_vendor_status(GrowthForge) → ok",
+    "summary_in": "9 messages",
+    "summary_out": "submit_evidence_pack invalid → repair requested",
     "route_reason": null,
-    "ms": 779.8,
+    "ms": 2322.9,
     "tokens": {
-     "prompt": 2799,
-     "completion": 124,
+     "prompt": 3047,
+     "completion": 421,
      "cached": 0
     }
    },
@@ -166,13 +162,13 @@
     "n": 4,
     "actor": "agent:analyst",
     "action": "llm turn 3",
-    "summary_in": "8 messages",
+    "summary_in": "9 messages",
     "summary_out": "submit_evidence_pack: valid",
     "route_reason": null,
-    "ms": 2297.3,
+    "ms": 1764.4,
     "tokens": {
-     "prompt": 3428,
-     "completion": 837,
+     "prompt": 3509,
+     "completion": 461,
      "cached": 0
     }
    },
@@ -191,7 +187,7 @@
     "actor": "code:gate",
     "action": "completeness gate",
     "summary_in": "required: get_request_details, check_budget, search_software_catalog, get_vendor_status",
-    "summary_out": "filled: none",
+    "summary_out": "filled: get_vendor_status",
     "route_reason": null,
     "ms": null,
     "tokens": null
@@ -231,12 +227,12 @@
     "actor": "agent:reviewer",
     "action": "structured review",
     "summary_in": "evidence pack + raw tool results + policy",
-    "summary_out": "proposal: route_for_specialist_review; audit: 0 issues, 0 rejected claims",
+    "summary_out": "proposal: route_for_specialist_review; audit: 1 issues, 1 rejected claims",
     "route_reason": null,
-    "ms": 2312.6,
+    "ms": 4150.2,
     "tokens": {
-     "prompt": 3683,
-     "completion": 893,
+     "prompt": 3821,
+     "completion": 908,
      "cached": 0
     }
    },
@@ -255,7 +251,7 @@
     "actor": "code:guardrails",
     "action": "merge + validate + ground",
     "summary_in": "proposal: route_for_specialist_review",
-    "summary_out": "final: route_for_specialist_review; corrections: none",
+    "summary_out": "final: route_for_specialist_review; corrections: {'ungrounded_evidence_removed': 1}",
     "route_reason": null,
     "ms": null,
     "tokens": null
@@ -266,8 +262,31 @@
   "analyst_stop_reason": "submitted",
   "repeated_tool_calls": 0,
   "tool_rejected": 0,
-  "event_counts": {},
-  "events": [],
+  "event_counts": {
+   "invalid_submission_repair": 1,
+   "gate_filled:get_vendor_status": 1,
+   "reviewer_rejection": 1,
+   "ungrounded_evidence_removed": 1
+  },
+  "events": [
+   {
+    "event": "invalid_submission_repair",
+    "actor": "analyst",
+    "errors": "vendor_observations: Field required"
+   },
+   {
+    "event": "gate_filled:get_vendor_status",
+    "tool": "get_vendor_status"
+   },
+   {
+    "event": "reviewer_rejection"
+   },
+   {
+    "event": "ungrounded_evidence_removed",
+    "source": "get_vendor_status",
+    "why": "token '404' not found in tool results"
+   }
+  ],
   "tool_log": [
    {
     "name": "get_request_details",
@@ -276,7 +295,7 @@
     },
     "initiator": "agent",
     "status": "ok",
-    "duration_ms": 4.0,
+    "duration_ms": 4.1,
     "cache_hit": false
    },
    {
@@ -286,24 +305,27 @@
     },
     "initiator": "agent",
     "status": "ok",
-    "duration_ms": 5.2,
+    "duration_ms": 4.7,
     "cache_hit": false
    },
    {
     "name": "search_software_catalog",
     "args": {
-     "keywords": [
-      "lead",
-      "enrichment",
-      "sales",
-      "outbound",
-      "crm"
-     ],
      "request_id": "REQ-1005"
     },
     "initiator": "agent",
     "status": "ok",
-    "duration_ms": 3.7,
+    "duration_ms": 3.3,
+    "cache_hit": false
+   },
+   {
+    "name": "get_vendor_status",
+    "args": {
+     "vendor_name": "Synthetix AI"
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 3.8,
     "cache_hit": false
    },
    {
@@ -311,9 +333,9 @@
     "args": {
      "vendor_name": "GrowthForge"
     },
-    "initiator": "agent",
+    "initiator": "gate",
     "status": "ok",
-    "duration_ms": 13.5,
+    "duration_ms": 6.2,
     "cache_hit": false
    },
    {
@@ -323,52 +345,52 @@
     },
     "initiator": "orchestrator",
     "status": "ok",
-    "duration_ms": 11.5,
+    "duration_ms": 10.0,
     "cache_hit": false
    }
   ],
   "llm_call_log": [
    {
     "actor": "agent:analyst",
-    "latency_ms": 442.1,
-    "wait_ms": 2426.9,
-    "attempts": 2,
+    "latency_ms": 1422.5,
+    "wait_ms": 2904.3,
+    "attempts": 1,
     "usage": {
-     "prompt": 2553,
-     "completion": 32,
+     "prompt": 2251,
+     "completion": 96,
      "cached": 0
     }
    },
    {
     "actor": "agent:analyst",
-    "latency_ms": 779.8,
-    "wait_ms": 56866.6,
-    "attempts": 2,
+    "latency_ms": 2322.9,
+    "wait_ms": 4560.4,
+    "attempts": 1,
     "usage": {
-     "prompt": 2799,
-     "completion": 124,
+     "prompt": 3047,
+     "completion": 421,
      "cached": 0
     }
    },
    {
     "actor": "agent:analyst",
-    "latency_ms": 2297.3,
-    "wait_ms": 16488.3,
-    "attempts": 4,
+    "latency_ms": 1764.4,
+    "wait_ms": 3676.3,
+    "attempts": 1,
     "usage": {
-     "prompt": 3428,
-     "completion": 837,
+     "prompt": 3509,
+     "completion": 461,
      "cached": 0
     }
    },
    {
     "actor": "agent:reviewer",
-    "latency_ms": 2312.6,
-    "wait_ms": 61479.2,
-    "attempts": 5,
+    "latency_ms": 4150.2,
+    "wait_ms": 4216.4,
+    "attempts": 1,
     "usage": {
-     "prompt": 3683,
-     "completion": 893,
+     "prompt": 3821,
+     "completion": 908,
      "cached": 0
     }
    }
@@ -378,66 +400,51 @@
     "actor": "agent:analyst",
     "final_mode": "tool_call",
     "proposal": {
-     "need_summary": "Sales team wants a sales-intelligence tool to enrich lead records and prioritize outbound accounts, integrated with the CRM, for 35 users.",
+     "need_summary": "The Sales department needs ProspectPilot to enrich lead records and prioritize outbound accounts.",
      "data_classes_implied": [
       "customer_pii"
      ],
      "overlap_assessment": [],
      "vendor_observations": [
-      "Registry: GrowthForge (V012) registered, procurement status New, security status Pending with no review date, legal terms Unknown, no prior contract.",
-      "Vendor-risk API: risk level high, security review not completed, processes personal data, stores data outside region; notes require full security assessment.",
-      "No registry/API conflict (both indicate pending/not completed), but neither is cleared; new vendor with high risk and no completed security review."
+      "Vendor Synthetix AI is unregistered with no vendor-risk record found. Furthermore, there is a discrepancy between the request vendor (GrowthForge) and the queried vendor name."
      ],
      "uncertainties": [
-      "Whether the CRM integration would expose customer PII to the vendor (declared data_access_level is customer_pii).",
-      "Exact region where GrowthForge stores data outside the region is unspecified.",
-      "No catalog overlap found, but catalog may not list all licensed sales tools; reviewer may want to confirm with requester.",
-      "Legal terms unknown — cannot assess standard vs non-standard terms."
+      "Vendor name mismatch between request (GrowthForge) and vendor status check (Synthetix AI).",
+      "Unverified vendor security and compliance status.",
+      "Unregistered vendor GrowthForge."
      ],
      "injection_observed": false,
      "injection_excerpt": null,
      "evidence": [
       {
        "source": "get_request_details",
-       "finding": "Requester Elena Garcia (E003, Sales, IC3); product ProspectPilot by GrowthForge, category Sales Intelligence; annual cost $22,000; 35 users; data access level customer_pii; integration CRM; urgency normal; field completeness complete.",
-       "reference": "REQ-1005"
+       "finding": "Request REQ-1005 is for ProspectPilot from GrowthForge, annual cost $22,000 for 35 users in Sales.",
+       "reference": "REQ-1005 details"
       },
       {
        "source": "check_budget",
-       "finding": "Sales department available budget $18,000 vs requested $22,000; within_budget=false; remaining_after_usd=-4,000; status insufficient.",
+       "finding": "Sales department available budget is insufficient ($18,000 remaining, exceeding budget by $4,000).",
        "reference": "department_budgets.csv:Sales"
       },
       {
        "source": "search_software_catalog",
-       "finding": "No catalog candidates returned for category/vendor/product or keywords lead, enrichment, sales, outbound, crm; no overlap flag candidates.",
+       "finding": "No catalog candidates found matching the request category/product/vendor.",
        "reference": "software_catalog.csv"
       },
       {
        "source": "get_vendor_status",
-       "finding": "GrowthForge registered (V012), procurement_status New, security_status Pending, no security review date, legal_terms_status Unknown; no prior contract.",
-       "reference": "vendor registry V012"
-      },
-      {
-       "source": "get_vendor_status",
-       "finding": "Vendor-risk API: risk_level high, security_review_status not_completed, last_review_date null, processes_personal_data true, stores_data_outside_region true; notes 'New vendor; full security assessment required.'",
-       "reference": "GET /vendor-risk/GrowthForge"
-      },
-      {
-       "source": "get_request_details",
-       "finding": "Injection scan on request text: no hits detected.",
-       "reference": "REQ-1005"
+       "finding": "Vendor Synthetix AI is not registered and has no vendor-risk record (new vendor / 404). Note: request vendor is GrowthForge.",
+       "reference": "GET /vendor-risk/Synthetix AI"
       }
      ],
      "gaps": [
-      "No security review exists for GrowthForge (registry Pending, API not_completed) — required before any PII processing.",
-      "Legal terms status Unknown for a new vendor with $22,000 annual spend (≥$10,000 threshold).",
-      "Budget shortfall of $4,000 vs Sales available budget; Finance exception review needed.",
-      "No justification detail on why existing CRM capabilities are insufficient for lead enrichment/prioritization.",
-      "Data residency specifics (which region data is stored outside) not documented."
+      "Vendor risk assessment and security review missing for new vendor.",
+      "Privacy review missing for customer PII and CRM integration.",
+      "Legal review required for new vendor with annual spend >= $10,000.",
+      "Budget shortfall of $4,000 requires Finance exception review."
      ],
      "unsupported_or_unverified": [
-      "Claim that the tool enriches lead records and prioritizes outbound accounts — no product documentation or demo evidence provided.",
-      "No evidence of prior security assessment or data-processing agreement for GrowthForge."
+      "Vendor GrowthForge has not been verified or registered in the vendor risk registry."
      ]
     }
    },
@@ -446,32 +453,32 @@
     "final_mode": "structured",
     "proposal": {
      "decision_type": "route_for_specialist_review",
-     "recommendation": "Route for specialist review due to budget shortfall, missing security assessment, customer PII processing, cross-region data storage, and new-vendor legal terms.",
-     "next_step": "Route to Security, Privacy, Legal, and Finance for specialist review; Finance to address the $4,000 budget shortfall and Security to initiate the missing vendor assessment before any approval decision.",
+     "recommendation": "Route the request for specialist reviews, budget exception review, and required management approvals due to insufficient department budget, new vendor status, and customer PII handling.",
+     "next_step": "Obtain budget exception approval from Finance, along with reviews from Department Head, Procurement, Security, Privacy, and Legal.",
      "required_approvals": [
       {
        "role": "Department Head",
-       "reason": "R4 §4: Annual cost $22,000 is in the $10,000.01 to $25,000 tier"
+       "reason": "Annual cost $22,000 is in the $10,000.01 to $25,000 tier"
       },
       {
        "role": "Finance",
-       "reason": "R4 §4: Annual cost $22,000 is in the $10,000.01 to $25,000 tier; R3 §2: Annual cost $22,000 exceeds Sales available software budget $18,000: budget exception review"
+       "reason": "Annual cost $22,000 exceeds Sales available software budget $18,000 and falls within the $10,000.01 to $25,000 tier"
       },
       {
        "role": "Procurement",
-       "reason": "R4 §4: Annual cost $22,000 is in the $10,000.01 to $25,000 tier"
+       "reason": "Annual cost $22,000 is in the $10,000.01 to $25,000 tier"
       },
       {
        "role": "Security",
-       "reason": "R6 §5: Vendor security assessment missing, expired, not completed or conflicting: registry security status Pending, vendor-risk API status not_completed; R7 §5: Data class customer_pii (data_access_level 'customer_pii'); R7 §5: Data class customer_pii (integration 'CRM')"
+       "reason": "Vendor security assessment is pending/not completed and request involves customer PII and CRM integration"
       },
       {
        "role": "Privacy",
-       "reason": "R7 §6: customer_pii (data_access_level 'customer_pii'); R7 §6: customer_pii (integration 'CRM'); R8 §6: Vendor stores data outside the region and the request involves customer_pii: material cross-region issue"
+       "reason": "Request involves customer PII, CRM integration, and vendor stores data outside the region"
       },
       {
        "role": "Legal",
-       "reason": "R8 §7: Vendor stores data outside the region and the request involves customer_pii: material cross-region issue; R9 §7: New vendor with annual spend $22,000 (≥ $10,000); R9 §7: Legal terms status Unknown (not approved/standard)"
+       "reason": "New vendor with annual spend of $22,000 (≥ $10,000) with unknown legal terms and cross-region data storage"
       }
      ],
      "risk_flags": [
@@ -485,116 +492,111 @@
      "evidence": [
       {
        "source": "get_request_details",
-       "finding": "Request REQ-1005 is for ProspectPilot by GrowthForge, $22,000 annual cost, 35 users, data_access_level customer_pii, CRM integration.",
-       "reference": "REQ-1005"
+       "finding": "Request REQ-1005 is for ProspectPilot from GrowthForge, annual cost $22,000 for 35 users in Sales.",
+       "reference": "REQ-1005 details"
       },
       {
        "source": "check_budget",
-       "finding": "Sales department available budget is $18,000; requested $22,000 exceeds it by $4,000 (status: insufficient).",
+       "finding": "Sales department available budget is insufficient ($18,000 remaining, leaving a shortfall of $4,000).",
        "reference": "department_budgets.csv:Sales"
       },
       {
        "source": "search_software_catalog",
-       "finding": "No catalog candidates or overlap flags returned for keywords lead, enrichment, sales, outbound, crm.",
+       "finding": "No catalog candidates found matching the request category/product/vendor.",
        "reference": "software_catalog.csv"
       },
       {
        "source": "get_vendor_status",
-       "finding": "GrowthForge (V012) is registered as New; security status Pending with no review date; legal terms status Unknown.",
-       "reference": "vendor registry V012"
+       "finding": "Vendor Synthetix AI is not registered and has no vendor-risk record (404).",
+       "reference": "GET /vendor-risk/Synthetix AI"
       },
       {
        "source": "get_vendor_status",
-       "finding": "Vendor-risk API reports risk_level high, security_review_status not_completed, processes_personal_data true, stores_data_outside_region true.",
+       "finding": "Vendor GrowthForge is registered as a new vendor with pending security status, high risk level, and stores data outside the region.",
        "reference": "GET /vendor-risk/GrowthForge"
-      },
-      {
-       "source": "evaluate_policy_rules",
-       "finding": "Policy engine requires Department Head, Finance, Procurement, Security, Privacy, and Legal approvals; flags budget_insufficient, security_review_required, privacy_review_required, legal_review_required.",
-       "reference": "Policy engine result REQ-1005"
       }
      ],
      "injection_observed": false,
      "injection_excerpt": null,
      "analyst_audit": {
-      "issues_found": [],
-      "rejected_claims": [],
+      "issues_found": [
+       "The analyst generated a vendor observation regarding Synthetix AI without clarifying that the actual request vendor was GrowthForge."
+      ],
+      "rejected_claims": [
+       "Vendor GrowthForge has not been verified or registered in the vendor risk registry (contradicted by vendor-risk tool showing GrowthForge is registered as a new vendor)."
+      ],
       "agrees_with_overlap_assessment": true
      }
     }
    }
   ],
   "evidence_pack": {
-   "need_summary": "Sales team wants a sales-intelligence tool to enrich lead records and prioritize outbound accounts, integrated with the CRM, for 35 users.",
+   "need_summary": "The Sales department needs ProspectPilot to enrich lead records and prioritize outbound accounts.",
    "data_classes_implied": [
     "customer_pii"
    ],
    "overlap_assessment": [],
    "vendor_observations": [
-    "Registry: GrowthForge (V012) registered, procurement status New, security status Pending with no review date, legal terms Unknown, no prior contract.",
-    "Vendor-risk API: risk level high, security review not completed, processes personal data, stores data outside region; notes require full security assessment.",
-    "No registry/API conflict (both indicate pending/not completed), but neither is cleared; new vendor with high risk and no completed security review."
+    "Vendor Synthetix AI is unregistered with no vendor-risk record found. Furthermore, there is a discrepancy between the request vendor (GrowthForge) and the queried vendor name."
    ],
    "uncertainties": [
-    "Whether the CRM integration would expose customer PII to the vendor (declared data_access_level is customer_pii).",
-    "Exact region where GrowthForge stores data outside the region is unspecified.",
-    "No catalog overlap found, but catalog may not list all licensed sales tools; reviewer may want to confirm with requester.",
-    "Legal terms unknown — cannot assess standard vs non-standard terms."
+    "Vendor name mismatch between request (GrowthForge) and vendor status check (Synthetix AI).",
+    "Unverified vendor security and compliance status.",
+    "Unregistered vendor GrowthForge."
    ],
    "injection_observed": false,
    "injection_excerpt": null,
    "evidence": [
     {
      "source": "get_request_details",
-     "finding": "Requester Elena Garcia (E003, Sales, IC3); product ProspectPilot by GrowthForge, category Sales Intelligence; annual cost $22,000; 35 users; data access level customer_pii; integration CRM; urgency normal; field completeness complete.",
-     "reference": "REQ-1005"
+     "finding": "Request REQ-1005 is for ProspectPilot from GrowthForge, annual cost $22,000 for 35 users in Sales.",
+     "reference": "REQ-1005 details"
     },
     {
      "source": "check_budget",
-     "finding": "Sales department available budget $18,000 vs requested $22,000; within_budget=false; remaining_after_usd=-4,000; status insufficient.",
+     "finding": "Sales department available budget is insufficient ($18,000 remaining, exceeding budget by $4,000).",
      "reference": "department_budgets.csv:Sales"
     },
     {
      "source": "search_software_catalog",
-     "finding": "No catalog candidates returned for category/vendor/product or keywords lead, enrichment, sales, outbound, crm; no overlap flag candidates.",
+     "finding": "No catalog candidates found matching the request category/product/vendor.",
      "reference": "software_catalog.csv"
     },
     {
      "source": "get_vendor_status",
-     "finding": "GrowthForge registered (V012), procurement_status New, security_status Pending, no security review date, legal_terms_status Unknown; no prior contract.",
-     "reference": "vendor registry V012"
-    },
-    {
-     "source": "get_vendor_status",
-     "finding": "Vendor-risk API: risk_level high, security_review_status not_completed, last_review_date null, processes_personal_data true, stores_data_outside_region true; notes 'New vendor; full security assessment required.'",
-     "reference": "GET /vendor-risk/GrowthForge"
-    },
-    {
-     "source": "get_request_details",
-     "finding": "Injection scan on request text: no hits detected.",
-     "reference": "REQ-1005"
+     "finding": "Vendor Synthetix AI is not registered and has no vendor-risk record (new vendor / 404). Note: request vendor is GrowthForge.",
+     "reference": "GET /vendor-risk/Synthetix AI"
     }
    ],
    "gaps": [
-    "No security review exists for GrowthForge (registry Pending, API not_completed) — required before any PII processing.",
-    "Legal terms status Unknown for a new vendor with $22,000 annual spend (≥$10,000 threshold).",
-    "Budget shortfall of $4,000 vs Sales available budget; Finance exception review needed.",
-    "No justification detail on why existing CRM capabilities are insufficient for lead enrichment/prioritization.",
-    "Data residency specifics (which region data is stored outside) not documented."
+    "Vendor risk assessment and security review missing for new vendor.",
+    "Privacy review missing for customer PII and CRM integration.",
+    "Legal review required for new vendor with annual spend >= $10,000.",
+    "Budget shortfall of $4,000 requires Finance exception review."
    ],
    "unsupported_or_unverified": [
-    "Claim that the tool enriches lead records and prioritizes outbound accounts — no product documentation or demo evidence provided.",
-    "No evidence of prior security assessment or data-processing agreement for GrowthForge."
+    "Vendor GrowthForge has not been verified or registered in the vendor risk registry."
    ]
   },
   "analyst_audit": {
-   "issues_found": [],
-   "rejected_claims": [],
+   "issues_found": [
+    "The analyst generated a vendor observation regarding Synthetix AI without clarifying that the actual request vendor was GrowthForge."
+   ],
+   "rejected_claims": [
+    "Vendor GrowthForge has not been verified or registered in the vendor risk registry (contradicted by vendor-risk tool showing GrowthForge is registered as a new vendor)."
+   ],
    "agrees_with_overlap_assessment": true
   },
   "guardrails": {
    "questions_for_reviewer": [],
-   "ungrounded_evidence": [],
+   "ungrounded_evidence": [
+    {
+     "source": "get_vendor_status",
+     "finding": "Vendor Synthetix AI is not registered and has no vendor-risk record (404).",
+     "reference": "GET /vendor-risk/Synthetix AI",
+     "why": "token '404' not found in tool results"
+    }
+   ],
    "llm_added_reviews": [],
    "approval_reasons": {
     "Department Head": [
@@ -1017,9 +1019,9 @@
   "code_restored_flag": 0,
   "llm_role_dropped": 0,
   "llm_decision_overridden": 0,
-  "ungrounded_evidence_removed": 0,
-  "gate_filled": 0,
-  "reviewer_rejections": 0,
+  "ungrounded_evidence_removed": 1,
+  "gate_filled": 1,
+  "reviewer_rejections": 1,
   "failures": ""
  }
 }

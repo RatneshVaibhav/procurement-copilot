@@ -3,11 +3,11 @@
  "request_id": "REQ-1010",
  "arch": "staged",
  "trial": 1,
- "status": "infra_error",
+ "status": "ok",
  "fault": null,
- "provider": "groq",
- "model": "qwen/qwen3.8-27b",
- "error": "LLMRateLimited: rate limited after 1 attempt(s): Error code: 429 - {'error': {'message': 'Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_[redacted]` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 197992, Requested 2996. Please try again in 7m6.816s. Need more tokens? Upgrade to Dev Tier t",
+ "provider": "gemini",
+ "model": "gemini-3.5-flash-lite",
+ "error": "stage failed: analyst max_turns",
  "decision": {
   "request_id": "REQ-1010",
   "recommendation": "Route for approval: Request is complete and within policy; route to the approvers for this cost tier.",
@@ -48,36 +48,40 @@
   "next_step": "Send the evidence pack to Manager.",
   "human_review_required": true,
   "telemetry": {
-   "llm_calls": 0,
-   "tool_calls": 5,
+   "llm_calls": 5,
+   "tool_calls": 9,
    "tool_names": [
     "get_request_details",
     "check_budget",
     "search_software_catalog",
     "get_vendor_status",
+    "get_vendor_status",
+    "lookup_policy_section",
+    "lookup_policy_section",
+    "lookup_policy_section",
     "evaluate_policy_rules"
    ]
   }
  },
  "trace": {
-  "run_id": "REQ-1010-staged-0f2edaa7",
+  "run_id": "REQ-1010-staged-c3c00cba",
   "request_id": "REQ-1010",
   "architecture": "staged",
   "mode": "llm",
-  "provider": "groq",
-  "model": "qwen/qwen3.8-27b",
+  "provider": "gemini",
+  "model": "gemini-3.5-flash-lite",
   "reference_date": "2026-09-30",
-  "created_at": "2026-10-11T00:57:16+00:00",
-  "latency_total_ms": 2563.1,
-  "llm_wait_ms": 0,
-  "latency_active_ms": 2563.1,
-  "llm_ms": 0,
-  "tool_ms": 23.1,
-  "llm_calls": 0,
-  "tool_calls": 5,
+  "created_at": "2026-10-11T02:15:26+00:00",
+  "latency_total_ms": 28811.5,
+  "llm_wait_ms": 22566.1,
+  "latency_active_ms": 6245.4,
+  "llm_ms": 6204.8,
+  "tool_ms": 35.5,
+  "llm_calls": 5,
+  "tool_calls": 9,
   "tokens": {
-   "prompt": 0,
-   "completion": 0,
+   "prompt": 16810,
+   "completion": 164,
    "cached": 0
   },
   "steps": [
@@ -93,26 +97,96 @@
    },
    {
     "n": 2,
+    "actor": "agent:analyst",
+    "action": "llm turn 1",
+    "summary_in": "7 messages",
+    "summary_out": "get_request_details(REQ-1010) → ok; check_budget(REQ-1010) → ok; search_software_catalog(REQ-1010) → ok; get_vendor_status(Apex Cyber Solutions) → ok",
+    "route_reason": null,
+    "ms": 1539.3,
+    "tokens": {
+     "prompt": 2251,
+     "completion": 95,
+     "cached": 0
+    }
+   },
+   {
+    "n": 3,
+    "actor": "agent:analyst",
+    "action": "llm turn 2",
+    "summary_in": "9 messages",
+    "summary_out": "get_vendor_status(SignFlow) → ok",
+    "route_reason": null,
+    "ms": 931.3,
+    "tokens": {
+     "prompt": 3180,
+     "completion": 21,
+     "cached": 0
+    }
+   },
+   {
+    "n": 4,
+    "actor": "agent:analyst",
+    "action": "llm turn 3",
+    "summary_in": "11 messages",
+    "summary_out": "lookup_policy_section(3) → ok",
+    "route_reason": null,
+    "ms": 1333.7,
+    "tokens": {
+     "prompt": 3602,
+     "completion": 16,
+     "cached": 0
+    }
+   },
+   {
+    "n": 5,
+    "actor": "agent:analyst",
+    "action": "llm turn 4",
+    "summary_in": "13 messages",
+    "summary_out": "lookup_policy_section(5) → ok",
+    "route_reason": null,
+    "ms": 1456.5,
+    "tokens": {
+     "prompt": 3777,
+     "completion": 16,
+     "cached": 0
+    }
+   },
+   {
+    "n": 6,
+    "actor": "agent:analyst",
+    "action": "llm turn 5",
+    "summary_in": "15 messages",
+    "summary_out": "lookup_policy_section(4) → ok",
+    "route_reason": null,
+    "ms": 944.0,
+    "tokens": {
+     "prompt": 4000,
+     "completion": 16,
+     "cached": 0
+    }
+   },
+   {
+    "n": 7,
     "actor": "code:supervisor",
     "action": "route",
     "summary_in": "step 1",
     "summary_out": "fallback",
-    "route_reason": "stage failed: analyst llm_unavailable",
+    "route_reason": "stage failed: analyst max_turns",
     "ms": null,
     "tokens": null
    },
    {
-    "n": 3,
+    "n": 8,
     "actor": "code:gate",
     "action": "completeness gate",
     "summary_in": "required: get_request_details, check_budget, search_software_catalog, get_vendor_status, evaluate_policy_rules",
-    "summary_out": "filled: get_request_details, check_budget, search_software_catalog, get_vendor_status, evaluate_policy_rules",
+    "summary_out": "filled: evaluate_policy_rules",
     "route_reason": null,
     "ms": null,
     "tokens": null
    },
    {
-    "n": 4,
+    "n": 9,
     "actor": "code:policy_engine",
     "action": "evaluate_policy_rules",
     "summary_in": "REQ-1010",
@@ -122,7 +196,7 @@
     "tokens": null
    },
    {
-    "n": 5,
+    "n": 10,
     "actor": "code:fallback",
     "action": "rules-only decision",
     "summary_in": "LLM unavailable",
@@ -132,35 +206,15 @@
     "tokens": null
    }
   ],
-  "stop_reason": "llm_unavailable",
+  "stop_reason": "stage_failed:analyst max_turns",
   "final_mode": "fallback",
-  "analyst_stop_reason": null,
+  "analyst_stop_reason": "max_turns",
   "repeated_tool_calls": 0,
   "tool_rejected": 0,
   "event_counts": {
-   "gate_filled:get_request_details": 1,
-   "gate_filled:check_budget": 1,
-   "gate_filled:search_software_catalog": 1,
-   "gate_filled:get_vendor_status": 1,
    "gate_filled:evaluate_policy_rules": 1
   },
   "events": [
-   {
-    "event": "gate_filled:get_request_details",
-    "tool": "get_request_details"
-   },
-   {
-    "event": "gate_filled:check_budget",
-    "tool": "check_budget"
-   },
-   {
-    "event": "gate_filled:search_software_catalog",
-    "tool": "search_software_catalog"
-   },
-   {
-    "event": "gate_filled:get_vendor_status",
-    "tool": "get_vendor_status"
-   },
    {
     "event": "gate_filled:evaluate_policy_rules",
     "tool": "evaluate_policy_rules"
@@ -172,9 +226,9 @@
     "args": {
      "request_id": "REQ-1010"
     },
-    "initiator": "gate",
+    "initiator": "agent",
     "status": "ok",
-    "duration_ms": 3.7,
+    "duration_ms": 2.8,
     "cache_hit": false
    },
    {
@@ -182,9 +236,9 @@
     "args": {
      "request_id": "REQ-1010"
     },
-    "initiator": "gate",
+    "initiator": "agent",
     "status": "ok",
-    "duration_ms": 4.6,
+    "duration_ms": 3.4,
     "cache_hit": false
    },
    {
@@ -192,9 +246,19 @@
     "args": {
      "request_id": "REQ-1010"
     },
-    "initiator": "gate",
+    "initiator": "agent",
     "status": "ok",
-    "duration_ms": 3.5,
+    "duration_ms": 3.4,
+    "cache_hit": false
+   },
+   {
+    "name": "get_vendor_status",
+    "args": {
+     "vendor_name": "Apex Cyber Solutions"
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 3.7,
     "cache_hit": false
    },
    {
@@ -202,9 +266,39 @@
     "args": {
      "vendor_name": "SignFlow"
     },
-    "initiator": "gate",
+    "initiator": "agent",
     "status": "ok",
-    "duration_ms": 3.8,
+    "duration_ms": 6.1,
+    "cache_hit": false
+   },
+   {
+    "name": "lookup_policy_section",
+    "args": {
+     "section": 3
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 0.0,
+    "cache_hit": false
+   },
+   {
+    "name": "lookup_policy_section",
+    "args": {
+     "section": 5
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 0.0,
+    "cache_hit": false
+   },
+   {
+    "name": "lookup_policy_section",
+    "args": {
+     "section": 4
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 0.0,
     "cache_hit": false
    },
    {
@@ -214,11 +308,67 @@
     },
     "initiator": "gate",
     "status": "ok",
-    "duration_ms": 7.5,
+    "duration_ms": 16.1,
     "cache_hit": false
    }
   ],
-  "llm_call_log": [],
+  "llm_call_log": [
+   {
+    "actor": "agent:analyst",
+    "latency_ms": 1539.3,
+    "wait_ms": 3849.9,
+    "attempts": 1,
+    "usage": {
+     "prompt": 2251,
+     "completion": 95,
+     "cached": 0
+    }
+   },
+   {
+    "actor": "agent:analyst",
+    "latency_ms": 931.3,
+    "wait_ms": 4446.5,
+    "attempts": 1,
+    "usage": {
+     "prompt": 3180,
+     "completion": 21,
+     "cached": 0
+    }
+   },
+   {
+    "actor": "agent:analyst",
+    "latency_ms": 1333.7,
+    "wait_ms": 5061.5,
+    "attempts": 1,
+    "usage": {
+     "prompt": 3602,
+     "completion": 16,
+     "cached": 0
+    }
+   },
+   {
+    "actor": "agent:analyst",
+    "latency_ms": 1456.5,
+    "wait_ms": 4665.5,
+    "attempts": 1,
+    "usage": {
+     "prompt": 3777,
+     "completion": 16,
+     "cached": 0
+    }
+   },
+   {
+    "actor": "agent:analyst",
+    "latency_ms": 944.0,
+    "wait_ms": 4542.7,
+    "attempts": 1,
+    "usage": {
+     "prompt": 4000,
+     "completion": 16,
+     "cached": 0
+    }
+   }
+  ],
   "proposals": [],
   "evidence_pack": null,
   "analyst_audit": null,
@@ -411,8 +561,8 @@
    "rules_decision_type": "route_for_approval",
    "notes": []
   },
-  "error": "LLMRateLimited: rate limited after 1 attempt(s): Error code: 429 - {'error': {'message': 'Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_[redacted]` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 197992, Requested 2996. Please try again in 7m6.816s. Need more tokens? Upgrade to Dev Tier t",
-  "llm_error_kind": "rate_limited"
+  "error": "stage failed: analyst max_turns",
+  "llm_error_kind": null
  },
  "scores": {
   "approvals_ok": true,
@@ -430,7 +580,7 @@
   "llm_role_dropped": 0,
   "llm_decision_overridden": 0,
   "ungrounded_evidence_removed": 0,
-  "gate_filled": 5,
+  "gate_filled": 1,
   "reviewer_rejections": 0,
   "failures": "flags missing [] extra ['llm_unavailable']"
  }

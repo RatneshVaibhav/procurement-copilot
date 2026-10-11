@@ -249,7 +249,7 @@ def main() -> None:
     parser.add_argument("--retry-infra", action="store_true", help="re-run stored infra_error rows")
     parser.add_argument("--provider", choices=["groq", "gemini"], help="override LLM_PROVIDER (D-17)")
     parser.add_argument("--model", help="override MODEL_NAME for this run (D-20)")
-    parser.add_argument("--reasoning-effort", help="override LLM_REASONING_EFFORT (e.g. none, low)")
+    parser.add_argument("--reasoning-effort", help="override LLM_REASONING_EFFORT (e.g. none, low; off = do not send it)")
     parser.add_argument("--results-dir", default=str(ROOT / "evals" / "results"))
     parser.add_argument("--summary-only", action="store_true", help="rebuild summary/CSV from stored runs; run nothing")
     parser.add_argument("--interleave", action="store_true",
@@ -265,7 +265,7 @@ def main() -> None:
     if args.model:
         os.environ["MODEL_NAME"] = args.model
     if args.reasoning_effort:
-        os.environ["LLM_REASONING_EFFORT"] = args.reasoning_effort
+        os.environ["LLM_REASONING_EFFORT"] = "" if args.reasoning_effort == "off" else args.reasoning_effort  # off: not sent
     results = Path(args.results_dir)
     results.mkdir(parents=True, exist_ok=True)
     golden = json.loads(GOLDEN_PATH.read_text(encoding="utf-8"))

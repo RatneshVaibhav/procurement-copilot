@@ -1,0 +1,348 @@
+{
+ "columns": {
+  "rules_only": {
+   "label": "Workflow (rules-only)",
+   "runs_ok": 23,
+   "runs_infra_error": 0,
+   "cases_scored": 23,
+   "golden_passed": "20/23",
+   "ai_cases_passed": "0/2",
+   "injection_passed": "3/3",
+   "fault_passed": "1/2",
+   "raw_decision_accuracy": "n/a",
+   "raw_approvals_exact": "n/a",
+   "raw_flags_exact": "n/a",
+   "code_corrections_per_run": "n/a",
+   "ungrounded_removed_total": "n/a",
+   "avg_active_latency_ms": 63.5,
+   "avg_total_latency_ms": 63.5,
+   "avg_llm_calls": 0,
+   "avg_tool_calls": 5,
+   "avg_tokens": 0,
+   "consistency": "n/a (1 trial)",
+   "public_checks": "6/6",
+   "stop_reasons": {
+    "rules_only": 23
+   },
+   "final_modes": {
+    "fallback": 23
+   },
+   "finalizer_runs": "n/a",
+   "fallback_runs": "n/a",
+   "repeated_tool_calls": 0,
+   "tool_rejected": 0,
+   "gate_filled": "n/a",
+   "reviewer_rejections": "n/a",
+   "llm_role_dropped": "n/a",
+   "llm_decision_overridden": "n/a",
+   "golden_passed_paired": "n/a"
+  },
+  "single": {
+   "label": "A: bounded agent",
+   "runs_ok": 12,
+   "runs_infra_error": 3,
+   "cases_scored": 12,
+   "golden_passed": "11/12",
+   "ai_cases_passed": "1/2",
+   "injection_passed": "1/1 (2 not run)",
+   "fault_passed": "1/1 (1 not run)",
+   "raw_decision_accuracy": "11/11",
+   "raw_approvals_exact": "10/11",
+   "raw_flags_exact": "10/11",
+   "code_corrections_per_run": 0,
+   "ungrounded_removed_total": 0,
+   "avg_active_latency_ms": 7498.0,
+   "avg_total_latency_ms": 125339.9,
+   "avg_llm_calls": 2.8,
+   "avg_tool_calls": 5.1,
+   "avg_tokens": 11526.6,
+   "consistency": "n/a (1 trial)",
+   "public_checks": "6/6",
+   "stop_reasons": {
+    "submitted": 11,
+    "llm_unavailable": 1
+   },
+   "final_modes": {
+    "tool_call": 11,
+    "fallback": 1
+   },
+   "finalizer_runs": 0,
+   "fallback_runs": 1,
+   "repeated_tool_calls": 0,
+   "tool_rejected": 0,
+   "gate_filled": 5,
+   "reviewer_rejections": "n/a",
+   "llm_role_dropped": 0,
+   "llm_decision_overridden": 1,
+   "golden_passed_paired": "9/10"
+  },
+  "staged": {
+   "label": "B: sequential specialists",
+   "runs_ok": 10,
+   "runs_infra_error": 3,
+   "cases_scored": 10,
+   "golden_passed": "7/10",
+   "ai_cases_passed": "1/2",
+   "injection_passed": "1/1 (2 not run)",
+   "fault_passed": "1/1 (1 not run)",
+   "raw_decision_accuracy": "9/9",
+   "raw_approvals_exact": "8/9",
+   "raw_flags_exact": "8/9",
+   "code_corrections_per_run": 0,
+   "ungrounded_removed_total": 5,
+   "avg_active_latency_ms": 7456.5,
+   "avg_total_latency_ms": 122120.8,
+   "avg_llm_calls": 3.6,
+   "avg_tool_calls": 5,
+   "avg_tokens": 13326,
+   "consistency": "n/a (1 trial)",
+   "public_checks": "5/5",
+   "stop_reasons": {
+    "completed": 9,
+    "llm_unavailable": 1
+   },
+   "final_modes": {
+    "structured": 9,
+    "fallback": 1
+   },
+   "finalizer_runs": 0,
+   "fallback_runs": 1,
+   "repeated_tool_calls": 0,
+   "tool_rejected": 0,
+   "gate_filled": 5,
+   "reviewer_rejections": 0,
+   "llm_role_dropped": 0,
+   "llm_decision_overridden": 4,
+   "golden_passed_paired": "7/10"
+  }
+ },
+ "matrix": {
+  "G-01": {
+   "rules_only": "PASS",
+   "single": "PASS",
+   "staged": "PASS"
+  },
+  "G-02": {
+   "rules_only": "PASS",
+   "single": "PASS",
+   "staged": "PASS"
+  },
+  "G-03": {
+   "rules_only": "PASS",
+   "single": "PASS",
+   "staged": "infra"
+  },
+  "G-04": {
+   "rules_only": "PASS",
+   "single": "PASS",
+   "staged": "FAIL"
+  },
+  "G-05": {
+   "rules_only": "PASS",
+   "single": "PASS",
+   "staged": "PASS"
+  },
+  "G-06": {
+   "rules_only": "PASS",
+   "single": "PASS",
+   "staged": "PASS"
+  },
+  "G-07": {
+   "rules_only": "PASS",
+   "single": "PASS",
+   "staged": "FAIL"
+  },
+  "G-08": {
+   "rules_only": "FAIL",
+   "single": "PASS",
+   "staged": "PASS"
+  },
+  "G-09": {
+   "rules_only": "PASS",
+   "single": "PASS",
+   "staged": "PASS"
+  },
+  "G-10": {
+   "rules_only": "PASS",
+   "single": "PASS",
+   "staged": "infra"
+  },
+  "G-11": {
+   "rules_only": "PASS",
+   "single": "infra",
+   "staged": "\u2014"
+  },
+  "G-12": {
+   "rules_only": "PASS",
+   "single": "infra",
+   "staged": "\u2014"
+  },
+  "G-13": {
+   "rules_only": "PASS",
+   "single": "\u2014",
+   "staged": "\u2014"
+  },
+  "G-14": {
+   "rules_only": "PASS",
+   "single": "\u2014",
+   "staged": "\u2014"
+  },
+  "G-15": {
+   "rules_only": "PASS",
+   "single": "\u2014",
+   "staged": "\u2014"
+  },
+  "G-16": {
+   "rules_only": "PASS",
+   "single": "\u2014",
+   "staged": "\u2014"
+  },
+  "G-17": {
+   "rules_only": "PASS",
+   "single": "infra",
+   "staged": "infra"
+  },
+  "G-18": {
+   "rules_only": "PASS",
+   "single": "\u2014",
+   "staged": "\u2014"
+  },
+  "G-19": {
+   "rules_only": "PASS",
+   "single": "\u2014",
+   "staged": "\u2014"
+  },
+  "G-20": {
+   "rules_only": "PASS",
+   "single": "\u2014",
+   "staged": "\u2014"
+  },
+  "G-21": {
+   "rules_only": "PASS",
+   "single": "\u2014",
+   "staged": "\u2014"
+  },
+  "G-22": {
+   "rules_only": "FAIL",
+   "single": "PASS",
+   "staged": "PASS"
+  },
+  "G-23": {
+   "rules_only": "FAIL",
+   "single": "FAIL",
+   "staged": "FAIL"
+  }
+ },
+ "failures": [
+  {
+   "arch": "rules_only",
+   "case_id": "G-08",
+   "reason": "decision route_for_approval not in ['use_existing_tool']"
+  },
+  {
+   "arch": "rules_only",
+   "case_id": "G-22",
+   "reason": "flags missing ['llm_unavailable'] extra []"
+  },
+  {
+   "arch": "rules_only",
+   "case_id": "G-23",
+   "reason": "approvals missing ['Privacy', 'Security'] extra []; flags missing ['privacy_review_required', 'security_review_required'] extra []; decision route_for_approval not in ['route_for_specialist_review']"
+  },
+  {
+   "arch": "single",
+   "case_id": "G-23",
+   "reason": "approvals missing ['Security'] extra []; flags missing ['security_review_required'] extra []"
+  },
+  {
+   "arch": "staged",
+   "case_id": "G-04",
+   "reason": "decision use_existing_tool not in ['route_for_specialist_review']"
+  },
+  {
+   "arch": "staged",
+   "case_id": "G-07",
+   "reason": "decision use_existing_tool not in ['route_for_specialist_review']"
+  },
+  {
+   "arch": "staged",
+   "case_id": "G-23",
+   "reason": "approvals missing ['Privacy', 'Security'] extra []; flags missing ['privacy_review_required', 'security_review_required'] extra []; decision route_for_approval not in ['route_for_specialist_review']"
+  }
+ ],
+ "infra_errors": [
+  {
+   "arch": "single",
+   "case_id": "G-11",
+   "trial": 1,
+   "error": "LLMRateLimited: rate limited after 1 attempt(s): Error code: 429 - {'error': {'message': 'Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_[redacted]` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 198231, Requested 4065. Please try again in 16m31.872s. Need more tokens? Upgrade to Dev Tier"
+  },
+  {
+   "arch": "single",
+   "case_id": "G-12",
+   "trial": 1,
+   "error": "LLMRateLimited: rate limited after 1 attempt(s): Error code: 429 - {'error': {'message': 'Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_[redacted]` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 198226, Requested 4025. Please try again in 16m12.431999999s. Need more tokens? Upgrade to De"
+  },
+  {
+   "arch": "single",
+   "case_id": "G-17",
+   "trial": 1,
+   "error": "LLMRateLimited: rate limited after 1 attempt(s): Error code: 429 - {'error': {'message': 'Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_[redacted]` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 196757, Requested 4633. Please try again in 10m0.48s. Need more tokens? Upgrade to Dev Tier t"
+  },
+  {
+   "arch": "staged",
+   "case_id": "G-03",
+   "trial": 1,
+   "error": "LLMRateLimited: rate limited after 1 attempt(s): Error code: 429 - {'error': {'message': 'Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_[redacted]` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 197998, Requested 3242. Please try again in 8m55.679999999s. Need more tokens? Upgrade to Dev"
+  },
+  {
+   "arch": "staged",
+   "case_id": "G-10",
+   "trial": 1,
+   "error": "LLMRateLimited: rate limited after 1 attempt(s): Error code: 429 - {'error': {'message': 'Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_[redacted]` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 197992, Requested 2996. Please try again in 7m6.816s. Need more tokens? Upgrade to Dev Tier t"
+  },
+  {
+   "arch": "staged",
+   "case_id": "G-17",
+   "trial": 1,
+   "error": "LLMRateLimited: rate limited after 1 attempt(s): Error code: 429 - {'error': {'message': 'Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_[redacted]` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 199330, Requested 2944. Please try again in 16m22.367999999s. Need more tokens? Upgrade to De"
+  }
+ ],
+ "meta": {
+  "providers": [
+   {
+    "provider": "groq",
+    "model": "qwen/qwen3.8-27b"
+   }
+  ],
+  "trials": 1,
+  "cases": 23
+ },
+ "decision_rule": {
+  "paired_cases": 10,
+  "paired_case_ids": [
+   "G-01",
+   "G-02",
+   "G-04",
+   "G-05",
+   "G-06",
+   "G-07",
+   "G-08",
+   "G-09",
+   "G-22",
+   "G-23"
+  ],
+  "a_passed": 9,
+  "b_passed": 7,
+  "rules_only_passed_on_paired": 7,
+  "b_minus_a": -2,
+  "safety_fixes": [],
+  "a_avg_active_latency_ms_paired": 8032.9,
+  "b_avg_active_latency_ms_paired": 7456.5,
+  "latency_ratio_b_over_a": 0.93,
+  "clause_a": false,
+  "clause_b": true,
+  "ship": "A",
+  "a_beats_rules_only_on_paired": true
+ }
+}

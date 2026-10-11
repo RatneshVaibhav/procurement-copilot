@@ -1,0 +1,776 @@
+{
+ "case_id": "G-15",
+ "request_id": "REQ-X105",
+ "arch": "single",
+ "trial": 1,
+ "status": "ok",
+ "fault": null,
+ "provider": "gemini",
+ "model": "gemini-3.5-flash-lite",
+ "error": null,
+ "decision": {
+  "request_id": "REQ-X105",
+  "recommendation": "Route for specialist review: Route the request for specialist review across Finance, Security, Privacy, Legal, Procurement, and Department Head due to insufficient budget, unregistered vendor, and customer PII handling.",
+  "evidence": [
+   {
+    "source": "evaluate_policy_rules",
+    "finding": "Annual cost $9,000 → tier $1,000.01 to $10,000: Department Head, Procurement",
+    "reference": "policy §4"
+   },
+   {
+    "source": "check_budget",
+    "finding": "Customer Success available software budget $7,000; request $9,000 → exceeds budget by $2,000",
+    "reference": "department_budgets.csv:Customer Success"
+   },
+   {
+    "source": "search_software_catalog",
+    "finding": "No catalog product shares this request's category, vendor or product name",
+    "reference": "software_catalog.csv"
+   },
+   {
+    "source": "get_vendor_status",
+    "finding": "Vendor 'ChurnRadar Inc' is not in the internal registry: treated as a new vendor with unknown terms",
+    "reference": "vendors.csv"
+   },
+   {
+    "source": "get_vendor_status",
+    "finding": "Vendor-risk API has no record for this vendor (HTTP 404)",
+    "reference": "GET /vendor-risk/ChurnRadar Inc"
+   },
+   {
+    "source": "evaluate_policy_rules",
+    "finding": "Sensitive data classes: customer_pii from data_access_level 'customer_pii'; customer_pii from integration 'HelpDeskly'",
+    "reference": "policy §5, §6"
+   },
+   {
+    "source": "check_budget",
+    "finding": "Annual cost of $9,000 exceeds Customer Success available budget of $7,000 ($2,000 shortfall).",
+    "reference": "department_budgets.csv:Customer Success"
+   },
+   {
+    "source": "search_software_catalog",
+    "finding": "No existing catalog product overlaps with ChurnRadar for customer analytics/churn prediction.",
+    "reference": "software_catalog.csv"
+   },
+   {
+    "source": "get_vendor_status",
+    "finding": "Vendor ChurnRadar Inc is not registered and has no vendor-risk record (API 404).",
+    "reference": "GET /vendor-risk/ChurnRadar Inc"
+   },
+   {
+    "source": "get_request_details",
+    "finding": "Request processes customer PII data and integrates with HelpDeskly.",
+    "reference": "REQ-X105 facts"
+   },
+   {
+    "source": "evaluate_policy_rules",
+    "finding": "Policy engine requires Department Head, Finance, Procurement, Security, Privacy, and Legal approvals.",
+    "reference": "evaluate_policy_rules"
+   }
+  ],
+  "required_approvals": [
+   "Department Head",
+   "Finance",
+   "Procurement",
+   "Security",
+   "Privacy",
+   "Legal"
+  ],
+  "missing_information": [
+   "vendor-risk record (not found)"
+  ],
+  "risk_flags": [
+   "budget_insufficient",
+   "security_review_required",
+   "privacy_review_required",
+   "legal_review_required",
+   "vendor_not_registered"
+  ],
+  "next_step": "Route the request to Department Head, Finance, Procurement, Security, Privacy, and Legal for specialist review and budget exception consideration.",
+  "human_review_required": true,
+  "telemetry": {
+   "llm_calls": 4,
+   "tool_calls": 5,
+   "tool_names": [
+    "get_request_details",
+    "check_budget",
+    "search_software_catalog",
+    "get_vendor_status",
+    "evaluate_policy_rules"
+   ]
+  }
+ },
+ "trace": {
+  "run_id": "REQ-X105-single-51565fc5",
+  "request_id": "REQ-X105",
+  "architecture": "single",
+  "mode": "llm",
+  "provider": "gemini",
+  "model": "gemini-3.5-flash-lite",
+  "reference_date": "2026-09-30",
+  "created_at": "2026-10-11T02:19:15+00:00",
+  "latency_total_ms": 23736.4,
+  "llm_wait_ms": 15754.9,
+  "latency_active_ms": 7981.5,
+  "llm_ms": 7951.8,
+  "tool_ms": 24.5,
+  "llm_calls": 4,
+  "tool_calls": 5,
+  "tokens": {
+   "prompt": 15114,
+   "completion": 1385,
+   "cached": 2001
+  },
+  "steps": [
+   {
+    "n": 1,
+    "actor": "agent:single",
+    "action": "llm turn 1",
+    "summary_in": "4 messages",
+    "summary_out": "get_request_details(REQ-X105) → ok",
+    "route_reason": null,
+    "ms": 1374.6,
+    "tokens": {
+     "prompt": 2850,
+     "completion": 25,
+     "cached": 0
+    }
+   },
+   {
+    "n": 2,
+    "actor": "agent:single",
+    "action": "llm turn 2",
+    "summary_in": "9 messages",
+    "summary_out": "check_budget(REQ-X105) → ok; search_software_catalog(REQ-X105) → ok; get_vendor_status(ChurnRadar Inc) → ok; evaluate_policy_rules(REQ-X105) → ok",
+    "route_reason": null,
+    "ms": 1438.1,
+    "tokens": {
+     "prompt": 3099,
+     "completion": 104,
+     "cached": 0
+    }
+   },
+   {
+    "n": 3,
+    "actor": "agent:single",
+    "action": "llm turn 3",
+    "summary_in": "11 messages",
+    "summary_out": "submit_recommendation invalid → repair requested",
+    "route_reason": null,
+    "ms": 2491.9,
+    "tokens": {
+     "prompt": 4251,
+     "completion": 623,
+     "cached": 0
+    }
+   },
+   {
+    "n": 4,
+    "actor": "agent:single",
+    "action": "llm turn 4",
+    "summary_in": "11 messages",
+    "summary_out": "submit_recommendation: valid",
+    "route_reason": null,
+    "ms": 2647.2,
+    "tokens": {
+     "prompt": 4914,
+     "completion": 633,
+     "cached": 2001
+    }
+   },
+   {
+    "n": 5,
+    "actor": "code:gate",
+    "action": "completeness gate",
+    "summary_in": "required: get_request_details, check_budget, search_software_catalog, get_vendor_status, evaluate_policy_rules",
+    "summary_out": "filled: none",
+    "route_reason": null,
+    "ms": null,
+    "tokens": null
+   },
+   {
+    "n": 6,
+    "actor": "code:guardrails",
+    "action": "merge + validate + ground",
+    "summary_in": "proposal: route_for_specialist_review",
+    "summary_out": "final: route_for_specialist_review; corrections: none",
+    "route_reason": null,
+    "ms": null,
+    "tokens": null
+   }
+  ],
+  "stop_reason": "submitted",
+  "final_mode": "tool_call",
+  "analyst_stop_reason": null,
+  "repeated_tool_calls": 0,
+  "tool_rejected": 0,
+  "event_counts": {
+   "invalid_submission_repair": 1
+  },
+  "events": [
+   {
+    "event": "invalid_submission_repair",
+    "actor": "single",
+    "errors": "evidence.4.source: Field required"
+   }
+  ],
+  "tool_log": [
+   {
+    "name": "get_request_details",
+    "args": {
+     "request_id": "REQ-X105"
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 3.9,
+    "cache_hit": false
+   },
+   {
+    "name": "check_budget",
+    "args": {
+     "request_id": "REQ-X105"
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 5.4,
+    "cache_hit": false
+   },
+   {
+    "name": "search_software_catalog",
+    "args": {
+     "request_id": "REQ-X105",
+     "keywords": [
+      "customer analytics churn predict"
+     ]
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 3.8,
+    "cache_hit": false
+   },
+   {
+    "name": "get_vendor_status",
+    "args": {
+     "vendor_name": "ChurnRadar Inc"
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 4.2,
+    "cache_hit": false
+   },
+   {
+    "name": "evaluate_policy_rules",
+    "args": {
+     "request_id": "REQ-X105"
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 7.2,
+    "cache_hit": false
+   }
+  ],
+  "llm_call_log": [
+   {
+    "actor": "agent:single",
+    "latency_ms": 1374.6,
+    "wait_ms": 3087.0,
+    "attempts": 1,
+    "usage": {
+     "prompt": 2850,
+     "completion": 25,
+     "cached": 0
+    }
+   },
+   {
+    "actor": "agent:single",
+    "latency_ms": 1438.1,
+    "wait_ms": 4620.7,
+    "attempts": 1,
+    "usage": {
+     "prompt": 3099,
+     "completion": 104,
+     "cached": 0
+    }
+   },
+   {
+    "actor": "agent:single",
+    "latency_ms": 2491.9,
+    "wait_ms": 4540.0,
+    "attempts": 1,
+    "usage": {
+     "prompt": 4251,
+     "completion": 623,
+     "cached": 0
+    }
+   },
+   {
+    "actor": "agent:single",
+    "latency_ms": 2647.2,
+    "wait_ms": 3507.2,
+    "attempts": 1,
+    "usage": {
+     "prompt": 4914,
+     "completion": 633,
+     "cached": 2001
+    }
+   }
+  ],
+  "proposals": [
+   {
+    "actor": "agent:single",
+    "final_mode": "tool_call",
+    "proposal": {
+     "decision_type": "route_for_specialist_review",
+     "recommendation": "Route the request for specialist review across Finance, Security, Privacy, Legal, Procurement, and Department Head due to insufficient budget, unregistered vendor, and customer PII handling.",
+     "next_step": "Route the request to Department Head, Finance, Procurement, Security, Privacy, and Legal for specialist review and budget exception consideration.",
+     "required_approvals": [
+      {
+       "role": "Department Head",
+       "reason": "R4 §4: Annual cost $9,000 is in the $1,000.01 to $10,000 tier"
+      },
+      {
+       "role": "Finance",
+       "reason": "R3 §2: Annual cost $9,000 exceeds Customer Success available software budget $7,000: budget exception review"
+      },
+      {
+       "role": "Procurement",
+       "reason": "R4 §4: Annual cost $9,000 is in the $1,000.01 to $10,000 tier"
+      },
+      {
+       "role": "Security",
+       "reason": "R6 §5: Vendor security assessment missing, expired, not completed or conflicting: vendor not registered"
+      },
+      {
+       "role": "Privacy",
+       "reason": "R7 §6: customer_pii (data_access_level 'customer_pii')"
+      },
+      {
+       "role": "Legal",
+       "reason": "R9 §7: Vendor not in the registry: legal terms unknown"
+      }
+     ],
+     "risk_flags": [
+      "budget_insufficient",
+      "security_review_required",
+      "privacy_review_required",
+      "legal_review_required",
+      "vendor_not_registered"
+     ],
+     "missing_information": [
+      "vendor-risk record (not found)"
+     ],
+     "overlap_assessment": [],
+     "evidence": [
+      {
+       "source": "check_budget",
+       "finding": "Annual cost of $9,000 exceeds Customer Success available budget of $7,000 ($2,000 shortfall).",
+       "reference": "department_budgets.csv:Customer Success"
+      },
+      {
+       "source": "search_software_catalog",
+       "finding": "No existing catalog product overlaps with ChurnRadar for customer analytics/churn prediction.",
+       "reference": "software_catalog.csv"
+      },
+      {
+       "source": "get_vendor_status",
+       "finding": "Vendor ChurnRadar Inc is not registered and has no vendor-risk record (API 404).",
+       "reference": "GET /vendor-risk/ChurnRadar Inc"
+      },
+      {
+       "source": "get_request_details",
+       "finding": "Request processes customer PII data and integrates with HelpDeskly.",
+       "reference": "REQ-X105 facts"
+      },
+      {
+       "source": "evaluate_policy_rules",
+       "finding": "Policy engine requires Department Head, Finance, Procurement, Security, Privacy, and Legal approvals.",
+       "reference": "evaluate_policy_rules"
+      }
+     ],
+     "injection_observed": false,
+     "injection_excerpt": null
+    }
+   }
+  ],
+  "evidence_pack": null,
+  "analyst_audit": null,
+  "guardrails": {
+   "questions_for_reviewer": [],
+   "ungrounded_evidence": [],
+   "llm_added_reviews": [],
+   "approval_reasons": {
+    "Department Head": [
+     {
+      "rule": "R4",
+      "policy_ref": "§4",
+      "detail": "Annual cost $9,000 is in the $1,000.01 to $10,000 tier"
+     }
+    ],
+    "Finance": [
+     {
+      "rule": "R3",
+      "policy_ref": "§2",
+      "detail": "Annual cost $9,000 exceeds Customer Success available software budget $7,000: budget exception review"
+     }
+    ],
+    "Procurement": [
+     {
+      "rule": "R4",
+      "policy_ref": "§4",
+      "detail": "Annual cost $9,000 is in the $1,000.01 to $10,000 tier"
+     }
+    ],
+    "Security": [
+     {
+      "rule": "R6",
+      "policy_ref": "§5",
+      "detail": "Vendor security assessment missing, expired, not completed or conflicting: vendor not registered"
+     },
+     {
+      "rule": "R7",
+      "policy_ref": "§5",
+      "detail": "Data class customer_pii (data_access_level 'customer_pii')"
+     },
+     {
+      "rule": "R7",
+      "policy_ref": "§5",
+      "detail": "Data class customer_pii (integration 'HelpDeskly')"
+     }
+    ],
+    "Privacy": [
+     {
+      "rule": "R7",
+      "policy_ref": "§6",
+      "detail": "customer_pii (data_access_level 'customer_pii')"
+     },
+     {
+      "rule": "R7",
+      "policy_ref": "§6",
+      "detail": "customer_pii (integration 'HelpDeskly')"
+     },
+     {
+      "rule": "R8",
+      "policy_ref": "§6, §10",
+      "detail": "Data residency unverified (vendor-risk service has no record) for customer_pii"
+     }
+    ],
+    "Legal": [
+     {
+      "rule": "R9",
+      "policy_ref": "§7",
+      "detail": "Vendor not in the registry: legal terms unknown"
+     }
+    ]
+   },
+   "used_template_recommendation": false,
+   "used_template_next_step": false,
+   "decision_type": "route_for_specialist_review",
+   "overlap_covering": [],
+   "deterministic_evidence": 6
+  },
+  "policy": {
+   "request_id": "REQ-X105",
+   "reference_date": "2026-09-30",
+   "policy_version": "2026.09",
+   "requester": {
+    "id": "E005",
+    "known": true,
+    "name": "Mia Thompson",
+    "department": "Customer Success",
+    "level": "IC4",
+    "manager_hint": "Robert King",
+    "department_head_hint": "Robert King"
+   },
+   "department": "Customer Success",
+   "annual_cost_usd": 9000.0,
+   "tier": "$1,000.01 to $10,000",
+   "tier_roles": [
+    "Department Head",
+    "Procurement"
+   ],
+   "approvals": [
+    {
+     "role": "Department Head",
+     "reasons": [
+      {
+       "rule": "R4",
+       "policy_ref": "§4",
+       "detail": "Annual cost $9,000 is in the $1,000.01 to $10,000 tier"
+      }
+     ],
+     "hint": "Robert King"
+    },
+    {
+     "role": "Finance",
+     "reasons": [
+      {
+       "rule": "R3",
+       "policy_ref": "§2",
+       "detail": "Annual cost $9,000 exceeds Customer Success available software budget $7,000: budget exception review"
+      }
+     ],
+     "hint": null
+    },
+    {
+     "role": "Procurement",
+     "reasons": [
+      {
+       "rule": "R4",
+       "policy_ref": "§4",
+       "detail": "Annual cost $9,000 is in the $1,000.01 to $10,000 tier"
+      }
+     ],
+     "hint": null
+    },
+    {
+     "role": "Security",
+     "reasons": [
+      {
+       "rule": "R6",
+       "policy_ref": "§5",
+       "detail": "Vendor security assessment missing, expired, not completed or conflicting: vendor not registered"
+      },
+      {
+       "rule": "R7",
+       "policy_ref": "§5",
+       "detail": "Data class customer_pii (data_access_level 'customer_pii')"
+      },
+      {
+       "rule": "R7",
+       "policy_ref": "§5",
+       "detail": "Data class customer_pii (integration 'HelpDeskly')"
+      }
+     ],
+     "hint": null
+    },
+    {
+     "role": "Privacy",
+     "reasons": [
+      {
+       "rule": "R7",
+       "policy_ref": "§6",
+       "detail": "customer_pii (data_access_level 'customer_pii')"
+      },
+      {
+       "rule": "R7",
+       "policy_ref": "§6",
+       "detail": "customer_pii (integration 'HelpDeskly')"
+      },
+      {
+       "rule": "R8",
+       "policy_ref": "§6, §10",
+       "detail": "Data residency unverified (vendor-risk service has no record) for customer_pii"
+      }
+     ],
+     "hint": null
+    },
+    {
+     "role": "Legal",
+     "reasons": [
+      {
+       "rule": "R9",
+       "policy_ref": "§7",
+       "detail": "Vendor not in the registry: legal terms unknown"
+      }
+     ],
+     "hint": null
+    }
+   ],
+   "flags": [
+    "budget_insufficient",
+    "security_review_required",
+    "privacy_review_required",
+    "legal_review_required",
+    "vendor_not_registered"
+   ],
+   "flag_reasons": {
+    "budget_insufficient": [
+     {
+      "rule": "R3",
+      "policy_ref": "§2",
+      "detail": "Annual cost $9,000 exceeds Customer Success available software budget $7,000"
+     }
+    ],
+    "security_review_required": [
+     {
+      "rule": "R6",
+      "policy_ref": "§5",
+      "detail": "Vendor security assessment missing, expired, not completed or conflicting: vendor not registered"
+     },
+     {
+      "rule": "R7",
+      "policy_ref": "§5",
+      "detail": "Data class customer_pii (data_access_level 'customer_pii')"
+     },
+     {
+      "rule": "R7",
+      "policy_ref": "§5",
+      "detail": "Data class customer_pii (integration 'HelpDeskly')"
+     }
+    ],
+    "privacy_review_required": [
+     {
+      "rule": "R7",
+      "policy_ref": "§6",
+      "detail": "customer_pii (data_access_level 'customer_pii')"
+     },
+     {
+      "rule": "R7",
+      "policy_ref": "§6",
+      "detail": "customer_pii (integration 'HelpDeskly')"
+     },
+     {
+      "rule": "R8",
+      "policy_ref": "§6, §10",
+      "detail": "Data residency unverified (vendor-risk service has no record) for customer_pii"
+     }
+    ],
+    "legal_review_required": [
+     {
+      "rule": "R9",
+      "policy_ref": "§7",
+      "detail": "Vendor not in the registry: legal terms unknown"
+     }
+    ],
+    "vendor_not_registered": [
+     {
+      "rule": "R6",
+      "policy_ref": "§5, §7",
+      "detail": "Vendor is not in the internal registry"
+     }
+    ]
+   },
+   "missing_information": [
+    "vendor-risk record (not found)"
+   ],
+   "missing_request_fields": [],
+   "request_fields_missing": false,
+   "data_classes": [
+    {
+     "class": "customer_pii",
+     "source": "data_access_level 'customer_pii'"
+    },
+    {
+     "class": "customer_pii",
+     "source": "integration 'HelpDeskly'"
+    }
+   ],
+   "budget": {
+    "department": "Customer Success",
+    "annual_cost": 9000.0,
+    "available_usd": 7000.0,
+    "committed_usd": 133000.0,
+    "annual_budget_usd": 140000.0,
+    "within_budget": false,
+    "remaining_after_usd": -2000.0,
+    "status": "insufficient",
+    "reference": "department_budgets.csv:Customer Success"
+   },
+   "catalog_candidates": [],
+   "overlap_flag_candidates": [],
+   "vendor": {
+    "vendor_name": "ChurnRadar Inc",
+    "canonical_name": "ChurnRadar Inc",
+    "registry": {
+     "registered": false
+    },
+    "api": {
+     "outcome": "not_found",
+     "status_code": 404,
+     "endpoint": "GET /vendor-risk/ChurnRadar Inc",
+     "attempts": 1,
+     "error": "HTTP 404",
+     "record": null
+    },
+    "derived": {
+     "registered": false,
+     "registry_class": null,
+     "registry_review_date": null,
+     "registry_age_days": null,
+     "registry_current": false,
+     "api_outcome": "not_found",
+     "api_class": null,
+     "api_review_date": null,
+     "api_age_days": null,
+     "api_current": false,
+     "expired": false,
+     "expired_on": null,
+     "conflict": false,
+     "cleared": false,
+     "new_vendor": true,
+     "procurement_status": null,
+     "legal_terms_status": null,
+     "legal_terms_approved": false,
+     "stores_data_outside_region": null,
+     "processes_personal_data": null
+    },
+    "untrusted_text": {
+     "registry_notes": null,
+     "api_text": {},
+     "api_error_detail": "No vendor-risk record for 'ChurnRadar Inc'"
+    },
+    "injection_scan": {
+     "detected": false,
+     "hits": []
+    }
+   },
+   "injection_hits": [],
+   "evidence": [
+    {
+     "source": "evaluate_policy_rules",
+     "finding": "Annual cost $9,000 → tier $1,000.01 to $10,000: Department Head, Procurement",
+     "reference": "policy §4"
+    },
+    {
+     "source": "check_budget",
+     "finding": "Customer Success available software budget $7,000; request $9,000 → exceeds budget by $2,000",
+     "reference": "department_budgets.csv:Customer Success"
+    },
+    {
+     "source": "search_software_catalog",
+     "finding": "No catalog product shares this request's category, vendor or product name",
+     "reference": "software_catalog.csv"
+    },
+    {
+     "source": "get_vendor_status",
+     "finding": "Vendor 'ChurnRadar Inc' is not in the internal registry: treated as a new vendor with unknown terms",
+     "reference": "vendors.csv"
+    },
+    {
+     "source": "get_vendor_status",
+     "finding": "Vendor-risk API has no record for this vendor (HTTP 404)",
+     "reference": "GET /vendor-risk/ChurnRadar Inc"
+    },
+    {
+     "source": "evaluate_policy_rules",
+     "finding": "Sensitive data classes: customer_pii from data_access_level 'customer_pii'; customer_pii from integration 'HelpDeskly'",
+     "reference": "policy §5, §6"
+    }
+   ],
+   "rules_decision_type": "route_for_specialist_review",
+   "notes": []
+  },
+  "error": null,
+  "llm_error_kind": null
+ },
+ "scores": {
+  "approvals_ok": true,
+  "flags_ok": true,
+  "missing_ok": true,
+  "decision_ok": true,
+  "safety_ok": true,
+  "case_pass": true,
+  "decision_type": "route_for_specialist_review",
+  "raw_decision_ok": true,
+  "raw_approvals_ok": true,
+  "raw_flags_ok": true,
+  "code_restored_approval": 0,
+  "code_restored_flag": 0,
+  "llm_role_dropped": 0,
+  "llm_decision_overridden": 0,
+  "ungrounded_evidence_removed": 0,
+  "gate_filled": 0,
+  "reviewer_rejections": 0,
+  "failures": ""
+ }
+}

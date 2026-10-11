@@ -76,6 +76,16 @@ class LLMClientTests(unittest.TestCase):
         self.assertEqual(sdk.bodies[0]["tool_choice"], "auto")
         self.assertEqual(sdk.bodies[0]["temperature"], 0.0)
 
+    def test_provider_extra_content_is_echoed_back_unchanged(self):
+        from openai.types.chat import ChatCompletionMessageToolCall as SDKCall
+        fn = {"name": "check_budget", "arguments": '{"request_id": "R"}'}
+        sig = {"google": {"thought_signature": "c2ln"}}
+        gemini = llm_client.parse_tool_calls([SDKCall(id="1", type="function", function=fn, extra_content=sig)])
+        self.assertEqual(llm_client.assistant_message(None, gemini)["tool_calls"][0]["extra_content"], sig)
+        groq = llm_client.parse_tool_calls([SDKCall(id="1", type="function", function=fn)])
+        self.assertEqual(llm_client.assistant_message(None, groq)["tool_calls"],  # unchanged when absent (Groq)
+                         [{"id": "1", "type": "function", "function": fn}])
+
     def test_429_retry_after_is_honoured(self):
         c, _ = self.client([err(openai.RateLimitError, 429, {"retry-after": "7"}), completion(content="ok")])
         res = c.chat([{"role": "user", "content": "hi"}])

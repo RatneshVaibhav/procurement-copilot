@@ -7,6 +7,7 @@ import os
 import sys
 import tempfile
 import unittest
+from unittest import mock
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -83,6 +84,12 @@ class RunAllTests(unittest.TestCase):
             stored = run_all.run_path(Path(tmp), "single", "G-01", 1).read_text(encoding="utf-8")
         self.assertNotIn("org_01abcdefghijklmnopqrst", stored)
         self.assertIn("org_[redacted]", rec["error"])
+
+    def test_reasoning_effort_off_clears_the_setting(self):
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.dict(os.environ, {"LLM_REASONING_EFFORT": "low"}), \
+                mock.patch.object(sys, "argv", ["run_all.py", "--reasoning-effort", "off", "--summary-only", "--results-dir", tmp]):
+            run_all.main()
+            self.assertEqual(os.environ["LLM_REASONING_EFFORT"], "")
 
 
 if __name__ == "__main__":

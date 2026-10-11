@@ -16,7 +16,7 @@ python verify_setup.py      # pre-flight
 python run_local.py         # ONE command: mock vendor-risk API :8001 + web app :8000
 ```
 
-Copy `.env.example` to `.env` and add `GROQ_API_KEY` (free at console.groq.com). To use the evaluated model, also set `MODEL_NAME=qwen/qwen3.8-27b` and `LLM_REASONING_EFFORT=none` (D-20); the default model is `openai/gpt-oss-20b`. Then open http://127.0.0.1:8000. Without an API key the app still works and shows the rule-based result with the banner "AI analysis unavailable".
+Copy `.env.example` to `.env` and add `GROQ_API_KEY` (free at console.groq.com). The default model is Groq `openai/gpt-oss-20b`. To use the primary evaluated model instead, set `LLM_PROVIDER=gemini`, `GEMINI_API_KEY` (free at aistudio.google.com), `MODEL_NAME=gemini-3.5-flash-lite` and an empty `LLM_REASONING_EFFORT=` (D-23); for the second evaluated model use `MODEL_NAME=qwen/qwen3.8-27b` and `LLM_REASONING_EFFORT=none` with Groq (D-20). Then open http://127.0.0.1:8000. Without an API key the app still works and shows the rule-based result with the banner "AI analysis unavailable".
 
 Other commands:
 
@@ -25,7 +25,7 @@ python -m unittest discover -s tests -v              # unit tests (no network, n
 python scripts/smoke_llm.py --provider groq          # provider, model, tool call, structured output, real schemas
 python scripts/run_one.py REQ-1006 --arch single     # one real run; prints decision and trace
 python evals/run_all.py --no-llm                     # rules-only baseline (no key needed)
-python evals/run_all.py --provider groq --model qwen/qwen3.8-27b --reasoning-effort none --trials 1 --resume --interleave
+python evals/run_all.py --provider gemini --model gemini-3.5-flash-lite --reasoning-effort off --trials 1 --resume --interleave
 python evals/run_all.py --summary-only                # rebuild summary.md from stored runs (no LLM)
 python evals/render_walkthroughs.py                  # A vs B traces for 5 scenarios
 ```
@@ -122,51 +122,79 @@ Further judgement calls made during the build are recorded in `docs/DECISIONS.md
 
 **Method.** 23 hand-labelled golden cases (`evals/golden_cases.json`): the 10 official requests, 11 eval-only fixtures (threshold boundaries, name casing, unregistered vendor, injection in the product name and in vendor-API notes, HR integration, unknown requester, PII implied only by text) and 2 fault cases (vendor-risk API down, LLM down). Scoring uses exact-set semantics, so over-escalation fails a case: approvals and flags must satisfy required ⊆ final ⊆ required ∪ optional, plus missing-information groups, the accepted decision types and a safety check (human review, no forbidden approver, no "approved" claim). Raw-agent metrics score the LLM's proposal before guardrails, which shows how much code corrected. The three columns are the design-ladder rungs: Workflow (rules-only), A: bounded agent, B: sequential specialists. Both LLM columns use the same provider and model; runs that hit provider rate limits are recorded as `infra_error`, re-run, and never counted as model failures. Full details: `evals/README.md`.
 
-**Results** (from `evals/results/summary.md`; provider Groq `qwen/qwen3.8-27b`, free tier, 1 trial, D-20):
+**Two evals, one model each.** A comparison never mixes models: within each eval, A and B use the same model. The primary eval runs Gemini `gemini-3.5-flash-lite` (free tier) on all 23 cases for both architectures (46 runs, no infra errors), plus two extra trials of the 6-case consistency subset (D11.5, D-23). The second eval runs Groq `qwen/qwen3.8-27b` (free tier, D-20), a stronger model; its 200K tokens/day cap stopped it after 12 cases for A and 10 for B. Rules-only covers all 23 in both.
+
+**Primary results** (`evals/results/summary.md`; Gemini `gemini-3.5-flash-lite`; averages include the consistency trials):
+
+| Metric | A: bounded agent | B: sequential specialists | Workflow (rules-only) |
+|---|---:|---:|---:|
+| Golden cases passed (final output) | 21/23 | 18/23 | 20/23 |
+| Cases only the AI can get right (G-08, G-23) | 0/2 | 0/2 | 0/2 |
+| Injection cases passed (3) | 3/3 | 2/3 | 3/3 |
+| Fault cases passed (2) | 2/2 | 2/2 | 1/2 |
+| Raw agent decision accuracy | 29/34 | 24/34 | n/a |
+| Decision consistency across trials | 4/6 | 3/6 | n/a (1 trial) |
+| Fallback runs (LLM path failed) | 1 | 5 | n/a |
+| Finalizer runs | 3 | 0 | n/a |
+| Gate-filled tool calls (total) | 12 | 19 | n/a |
+| Ungrounded evidence items removed (total) | 0 | 1 | n/a |
+| Avg active latency (ms) | 6791.3 | 8286.1 | 63.9 |
+| Avg LLM calls / run | 3.3 | 3.9 | 0 |
+| Avg tool calls / run | 5.3 | 6.2 | 5 |
+| Avg tokens / run | 13600.6 | 13816.7 | 0 |
+| Public runner minimum checks | 6/6 | 6/6 | 6/6 |
+| Infra errors excluded (runs) | 0 | 0 | 0 |
+
+**Second model** (`evals/results_qwen/summary.md`; Groq `qwen/qwen3.8-27b`; A 12 cases, B 10, paired 10):
 
 | Metric | A: bounded agent | B: sequential specialists | Workflow (rules-only) |
 |---|---:|---:|---:|
 | Golden cases passed (final output) | 11/12 | 7/10 | 20/23 |
 | Golden cases passed, paired A/B cases only | 9/10 | 7/10 | n/a |
 | Cases only the AI can get right (G-08, G-23) | 1/2 | 1/2 | 0/2 |
-| Injection cases passed (3) | 1/1 (2 not run) | 1/1 (2 not run) | 3/3 |
-| Fault cases passed (2) | 1/1 (1 not run) | 1/1 (1 not run) | 1/2 |
-| Raw agent decision accuracy | 11/11 | 9/9 | n/a |
-| Ungrounded evidence items removed (total) | 0 | 5 | n/a |
 | Avg active latency (ms) | 7498.0 | 7456.5 | 63.5 |
 | Avg LLM calls / run | 2.8 | 3.6 | 0 |
 | Avg tool calls / run | 5.1 | 5 | 5 |
 | Avg tokens / run | 11526.6 | 13326 | 0 |
-| Public runner minimum checks | 6/6 | 5/5 | 6/6 |
-| Infra errors excluded (runs) | 3 | 3 | 0 |
 
-**Coverage (important).** The free-tier daily token cap (200K tokens/day per model on Groq) stopped the LLM eval before all 22 LLM cases ran for both architectures. A completed 12 cases and B 10; the 10 paired cases (G-01, G-02, G-04, G-05, G-06, G-07, G-08, G-09, G-22, G-23) include the existing-tool, overlap, PII, injection, conflict, budget, API-outage and LLM-outage scenarios. Rules-only covers all 23. Failures: A missed G-23 (did not add Security for customer PII implied only by the text); B missed G-04 and G-07 (both agents judged an existing product as covering the need, so code chose `use_existing_tool` by R12; B's reviewer had proposed specialist review) and G-23 (added no review). Approvals, flags and human review were correct in every LLM run except G-23. Every failure with its reason is listed in `summary.md`; the manual review is in `evals/results/manual_review.md`.
+**What the numbers say.**
+- **Both models agree:** A passes more cases than B with fewer LLM calls (Flash-Lite 21 vs 18 of 23; qwen 9 vs 7 on the 10 paired cases).
+- **Code-owned decisions held:** every required approval and flag was present in every final output except G-23, which fails for both models, both architectures and rules-only (personal data implied only by the justification text). Code never had to restore an approval or flag the LLM dropped.
+- **The model sets the AI's added value; the architecture doesn't.** With qwen, A also gets G-08 (a licensed tool already covers the need), which rules cannot. Flash-Lite misses G-08 on the first trial and gets it in 1 of 3 trials. On Flash-Lite, A beats rules-only only on G-22 (the LLM-outage flag).
+- **B is less robust on the small model.** Its LLM path failed in 4 of 34 B runs outside the LLM-outage case (the analyst ran out of turns; the code fallback took over safely but adds `llm_unavailable`), A's in none; A's structured finalizer rescued 3 invalid submissions. B's analyst also called the vendor tool with vendor names that exist nowhere in the data (4 of 6 manually reviewed runs); the deterministic gate re-ran the right lookup each time. B's other failure is G-16 (`use_existing_tool` for an injection-in-product-name request).
+- **Consistency** (6 cases × 3 trials): A gave the same decision in all three trials on 4 of 6 cases, B on 3 of 6; G-08 and G-23 flip between trials.
 
 **Reproduce.**
 
 ```bash
-python evals/run_all.py --no-llm                                 # rules-only column
-python evals/run_all.py --provider groq --model qwen/qwen3.8-27b --reasoning-effort none --trials 1 --resume --interleave   # A and B
-python evals/run_all.py --provider groq --model qwen/qwen3.8-27b --reasoning-effort none --retry-infra --interleave   # after rate-limit stops
+python evals/run_all.py --no-llm                                  # rules-only column
+python evals/run_all.py --provider gemini --model gemini-3.5-flash-lite --reasoning-effort off --trials 1 --resume --interleave   # primary eval, A and B
+python evals/run_all.py --provider gemini --model gemini-3.5-flash-lite --reasoning-effort off --trials 3 --resume                # consistency subset (D11.5)
+python evals/run_all.py --provider groq --model qwen/qwen3.8-27b --reasoning-effort none --trials 1 --resume --interleave --results-dir evals/results_qwen   # second model
 python evals/render_walkthroughs.py
 ```
 
-**Budget and infra.** The free tiers are tight. Groq `openai/gpt-oss-20b` makes one tool call per turn (an A run took 7 calls and about 17K tokens), and Gemini 2.5 Flash's free tier allows 20 requests/day on this project. The reported numbers therefore come from Groq `qwen/qwen3.8-27b` for both architectures (D-20); gpt-oss-20b and Gemini were used for development checks only. The binding limit is Groq's 200K tokens/day per model, against about 12K–16K tokens per LLM run. The harness prints tokens per run and a projection, records rate-limit stops as `infra_error` (never as model failures), stops after consecutive infra errors and resumes with `--resume --retry-infra`.
+**Budget and infra.** Free tiers only (D-17). Groq `openai/gpt-oss-20b` makes one tool call per turn (an A run took 7 calls and about 17K tokens), and Gemini 2.5 Flash allows 20 requests/day on this project, so neither could carry the eval. qwen on Groq works well, but its 200K tokens/day cap allows about 13 runs a day. Gemini 3.5 Flash-Lite ran all 46 runs plus the consistency trials in one session without hitting a limit (about 20 s per run including waits). Gemini 3 models need each tool call's thought signature sent back; the client does this (D-23). Rate-limit stops are recorded as `infra_error`, never as model failures, and resumed with `--resume --retry-infra`.
 
 ## 8. Architecture comparison
 
-Step-by-step A vs B traces for five representative scenarios (overlap + new vendor, incomplete + injection, conflicting + expired vendor evidence, existing tool, PII implied by text): `evals/results/scenario_walkthroughs.md`. Manual review of 6 runs per architecture: `evals/results/manual_review.md`.
+Step-by-step A vs B traces for five scenarios (overlap + new vendor, incomplete + injection, conflicting + expired vendor evidence, existing tool, PII implied by text): `evals/results/scenario_walkthroughs.md` (Flash-Lite) and `evals/results_qwen/scenario_walkthroughs.md` (qwen). Manual review of 6 runs per architecture for each model: `evals/results/manual_review.md` (policy failures found: A 0, B 0) and `evals/results_qwen/manual_review.md` (A 0, B 2, both decision-level).
 
 ## 9. Ship decision
 
 Pre-registered rule (`evals/DECISION_RULE.md`, committed before the first LLM run): ship B only if B passes at least 2 more golden cases than A on final output, or fixes a `safety_ok` failure that A has, **and** B's average active latency is at most 2× A's; otherwise ship A.
 
-**Applied** (in code, `evals/score.py` `decision_rule()`; pass counts, latency and the rules-only comparison all use the paired cases): on the 10 paired cases A passes 9 and B passes 7, so clause (a) fails (B is not 2 or more cases ahead and fixes no `safety_ok` failure). Clause (b) holds (B/A active latency 0.93). **Ship A.** A also beats the rules-only workflow on the same 10 cases (9 vs 7; rules-only fails G-08, G-22 and G-23 there). B's independent reviewer removed 5 ungrounded evidence items that A never produced, but it added calls and tokens, and its two extra failures came from the analyst's overlap judgement, which the reviewer repeated rather than corrected. The sample is small; with more quota we would re-run all 22 LLM cases for both architectures (`--resume`).
+**Applied** (in code, `evals/score.py` `decision_rule()`; pass counts, latency and the rules-only comparison use the paired cases):
+- **Primary (Flash-Lite, 23 paired cases):** A passes 21, B 18. Clause (a) fails (B is 3 cases behind and fixes no `safety_ok` failure); clause (b) holds (B/A active latency 1.16). **Ship A.** A beats rules-only on the same cases (21 vs 20).
+- **Second model (qwen, 10 paired cases):** A 9, B 7. Clause (a) fails, clause (b) holds (0.93). **Ship A.** A beats rules-only (9 vs 7).
+
+Both models give the same answer. B's reviewer is a second check on the evidence, but here it cost more calls, failed more often and never turned one of A's failures into a pass. The bigger lever is the model: a stronger model adds real judgement (G-08) on top of the rules; a second agent does not.
 
 ## 10. Known limitations
 
 - F §9 open questions (budget shortfall blocking, SSO, Department Head without a Director, limited-use AI tools).
 - AC-2.2 status grounding gap (D-07.7): the grounding check verifies numbers, dates and IDs, not status words.
-- Partial LLM coverage: free-tier daily token caps stopped the eval at 12 cases for A and 10 for B (paired comparison on 10 cases); single trial, so no consistency figure.
-- G-23 shows the agents do not reliably add Security/Privacy for personal data implied only by free text.
-- Free-tier rate limits make runs slow (about 2 minutes per run including waits); small eval set; no real integrations.
+- The primary eval uses a small free model; the stronger qwen covered only 12 (A) and 10 (B) cases because of the free-tier token cap. One trial per case except the 6-case consistency subset (3 trials).
+- G-23: the agents do not reliably add Security/Privacy for personal data implied only by free text. On Flash-Lite, G-08 (existing tool) is also unreliable (1 of 3 trials).
+- When B's analyst runs out of turns, the fallback adds `llm_unavailable` although the provider was reachable (the flag means "the AI path failed").
+- Small eval set; no real integrations.

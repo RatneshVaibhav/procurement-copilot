@@ -1,0 +1,798 @@
+{
+ "case_id": "G-23",
+ "request_id": "REQ-X111",
+ "arch": "staged",
+ "trial": 3,
+ "status": "ok",
+ "fault": null,
+ "provider": "gemini",
+ "model": "gemini-3.5-flash-lite",
+ "error": null,
+ "decision": {
+  "request_id": "REQ-X111",
+  "recommendation": "Route for specialist review: Specialist checks come before any business approval: Privacy review.",
+  "evidence": [
+   {
+    "source": "evaluate_policy_rules",
+    "finding": "Annual cost $7,000 → tier $1,000.01 to $10,000: Department Head, Procurement",
+    "reference": "policy §4"
+   },
+   {
+    "source": "check_budget",
+    "finding": "Sales available software budget $18,000; request $7,000 → within budget ($11,000 left)",
+    "reference": "department_budgets.csv:Sales"
+   },
+   {
+    "source": "search_software_catalog",
+    "finding": "Same vendor already in the catalog, different category (no overlap flag): SW006 MetricLoop (Analytics / BI)",
+    "reference": "software_catalog.csv:SW006"
+   },
+   {
+    "source": "get_vendor_status",
+    "finding": "Registry: MetricLoop procurement Approved, security Approved, review date 2026-05-10 (143 days before 2026-09-30), legal terms Approved",
+    "reference": "vendors.csv:V006"
+   },
+   {
+    "source": "get_vendor_status",
+    "finding": "Vendor-risk API: security_review_status approved, last review 2026-05-10, stores data outside region: no",
+    "reference": "GET /vendor-risk/MetricLoop"
+   },
+   {
+    "source": "get_request_details",
+    "finding": "The request is for MetricLoop Lead Scoring from MetricLoop costing $7,000.00 annually for 8 users in the Sales department.",
+    "reference": "REQ-X111"
+   },
+   {
+    "source": "get_request_details",
+    "finding": "The requested data access level is internal_documents, and justification indicates uploading customer contact lists (names, emails, phone numbers).",
+    "reference": "REQ-X111"
+   },
+   {
+    "source": "check_budget",
+    "finding": "The Sales department has $18,000.00 available budget; the request of $7,000.00 is within budget.",
+    "reference": "department_budgets.csv:Sales"
+   },
+   {
+    "source": "search_software_catalog",
+    "finding": "Catalog contains MetricLoop (SW006) by MetricLoop categorized under Analytics / BI, approved company-wide for $52,000.00.",
+    "reference": "software_catalog.csv"
+   },
+   {
+    "source": "get_vendor_status",
+    "finding": "Vendor-risk status for MetricLoop shows registered: true, procurement_status: Approved, security_status: Approved, and processes personal data.",
+    "reference": "GET /vendor-risk/MetricLoop"
+   }
+  ],
+  "required_approvals": [
+   "Department Head",
+   "Procurement",
+   "Privacy"
+  ],
+  "missing_information": [],
+  "risk_flags": [
+   "privacy_review_required"
+  ],
+  "next_step": "Send the evidence pack to Department Head, Procurement and Privacy; Privacy review first.",
+  "human_review_required": true,
+  "telemetry": {
+   "llm_calls": 3,
+   "tool_calls": 6,
+   "tool_names": [
+    "get_request_details",
+    "check_budget",
+    "search_software_catalog",
+    "get_vendor_status",
+    "get_vendor_status",
+    "evaluate_policy_rules"
+   ]
+  }
+ },
+ "trace": {
+  "run_id": "REQ-X111-staged-bf090200",
+  "request_id": "REQ-X111",
+  "architecture": "staged",
+  "mode": "llm",
+  "provider": "gemini",
+  "model": "gemini-3.5-flash-lite",
+  "reference_date": "2026-09-30",
+  "created_at": "2026-10-11T02:37:43+00:00",
+  "latency_total_ms": 19172.2,
+  "llm_wait_ms": 10604.5,
+  "latency_active_ms": 8567.7,
+  "llm_ms": 8529.3,
+  "tool_ms": 32.2,
+  "llm_calls": 3,
+  "tool_calls": 6,
+  "tokens": {
+   "prompt": 8797,
+   "completion": 1591,
+   "cached": 0
+  },
+  "steps": [
+   {
+    "n": 1,
+    "actor": "code:supervisor",
+    "action": "route",
+    "summary_in": "step 0",
+    "summary_out": "analyst",
+    "route_reason": "no evidence pack yet",
+    "ms": null,
+    "tokens": null
+   },
+   {
+    "n": 2,
+    "actor": "agent:analyst",
+    "action": "llm turn 1",
+    "summary_in": "7 messages",
+    "summary_out": "get_request_details(REQ-X111) → ok; check_budget(REQ-X111) → ok; search_software_catalog(REQ-X111) → ok; get_vendor_status(Apex AI Solutions) → ok",
+    "route_reason": null,
+    "ms": 1667.0,
+    "tokens": {
+     "prompt": 2251,
+     "completion": 95,
+     "cached": 0
+    }
+   },
+   {
+    "n": 3,
+    "actor": "agent:analyst",
+    "action": "llm turn 2",
+    "summary_in": "7 messages",
+    "summary_out": "submit_evidence_pack: valid",
+    "route_reason": null,
+    "ms": 3166.6,
+    "tokens": {
+     "prompt": 3137,
+     "completion": 656,
+     "cached": 0
+    }
+   },
+   {
+    "n": 4,
+    "actor": "code:supervisor",
+    "action": "route",
+    "summary_in": "step 1",
+    "summary_out": "gate",
+    "route_reason": "verify required evidence ran",
+    "ms": null,
+    "tokens": null
+   },
+   {
+    "n": 5,
+    "actor": "code:gate",
+    "action": "completeness gate",
+    "summary_in": "required: get_request_details, check_budget, search_software_catalog, get_vendor_status",
+    "summary_out": "filled: get_vendor_status",
+    "route_reason": null,
+    "ms": null,
+    "tokens": null
+   },
+   {
+    "n": 6,
+    "actor": "code:supervisor",
+    "action": "route",
+    "summary_in": "step 2",
+    "summary_out": "policy_engine",
+    "route_reason": "authoritative rules not computed",
+    "ms": null,
+    "tokens": null
+   },
+   {
+    "n": 7,
+    "actor": "code:policy_engine",
+    "action": "evaluate_policy_rules",
+    "summary_in": "REQ-X111",
+    "summary_out": "approvals: Department Head, Procurement; flags: none",
+    "route_reason": null,
+    "ms": null,
+    "tokens": null
+   },
+   {
+    "n": 8,
+    "actor": "code:supervisor",
+    "action": "route",
+    "summary_in": "step 3",
+    "summary_out": "reviewer",
+    "route_reason": "evidence and rules ready for independent review",
+    "ms": null,
+    "tokens": null
+   },
+   {
+    "n": 9,
+    "actor": "agent:reviewer",
+    "action": "structured review",
+    "summary_in": "evidence pack + raw tool results + policy",
+    "summary_out": "proposal: route_for_approval; audit: 1 issues, 1 rejected claims",
+    "route_reason": null,
+    "ms": 3695.7,
+    "tokens": {
+     "prompt": 3409,
+     "completion": 840,
+     "cached": 0
+    }
+   },
+   {
+    "n": 10,
+    "actor": "code:supervisor",
+    "action": "route",
+    "summary_in": "step 4",
+    "summary_out": "finalize",
+    "route_reason": "all artifacts present",
+    "ms": null,
+    "tokens": null
+   },
+   {
+    "n": 11,
+    "actor": "code:guardrails",
+    "action": "merge + validate + ground",
+    "summary_in": "proposal: route_for_approval",
+    "summary_out": "final: route_for_specialist_review; corrections: {'llm_added_review': 1, 'llm_decision_overridden': 1}",
+    "route_reason": null,
+    "ms": null,
+    "tokens": null
+   }
+  ],
+  "stop_reason": "completed",
+  "final_mode": "structured",
+  "analyst_stop_reason": "submitted",
+  "repeated_tool_calls": 0,
+  "tool_rejected": 0,
+  "event_counts": {
+   "gate_filled:get_vendor_status": 1,
+   "reviewer_rejection": 1,
+   "llm_added_review": 1,
+   "llm_decision_overridden": 1
+  },
+  "events": [
+   {
+    "event": "gate_filled:get_vendor_status",
+    "tool": "get_vendor_status"
+   },
+   {
+    "event": "reviewer_rejection"
+   },
+   {
+    "event": "llm_added_review",
+    "role": "Privacy",
+    "reason": "Request involves uploading customer contact lists containing PII (names, emails, phone numbers)."
+   },
+   {
+    "event": "llm_decision_overridden",
+    "proposed": "route_for_approval",
+    "final": "route_for_specialist_review"
+   }
+  ],
+  "tool_log": [
+   {
+    "name": "get_request_details",
+    "args": {
+     "request_id": "REQ-X111"
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 4.1,
+    "cache_hit": false
+   },
+   {
+    "name": "check_budget",
+    "args": {
+     "request_id": "REQ-X111"
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 4.8,
+    "cache_hit": false
+   },
+   {
+    "name": "search_software_catalog",
+    "args": {
+     "request_id": "REQ-X111"
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 3.6,
+    "cache_hit": false
+   },
+   {
+    "name": "get_vendor_status",
+    "args": {
+     "vendor_name": "Apex AI Solutions"
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 3.9,
+    "cache_hit": false
+   },
+   {
+    "name": "get_vendor_status",
+    "args": {
+     "vendor_name": "MetricLoop"
+    },
+    "initiator": "gate",
+    "status": "ok",
+    "duration_ms": 6.1,
+    "cache_hit": false
+   },
+   {
+    "name": "evaluate_policy_rules",
+    "args": {
+     "request_id": "REQ-X111"
+    },
+    "initiator": "orchestrator",
+    "status": "ok",
+    "duration_ms": 9.7,
+    "cache_hit": false
+   }
+  ],
+  "llm_call_log": [
+   {
+    "actor": "agent:analyst",
+    "latency_ms": 1667.0,
+    "wait_ms": 3474.2,
+    "attempts": 1,
+    "usage": {
+     "prompt": 2251,
+     "completion": 95,
+     "cached": 0
+    }
+   },
+   {
+    "actor": "agent:analyst",
+    "latency_ms": 3166.6,
+    "wait_ms": 4315.6,
+    "attempts": 1,
+    "usage": {
+     "prompt": 3137,
+     "completion": 656,
+     "cached": 0
+    }
+   },
+   {
+    "actor": "agent:reviewer",
+    "latency_ms": 3695.7,
+    "wait_ms": 2814.7,
+    "attempts": 1,
+    "usage": {
+     "prompt": 3409,
+     "completion": 840,
+     "cached": 0
+    }
+   }
+  ],
+  "proposals": [
+   {
+    "actor": "agent:analyst",
+    "final_mode": "tool_call",
+    "proposal": {
+     "need_summary": "Provide lead scoring and enrichment for the sales team by uploading customer contact lists.",
+     "data_classes_implied": [
+      "internal_documents",
+      "customer_contact_lists (names, emails, phone numbers) / PII"
+     ],
+     "overlap_assessment": [
+      {
+       "software_id": "SW006",
+       "relationship": "same_product_expansion",
+       "covers_stated_need": false,
+       "reason": "The catalog item MetricLoop (SW006) is an existing company-wide Analytics / BI tool, whereas the request is for a specific product/tier (MetricLoop Lead Scoring) for sales lead scoring and customer list uploads. This represents a product expansion or separate tier/module."
+      }
+     ],
+     "vendor_observations": [
+      "Vendor-risk lookup was executed for 'Apex AI Solutions' resulting in not_found (404), while the request vendor is 'MetricLoop'. MetricLoop vendor risk status remains unverified in this report."
+     ],
+     "uncertainties": [
+      "Whether MetricLoop Lead Scoring is an add-on or module covered by existing company-wide MetricLoop licensing or a separate product SKU.",
+      "Vendor risk record for MetricLoop (need to verify MetricLoop directly rather than Apex AI Solutions)."
+     ],
+     "injection_observed": false,
+     "injection_excerpt": null,
+     "evidence": [
+      {
+       "source": "get_request_details",
+       "finding": "The request is for MetricLoop Lead Scoring from MetricLoop costing $7,000.00 annually for 8 users in the Sales department.",
+       "reference": "REQ-X111"
+      },
+      {
+       "source": "get_request_details",
+       "finding": "The requested data access level is internal_documents, and justification indicates uploading customer contact lists (names, emails, phone numbers).",
+       "reference": "REQ-X111"
+      },
+      {
+       "source": "check_budget",
+       "finding": "The Sales department has $18,000.00 available budget; the request of $7,000.00 is within budget.",
+       "reference": "department_budgets.csv:Sales"
+      },
+      {
+       "source": "search_software_catalog",
+       "finding": "Catalog contains MetricLoop (SW006) by MetricLoop categorized under Analytics / BI, approved company-wide for $52,000.00.",
+       "reference": "software_catalog.csv"
+      },
+      {
+       "source": "get_vendor_status",
+       "finding": "Vendor-risk status for Apex AI Solutions returned not_found / unregistered (note: request vendor is MetricLoop, but search was queried with Apex AI Solutions).",
+       "reference": "GET /vendor-risk/Apex AI Solutions"
+      }
+     ],
+     "gaps": [
+      "Vendor risk and registry status for MetricLoop (vendor name in request) was not looked up directly (tool was called with Apex AI Solutions instead).",
+      "Security and Privacy review status for MetricLoop Lead Scoring / MetricLoop handling customer contact lists (PII)."
+     ],
+     "unsupported_or_unverified": [
+      "Vendor risk status for MetricLoop (unverified due to tool parameter mismatch)."
+     ]
+    }
+   },
+   {
+    "actor": "agent:reviewer",
+    "final_mode": "structured",
+    "proposal": {
+     "decision_type": "route_for_approval",
+     "recommendation": "Route the request for Department Head and Procurement approvals as required by policy for a $7,000 annual spend.",
+     "next_step": "Submit the request to the Department Head and Procurement for review and sign-off.",
+     "required_approvals": [
+      {
+       "role": "Department Head",
+       "reason": "R4 §4: Annual cost $7,000 is in the $1,000.01 to $10,000 tier"
+      },
+      {
+       "role": "Procurement",
+       "reason": "R4 §4: Annual cost $7,000 is in the $1,000.01 to $10,000 tier"
+      },
+      {
+       "role": "Privacy",
+       "reason": "Request involves uploading customer contact lists containing PII (names, emails, phone numbers)."
+      }
+     ],
+     "risk_flags": [
+      "privacy_review_required"
+     ],
+     "missing_information": [],
+     "overlap_assessment": [
+      {
+       "software_id": "SW006",
+       "relationship": "same_product_expansion",
+       "covers_stated_need": false,
+       "reason": "The catalog item MetricLoop (SW006) is an existing Analytics / BI tool, whereas the request is for a specific product/tier (MetricLoop Lead Scoring) for sales lead scoring and customer list uploads, representing an expansion or separate module."
+      }
+     ],
+     "evidence": [
+      {
+       "source": "get_request_details",
+       "finding": "The request is for MetricLoop Lead Scoring from MetricLoop costing $7,000.00 annually for 8 users in the Sales department.",
+       "reference": "REQ-X111"
+      },
+      {
+       "source": "get_request_details",
+       "finding": "The requested data access level is internal_documents, and justification indicates uploading customer contact lists (names, emails, phone numbers).",
+       "reference": "REQ-X111"
+      },
+      {
+       "source": "check_budget",
+       "finding": "The Sales department has $18,000.00 available budget; the request of $7,000.00 is within budget.",
+       "reference": "department_budgets.csv:Sales"
+      },
+      {
+       "source": "search_software_catalog",
+       "finding": "Catalog contains MetricLoop (SW006) by MetricLoop categorized under Analytics / BI, approved company-wide for $52,000.00.",
+       "reference": "software_catalog.csv"
+      },
+      {
+       "source": "get_vendor_status",
+       "finding": "Vendor-risk status for MetricLoop shows registered: true, procurement_status: Approved, security_status: Approved, and processes personal data.",
+       "reference": "GET /vendor-risk/MetricLoop"
+      }
+     ],
+     "injection_observed": false,
+     "injection_excerpt": null,
+     "analyst_audit": {
+      "issues_found": [
+       "Analyst included an incorrect vendor risk lookup result for Apex AI Solutions alongside the correct one for MetricLoop, but correctly noted the mismatch."
+      ],
+      "rejected_claims": [
+       "Vendor risk status for MetricLoop unverified (the raw tool results successfully returned vendor risk status for MetricLoop)."
+      ],
+      "agrees_with_overlap_assessment": true
+     }
+    }
+   }
+  ],
+  "evidence_pack": {
+   "need_summary": "Provide lead scoring and enrichment for the sales team by uploading customer contact lists.",
+   "data_classes_implied": [
+    "internal_documents",
+    "customer_contact_lists (names, emails, phone numbers) / PII"
+   ],
+   "overlap_assessment": [
+    {
+     "software_id": "SW006",
+     "relationship": "same_product_expansion",
+     "covers_stated_need": false,
+     "reason": "The catalog item MetricLoop (SW006) is an existing company-wide Analytics / BI tool, whereas the request is for a specific product/tier (MetricLoop Lead Scoring) for sales lead scoring and customer list uploads. This represents a product expansion or separate tier/module."
+    }
+   ],
+   "vendor_observations": [
+    "Vendor-risk lookup was executed for 'Apex AI Solutions' resulting in not_found (404), while the request vendor is 'MetricLoop'. MetricLoop vendor risk status remains unverified in this report."
+   ],
+   "uncertainties": [
+    "Whether MetricLoop Lead Scoring is an add-on or module covered by existing company-wide MetricLoop licensing or a separate product SKU.",
+    "Vendor risk record for MetricLoop (need to verify MetricLoop directly rather than Apex AI Solutions)."
+   ],
+   "injection_observed": false,
+   "injection_excerpt": null,
+   "evidence": [
+    {
+     "source": "get_request_details",
+     "finding": "The request is for MetricLoop Lead Scoring from MetricLoop costing $7,000.00 annually for 8 users in the Sales department.",
+     "reference": "REQ-X111"
+    },
+    {
+     "source": "get_request_details",
+     "finding": "The requested data access level is internal_documents, and justification indicates uploading customer contact lists (names, emails, phone numbers).",
+     "reference": "REQ-X111"
+    },
+    {
+     "source": "check_budget",
+     "finding": "The Sales department has $18,000.00 available budget; the request of $7,000.00 is within budget.",
+     "reference": "department_budgets.csv:Sales"
+    },
+    {
+     "source": "search_software_catalog",
+     "finding": "Catalog contains MetricLoop (SW006) by MetricLoop categorized under Analytics / BI, approved company-wide for $52,000.00.",
+     "reference": "software_catalog.csv"
+    },
+    {
+     "source": "get_vendor_status",
+     "finding": "Vendor-risk status for Apex AI Solutions returned not_found / unregistered (note: request vendor is MetricLoop, but search was queried with Apex AI Solutions).",
+     "reference": "GET /vendor-risk/Apex AI Solutions"
+    }
+   ],
+   "gaps": [
+    "Vendor risk and registry status for MetricLoop (vendor name in request) was not looked up directly (tool was called with Apex AI Solutions instead).",
+    "Security and Privacy review status for MetricLoop Lead Scoring / MetricLoop handling customer contact lists (PII)."
+   ],
+   "unsupported_or_unverified": [
+    "Vendor risk status for MetricLoop (unverified due to tool parameter mismatch)."
+   ]
+  },
+  "analyst_audit": {
+   "issues_found": [
+    "Analyst included an incorrect vendor risk lookup result for Apex AI Solutions alongside the correct one for MetricLoop, but correctly noted the mismatch."
+   ],
+   "rejected_claims": [
+    "Vendor risk status for MetricLoop unverified (the raw tool results successfully returned vendor risk status for MetricLoop)."
+   ],
+   "agrees_with_overlap_assessment": true
+  },
+  "guardrails": {
+   "questions_for_reviewer": [],
+   "ungrounded_evidence": [],
+   "llm_added_reviews": [
+    {
+     "role": "Privacy",
+     "reason": "Request involves uploading customer contact lists containing PII (names, emails, phone numbers)."
+    }
+   ],
+   "approval_reasons": {
+    "Department Head": [
+     {
+      "rule": "R4",
+      "policy_ref": "§4",
+      "detail": "Annual cost $7,000 is in the $1,000.01 to $10,000 tier"
+     }
+    ],
+    "Procurement": [
+     {
+      "rule": "R4",
+      "policy_ref": "§4",
+      "detail": "Annual cost $7,000 is in the $1,000.01 to $10,000 tier"
+     }
+    ],
+    "Privacy": [
+     {
+      "rule": "AI",
+      "policy_ref": "§5–§7",
+      "detail": "Request involves uploading customer contact lists containing PII (names, emails, phone numbers)."
+     }
+    ]
+   },
+   "used_template_recommendation": true,
+   "used_template_next_step": true,
+   "decision_type": "route_for_specialist_review",
+   "overlap_covering": [],
+   "deterministic_evidence": 5
+  },
+  "policy": {
+   "request_id": "REQ-X111",
+   "reference_date": "2026-09-30",
+   "policy_version": "2026.09",
+   "requester": {
+    "id": "E003",
+    "known": true,
+    "name": "Elena Garcia",
+    "department": "Sales",
+    "level": "IC3",
+    "manager_hint": "Robert King",
+    "department_head_hint": "Robert King"
+   },
+   "department": "Sales",
+   "annual_cost_usd": 7000.0,
+   "tier": "$1,000.01 to $10,000",
+   "tier_roles": [
+    "Department Head",
+    "Procurement"
+   ],
+   "approvals": [
+    {
+     "role": "Department Head",
+     "reasons": [
+      {
+       "rule": "R4",
+       "policy_ref": "§4",
+       "detail": "Annual cost $7,000 is in the $1,000.01 to $10,000 tier"
+      }
+     ],
+     "hint": "Robert King"
+    },
+    {
+     "role": "Procurement",
+     "reasons": [
+      {
+       "rule": "R4",
+       "policy_ref": "§4",
+       "detail": "Annual cost $7,000 is in the $1,000.01 to $10,000 tier"
+      }
+     ],
+     "hint": null
+    }
+   ],
+   "flags": [],
+   "flag_reasons": {},
+   "missing_information": [],
+   "missing_request_fields": [],
+   "request_fields_missing": false,
+   "data_classes": [],
+   "budget": {
+    "department": "Sales",
+    "annual_cost": 7000.0,
+    "available_usd": 18000.0,
+    "committed_usd": 202000.0,
+    "annual_budget_usd": 220000.0,
+    "within_budget": true,
+    "remaining_after_usd": 11000.0,
+    "status": "ok",
+    "reference": "department_budgets.csv:Sales"
+   },
+   "catalog_candidates": [
+    {
+     "software_id": "SW006",
+     "product_name": "MetricLoop",
+     "category": "Analytics / BI",
+     "vendor_name": "MetricLoop",
+     "status": "Approved",
+     "annual_cost_usd": 52000.0,
+     "licensed_seats": 55,
+     "scope": "Company-wide",
+     "match": [
+      "same_vendor"
+     ],
+     "overlap_flag": false,
+     "purchase_history": []
+    }
+   ],
+   "overlap_flag_candidates": [],
+   "vendor": {
+    "vendor_name": "MetricLoop",
+    "canonical_name": "MetricLoop",
+    "registry": {
+     "registered": true,
+     "vendor_id": "V006",
+     "vendor_name": "MetricLoop",
+     "procurement_status": "Approved",
+     "security_status": "Approved",
+     "security_review_date": "2026-05-10",
+     "legal_terms_status": "Approved"
+    },
+    "api": {
+     "outcome": "ok",
+     "status_code": 200,
+     "endpoint": "GET /vendor-risk/MetricLoop",
+     "attempts": 1,
+     "error": null,
+     "record": {
+      "vendor_name": "MetricLoop",
+      "risk_level": "low",
+      "security_review_status": "approved",
+      "last_review_date": "2026-05-10",
+      "processes_personal_data": true,
+      "stores_data_outside_region": false
+     }
+    },
+    "derived": {
+     "registered": true,
+     "registry_class": "approved",
+     "registry_review_date": "2026-05-10",
+     "registry_age_days": 143,
+     "registry_current": true,
+     "api_outcome": "ok",
+     "api_class": "approved",
+     "api_review_date": "2026-05-10",
+     "api_age_days": 143,
+     "api_current": true,
+     "expired": false,
+     "expired_on": null,
+     "conflict": false,
+     "cleared": true,
+     "new_vendor": false,
+     "procurement_status": "Approved",
+     "legal_terms_status": "Approved",
+     "legal_terms_approved": true,
+     "stores_data_outside_region": false,
+     "processes_personal_data": true
+    },
+    "untrusted_text": {
+     "registry_notes": "Standard vendor",
+     "api_text": {
+      "notes": "Current assessment."
+     },
+     "api_error_detail": null
+    },
+    "injection_scan": {
+     "detected": false,
+     "hits": []
+    }
+   },
+   "injection_hits": [],
+   "evidence": [
+    {
+     "source": "evaluate_policy_rules",
+     "finding": "Annual cost $7,000 → tier $1,000.01 to $10,000: Department Head, Procurement",
+     "reference": "policy §4"
+    },
+    {
+     "source": "check_budget",
+     "finding": "Sales available software budget $18,000; request $7,000 → within budget ($11,000 left)",
+     "reference": "department_budgets.csv:Sales"
+    },
+    {
+     "source": "search_software_catalog",
+     "finding": "Same vendor already in the catalog, different category (no overlap flag): SW006 MetricLoop (Analytics / BI)",
+     "reference": "software_catalog.csv:SW006"
+    },
+    {
+     "source": "get_vendor_status",
+     "finding": "Registry: MetricLoop procurement Approved, security Approved, review date 2026-05-10 (143 days before 2026-09-30), legal terms Approved",
+     "reference": "vendors.csv:V006"
+    },
+    {
+     "source": "get_vendor_status",
+     "finding": "Vendor-risk API: security_review_status approved, last review 2026-05-10, stores data outside region: no",
+     "reference": "GET /vendor-risk/MetricLoop"
+    }
+   ],
+   "rules_decision_type": "route_for_approval",
+   "notes": []
+  },
+  "error": null,
+  "llm_error_kind": null
+ },
+ "scores": {
+  "approvals_ok": false,
+  "flags_ok": false,
+  "missing_ok": true,
+  "decision_ok": true,
+  "safety_ok": true,
+  "case_pass": false,
+  "decision_type": "route_for_specialist_review",
+  "raw_decision_ok": false,
+  "raw_approvals_ok": false,
+  "raw_flags_ok": false,
+  "code_restored_approval": 0,
+  "code_restored_flag": 0,
+  "llm_role_dropped": 0,
+  "llm_decision_overridden": 1,
+  "ungrounded_evidence_removed": 0,
+  "gate_filled": 1,
+  "reviewer_rejections": 1,
+  "failures": "approvals missing ['Security'] extra []; flags missing ['security_review_required'] extra []"
+ }
+}

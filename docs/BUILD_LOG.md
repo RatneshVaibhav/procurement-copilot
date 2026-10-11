@@ -84,15 +84,23 @@ Written by Claude Code under D-11 (continuous mode). Each phase appends 5–10 l
 - Mid-eval code changes are text-only for scoring purposes: decision type, approvals, flags and scores do not depend on them. Rules-only re-run: 20/23, unchanged.
 - Tests: 209 pass (was 199). Real app smoke test with a simulated LLM outage: page, queue, analyse, compare, dashboard, evidence pack all OK.
 
+### Full-coverage eval on Gemini Flash-Lite (Sun 11 Oct, 07:30–08:40 IST)
+- Human decision (D-23): move the primary eval to Gemini `gemini-3.5-flash-lite` (free, existing key) because the qwen eval could not finish on Groq's free tier; qwen kept as a second model. Reporting plan recorded before the full run.
+- Fix: Gemini 3 models need tool-call thought signatures echoed back (`extra_content`); without it every run fell back after the first call. Groq messages unchanged (test). `--reasoning-effort off` added (this model rejects `none`). `gemini-2.5-flash-lite` is not available to new users.
+- Results (`evals/results/`): all 23 cases on A and B, 0 infra errors: A 21/23, B 18/23, rules-only 20/23; consistency subset 3 trials: A 4/6, B 3/6. Rule: ship A. qwen (`evals/results_qwen/`, A 12, B 10, paired 10): A 9/10, B 7/10, ship A. Both agree.
+- Cross-model check on the cases both ran: A qwen 11/12 vs Flash-Lite 10/12 (differs only on G-08); B 7/10 vs 7/10. Flash-Lite is weaker on the AI-only case G-08 and B's analyst hit its turn limit in 4 runs.
+- qwen paced loop stopped (no longer needed); results folders swapped (`evals/results` = primary, `evals/results_qwen` = second model); walkthroughs re-rendered for both; manual review drafted for the Flash-Lite runs (policy failures A 0, B 0).
+- README §7–10, memo (482 words), agent log, CLAUDE.md and evals/README commands updated. Tests: 211 pass.
+
 ## Human checklist
 
 Items that need the human. The build does not wait for them. In order:
 
 - [ ] **Push** (no remote is configured yet): create an empty public GitHub repo, then `git remote add origin <url>` and `git push -u origin master`. Check in a private window that it is public and the README and Mermaid diagram render. `.env` is git-ignored.
 - [ ] **Browser checks** (`python run_local.py`, http://127.0.0.1:8000): REQ-1006 → injection banner + clarification, "Send for approvals" needs an override reason; REQ-1007 → registry vs vendor-risk side by side; REQ-1008 → "Suggest existing tool"; stop the mock and run REQ-1001 → unavailable banner; trace panel shows steps and stop reason; confirming writes `runtime/audit_log.jsonl`; "New request" with justification `<img src=x onerror=alert(1)>` renders as text; Evaluation tab, Compare both and the evidence-pack download work.
-- [ ] **Manual review:** check each row of `evals/results/manual_review.md` against the run files, correct what you disagree with, delete the draft note.
+- [ ] **Manual review:** check the rows of `evals/results/manual_review.md` (Flash-Lite) and `evals/results_qwen/manual_review.md` (qwen) against the run files, then delete each draft note.
 - [ ] **AGENT_LOG:** written. Its "one diff I reviewed" line refers to commit `a5555c1` (evidence pack in `webapp/main.py` + its test): read that diff once (`git show a5555c1 -- webapp/main.py tests/test_webapp.py`) so the line is true.
-- [ ] **Memo:** written (475 words); its numbers are refreshed from `summary.md` after the eval stops (20:00). Read it once before submitting.
+- [ ] **Memo:** final (Flash-Lite primary + qwen). Read it once before submitting.
 - [ ] **Rehearse** defending: the pre-registered rule and why it says ship A; assumption 11 (overlap flag); assumption 13 (API down + not sensitive); why B's reviewer did not fix G-04/G-07; why the answer is not "more agents".
 - [ ] **Submit** the repo URL on the Google Form; screenshot the confirmation.
 - [ ] **Rotate the Gemini key** (it was pasted into a chat session). Optional: older commits contain the Groq organisation ID inside stored 429 messages (an account ID, not a key); current files are redacted.

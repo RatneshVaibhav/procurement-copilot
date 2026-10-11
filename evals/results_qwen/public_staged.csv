@@ -1,0 +1,6 @@
+case_id,request_id,architecture,passed_minimum_checks,latency_ms,llm_calls,tool_calls,failures,source
+PUB-01,REQ-1001,staged,True,81477.0,4,5,,golden run G-01 t1
+PUB-02,REQ-1002,staged,True,109356.3,4,5,,golden run G-02 t1
+PUB-04,REQ-1005,staged,True,144597.8,4,5,,golden run G-05 t1
+PUB-05,REQ-1006,staged,True,167106.3,4,5,,golden run G-06 t1
+PUB-06,REQ-1009,staged,True,134951.7,4,5,,golden run G-09 t1
