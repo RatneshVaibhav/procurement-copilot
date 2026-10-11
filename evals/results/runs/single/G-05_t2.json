@@ -1,0 +1,800 @@
+{
+ "case_id": "G-05",
+ "request_id": "REQ-1005",
+ "arch": "single",
+ "trial": 2,
+ "status": "ok",
+ "fault": null,
+ "provider": "gemini",
+ "model": "gemini-3.5-flash-lite",
+ "error": null,
+ "decision": {
+  "request_id": "REQ-1005",
+  "recommendation": "Route for specialist review: Route request REQ-1005 for specialist reviews and Finance budget exception review, as it exceeds the available departmental budget and involves customer PII with an unreviewed new vendor.",
+  "evidence": [
+   {
+    "source": "evaluate_policy_rules",
+    "finding": "Annual cost $22,000 → tier $10,000.01 to $25,000: Department Head, Finance, Procurement",
+    "reference": "policy §4"
+   },
+   {
+    "source": "check_budget",
+    "finding": "Sales available software budget $18,000; request $22,000 → exceeds budget by $4,000",
+    "reference": "department_budgets.csv:Sales"
+   },
+   {
+    "source": "search_software_catalog",
+    "finding": "No catalog product shares this request's category, vendor or product name",
+    "reference": "software_catalog.csv"
+   },
+   {
+    "source": "get_vendor_status",
+    "finding": "Registry: GrowthForge procurement New, security Pending, review date none, legal terms Unknown",
+    "reference": "vendors.csv:V012"
+   },
+   {
+    "source": "get_vendor_status",
+    "finding": "Vendor-risk API: security_review_status not_completed, last review none, stores data outside region: yes",
+    "reference": "GET /vendor-risk/GrowthForge"
+   },
+   {
+    "source": "evaluate_policy_rules",
+    "finding": "Sensitive data classes: customer_pii from data_access_level 'customer_pii'; customer_pii from integration 'CRM'",
+    "reference": "policy §5, §6"
+   },
+   {
+    "source": "get_vendor_status",
+    "finding": "Vendor stores data outside the region and the request involves customer_pii: material cross-region issue",
+    "reference": "policy §6, §7"
+   },
+   {
+    "source": "check_budget",
+    "finding": "Request REQ-1005 requests ProspectPilot from GrowthForge for $22,000 annually, exceeding the Sales department available budget of $18,000 by $4,000.",
+    "reference": "REQ-1005 / check_budget"
+   },
+   {
+    "source": "search_software_catalog",
+    "finding": "No existing catalog products found matching keywords sales, intelligence, enrichment.",
+    "reference": "software_catalog.csv"
+   },
+   {
+    "source": "get_vendor_status",
+    "finding": "GrowthForge is a new registered vendor with security status pending and uncompleted security review.",
+    "reference": "V012 / GET /vendor-risk/GrowthForge"
+   },
+   {
+    "source": "get_vendor_status",
+    "finding": "Vendor stores data outside the region and the request involves customer_pii and CRM integration.",
+    "reference": "GET /vendor-risk/GrowthForge / data_access_level"
+   },
+   {
+    "source": "evaluate_policy_rules",
+    "finding": "Annual cost of $22,000 falls in the $10,000.01 to $25,000 cost tier, requiring Department Head, Procurement, and Finance approvals.",
+    "reference": "§4, §2"
+   }
+  ],
+  "required_approvals": [
+   "Department Head",
+   "Finance",
+   "Procurement",
+   "Security",
+   "Privacy",
+   "Legal"
+  ],
+  "missing_information": [],
+  "risk_flags": [
+   "budget_insufficient",
+   "security_review_required",
+   "privacy_review_required",
+   "legal_review_required"
+  ],
+  "next_step": "Route the request for Finance exception review due to insufficient departmental budget, alongside mandatory Security, Privacy, and Legal reviews before any approval considerations.",
+  "human_review_required": true,
+  "telemetry": {
+   "llm_calls": 3,
+   "tool_calls": 5,
+   "tool_names": [
+    "get_request_details",
+    "check_budget",
+    "search_software_catalog",
+    "get_vendor_status",
+    "evaluate_policy_rules"
+   ]
+  }
+ },
+ "trace": {
+  "run_id": "REQ-1005-single-db56fa2e",
+  "request_id": "REQ-1005",
+  "architecture": "single",
+  "mode": "llm",
+  "provider": "gemini",
+  "model": "gemini-3.5-flash-lite",
+  "reference_date": "2026-09-30",
+  "created_at": "2026-10-11T15:00:14+00:00",
+  "latency_total_ms": 17971.1,
+  "llm_wait_ms": 11746.6,
+  "latency_active_ms": 6224.5,
+  "llm_ms": 6194.5,
+  "tool_ms": 25.7,
+  "llm_calls": 3,
+  "tool_calls": 5,
+  "tokens": {
+   "prompt": 10366,
+   "completion": 1052,
+   "cached": 0
+  },
+  "steps": [
+   {
+    "n": 1,
+    "actor": "agent:single",
+    "action": "llm turn 1",
+    "summary_in": "4 messages",
+    "summary_out": "get_request_details(REQ-1005) → ok",
+    "route_reason": null,
+    "ms": 1625.1,
+    "tokens": {
+     "prompt": 2850,
+     "completion": 25,
+     "cached": 0
+    }
+   },
+   {
+    "n": 2,
+    "actor": "agent:single",
+    "action": "llm turn 2",
+    "summary_in": "9 messages",
+    "summary_out": "check_budget(REQ-1005) → ok; search_software_catalog(REQ-1005) → ok; get_vendor_status(GrowthForge) → ok; evaluate_policy_rules(REQ-1005) → ok",
+    "route_reason": null,
+    "ms": 1364.2,
+    "tokens": {
+     "prompt": 3095,
+     "completion": 109,
+     "cached": 0
+    }
+   },
+   {
+    "n": 3,
+    "actor": "agent:single",
+    "action": "llm turn 3",
+    "summary_in": "9 messages",
+    "summary_out": "submit_recommendation: valid",
+    "route_reason": null,
+    "ms": 3205.2,
+    "tokens": {
+     "prompt": 4421,
+     "completion": 918,
+     "cached": 0
+    }
+   },
+   {
+    "n": 4,
+    "actor": "code:gate",
+    "action": "completeness gate",
+    "summary_in": "required: get_request_details, check_budget, search_software_catalog, get_vendor_status, evaluate_policy_rules",
+    "summary_out": "filled: none",
+    "route_reason": null,
+    "ms": null,
+    "tokens": null
+   },
+   {
+    "n": 5,
+    "actor": "code:guardrails",
+    "action": "merge + validate + ground",
+    "summary_in": "proposal: route_for_specialist_review",
+    "summary_out": "final: route_for_specialist_review; corrections: none",
+    "route_reason": null,
+    "ms": null,
+    "tokens": null
+   }
+  ],
+  "stop_reason": "submitted",
+  "final_mode": "tool_call",
+  "analyst_stop_reason": null,
+  "repeated_tool_calls": 0,
+  "tool_rejected": 0,
+  "event_counts": {},
+  "events": [],
+  "tool_log": [
+   {
+    "name": "get_request_details",
+    "args": {
+     "request_id": "REQ-1005"
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 3.9,
+    "cache_hit": false
+   },
+   {
+    "name": "check_budget",
+    "args": {
+     "request_id": "REQ-1005"
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 5.3,
+    "cache_hit": false
+   },
+   {
+    "name": "search_software_catalog",
+    "args": {
+     "keywords": [
+      "sales",
+      "intelligence",
+      "enrichment"
+     ],
+     "request_id": "REQ-1005"
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 4.0,
+    "cache_hit": false
+   },
+   {
+    "name": "get_vendor_status",
+    "args": {
+     "vendor_name": "GrowthForge"
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 5.1,
+    "cache_hit": false
+   },
+   {
+    "name": "evaluate_policy_rules",
+    "args": {
+     "request_id": "REQ-1005"
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 7.4,
+    "cache_hit": false
+   }
+  ],
+  "llm_call_log": [
+   {
+    "actor": "agent:single",
+    "latency_ms": 1625.1,
+    "wait_ms": 2763.3,
+    "attempts": 1,
+    "usage": {
+     "prompt": 2850,
+     "completion": 25,
+     "cached": 0
+    }
+   },
+   {
+    "actor": "agent:single",
+    "latency_ms": 1364.2,
+    "wait_ms": 4370.4,
+    "attempts": 1,
+    "usage": {
+     "prompt": 3095,
+     "completion": 109,
+     "cached": 0
+    }
+   },
+   {
+    "actor": "agent:single",
+    "latency_ms": 3205.2,
+    "wait_ms": 4612.9,
+    "attempts": 1,
+    "usage": {
+     "prompt": 4421,
+     "completion": 918,
+     "cached": 0
+    }
+   }
+  ],
+  "proposals": [
+   {
+    "actor": "agent:single",
+    "final_mode": "tool_call",
+    "proposal": {
+     "decision_type": "route_for_specialist_review",
+     "recommendation": "Route request REQ-1005 for specialist reviews and Finance budget exception review, as it exceeds the available departmental budget and involves customer PII with an unreviewed new vendor.",
+     "next_step": "Route the request for Finance exception review due to insufficient departmental budget, alongside mandatory Security, Privacy, and Legal reviews before any approval considerations.",
+     "required_approvals": [
+      {
+       "role": "Department Head",
+       "reason": "R4 §4: Annual cost $22,000 is in the $10,000.01 to $25,000 tier"
+      },
+      {
+       "role": "Finance",
+       "reason": "R4 §4: Annual cost $22,000 is in the $10,000.01 to $25,000 tier; R3 §2: Annual cost $22,000 exceeds Sales available software budget $18,000: budget exception review"
+      },
+      {
+       "role": "Procurement",
+       "reason": "R4 §4: Annual cost $22,000 is in the $10,000.01 to $25,000 tier"
+      },
+      {
+       "role": "Security",
+       "reason": "R6 §5: Vendor security assessment missing, expired, not completed or conflicting: registry security status Pending, vendor-risk API status not_completed; R7 §5: Data class customer_pii (data_access_level 'customer_pii'); R7 §5: Data class customer_pii (integration 'CRM')"
+      },
+      {
+       "role": "Privacy",
+       "reason": "R7 §6: customer_pii (data_access_level 'customer_pii'); R7 §6: customer_pii (integration 'CRM'); R8 §6: Vendor stores data outside the region and the request involves customer_pii: material cross-region issue"
+      },
+      {
+       "role": "Legal",
+       "reason": "R8 §7: Vendor stores data outside the region and the request involves customer_pii: material cross-region issue; R9 §7: New vendor with annual spend $22,000 (≥ $10,000); R9 §7: Legal terms status Unknown (not approved/standard)"
+      }
+     ],
+     "risk_flags": [
+      "budget_insufficient",
+      "security_review_required",
+      "privacy_review_required",
+      "legal_review_required"
+     ],
+     "missing_information": [],
+     "overlap_assessment": [],
+     "evidence": [
+      {
+       "source": "check_budget",
+       "finding": "Request REQ-1005 requests ProspectPilot from GrowthForge for $22,000 annually, exceeding the Sales department available budget of $18,000 by $4,000.",
+       "reference": "REQ-1005 / check_budget"
+      },
+      {
+       "source": "search_software_catalog",
+       "finding": "No existing catalog products found matching keywords sales, intelligence, enrichment.",
+       "reference": "software_catalog.csv"
+      },
+      {
+       "source": "get_vendor_status",
+       "finding": "GrowthForge is a new registered vendor with security status pending and uncompleted security review.",
+       "reference": "V012 / GET /vendor-risk/GrowthForge"
+      },
+      {
+       "source": "get_vendor_status",
+       "finding": "Vendor stores data outside the region and the request involves customer_pii and CRM integration.",
+       "reference": "GET /vendor-risk/GrowthForge / data_access_level"
+      },
+      {
+       "source": "evaluate_policy_rules",
+       "finding": "Annual cost of $22,000 falls in the $10,000.01 to $25,000 cost tier, requiring Department Head, Procurement, and Finance approvals.",
+       "reference": "§4, §2"
+      },
+      {
+       "source": "evaluate_policy_rules",
+       "finding": "Security, Privacy, and Legal reviews are required due to customer_pii, CRM integration, cross-region storage, new vendor status, and unknown legal terms.",
+       "reference": "§5, §6, §7"
+      }
+     ],
+     "injection_observed": false,
+     "injection_excerpt": null
+    }
+   }
+  ],
+  "evidence_pack": null,
+  "analyst_audit": null,
+  "guardrails": {
+   "questions_for_reviewer": [],
+   "ungrounded_evidence": [],
+   "llm_added_reviews": [],
+   "approval_reasons": {
+    "Department Head": [
+     {
+      "rule": "R4",
+      "policy_ref": "§4",
+      "detail": "Annual cost $22,000 is in the $10,000.01 to $25,000 tier"
+     }
+    ],
+    "Finance": [
+     {
+      "rule": "R4",
+      "policy_ref": "§4",
+      "detail": "Annual cost $22,000 is in the $10,000.01 to $25,000 tier"
+     },
+     {
+      "rule": "R3",
+      "policy_ref": "§2",
+      "detail": "Annual cost $22,000 exceeds Sales available software budget $18,000: budget exception review"
+     }
+    ],
+    "Procurement": [
+     {
+      "rule": "R4",
+      "policy_ref": "§4",
+      "detail": "Annual cost $22,000 is in the $10,000.01 to $25,000 tier"
+     }
+    ],
+    "Security": [
+     {
+      "rule": "R6",
+      "policy_ref": "§5",
+      "detail": "Vendor security assessment missing, expired, not completed or conflicting: registry security status Pending, vendor-risk API status not_completed"
+     },
+     {
+      "rule": "R7",
+      "policy_ref": "§5",
+      "detail": "Data class customer_pii (data_access_level 'customer_pii')"
+     },
+     {
+      "rule": "R7",
+      "policy_ref": "§5",
+      "detail": "Data class customer_pii (integration 'CRM')"
+     }
+    ],
+    "Privacy": [
+     {
+      "rule": "R7",
+      "policy_ref": "§6",
+      "detail": "customer_pii (data_access_level 'customer_pii')"
+     },
+     {
+      "rule": "R7",
+      "policy_ref": "§6",
+      "detail": "customer_pii (integration 'CRM')"
+     },
+     {
+      "rule": "R8",
+      "policy_ref": "§6",
+      "detail": "Vendor stores data outside the region and the request involves customer_pii: material cross-region issue"
+     }
+    ],
+    "Legal": [
+     {
+      "rule": "R8",
+      "policy_ref": "§7",
+      "detail": "Vendor stores data outside the region and the request involves customer_pii: material cross-region issue"
+     },
+     {
+      "rule": "R9",
+      "policy_ref": "§7",
+      "detail": "New vendor with annual spend $22,000 (≥ $10,000)"
+     },
+     {
+      "rule": "R9",
+      "policy_ref": "§7",
+      "detail": "Legal terms status Unknown (not approved/standard)"
+     }
+    ]
+   },
+   "used_template_recommendation": false,
+   "used_template_next_step": false,
+   "decision_type": "route_for_specialist_review",
+   "overlap_covering": [],
+   "deterministic_evidence": 7
+  },
+  "policy": {
+   "request_id": "REQ-1005",
+   "reference_date": "2026-09-30",
+   "policy_version": "2026.09",
+   "requester": {
+    "id": "E003",
+    "known": true,
+    "name": "Elena Garcia",
+    "department": "Sales",
+    "level": "IC3",
+    "manager_hint": "Robert King",
+    "department_head_hint": "Robert King"
+   },
+   "department": "Sales",
+   "annual_cost_usd": 22000.0,
+   "tier": "$10,000.01 to $25,000",
+   "tier_roles": [
+    "Department Head",
+    "Finance",
+    "Procurement"
+   ],
+   "approvals": [
+    {
+     "role": "Department Head",
+     "reasons": [
+      {
+       "rule": "R4",
+       "policy_ref": "§4",
+       "detail": "Annual cost $22,000 is in the $10,000.01 to $25,000 tier"
+      }
+     ],
+     "hint": "Robert King"
+    },
+    {
+     "role": "Finance",
+     "reasons": [
+      {
+       "rule": "R4",
+       "policy_ref": "§4",
+       "detail": "Annual cost $22,000 is in the $10,000.01 to $25,000 tier"
+      },
+      {
+       "rule": "R3",
+       "policy_ref": "§2",
+       "detail": "Annual cost $22,000 exceeds Sales available software budget $18,000: budget exception review"
+      }
+     ],
+     "hint": null
+    },
+    {
+     "role": "Procurement",
+     "reasons": [
+      {
+       "rule": "R4",
+       "policy_ref": "§4",
+       "detail": "Annual cost $22,000 is in the $10,000.01 to $25,000 tier"
+      }
+     ],
+     "hint": null
+    },
+    {
+     "role": "Security",
+     "reasons": [
+      {
+       "rule": "R6",
+       "policy_ref": "§5",
+       "detail": "Vendor security assessment missing, expired, not completed or conflicting: registry security status Pending, vendor-risk API status not_completed"
+      },
+      {
+       "rule": "R7",
+       "policy_ref": "§5",
+       "detail": "Data class customer_pii (data_access_level 'customer_pii')"
+      },
+      {
+       "rule": "R7",
+       "policy_ref": "§5",
+       "detail": "Data class customer_pii (integration 'CRM')"
+      }
+     ],
+     "hint": null
+    },
+    {
+     "role": "Privacy",
+     "reasons": [
+      {
+       "rule": "R7",
+       "policy_ref": "§6",
+       "detail": "customer_pii (data_access_level 'customer_pii')"
+      },
+      {
+       "rule": "R7",
+       "policy_ref": "§6",
+       "detail": "customer_pii (integration 'CRM')"
+      },
+      {
+       "rule": "R8",
+       "policy_ref": "§6",
+       "detail": "Vendor stores data outside the region and the request involves customer_pii: material cross-region issue"
+      }
+     ],
+     "hint": null
+    },
+    {
+     "role": "Legal",
+     "reasons": [
+      {
+       "rule": "R8",
+       "policy_ref": "§7",
+       "detail": "Vendor stores data outside the region and the request involves customer_pii: material cross-region issue"
+      },
+      {
+       "rule": "R9",
+       "policy_ref": "§7",
+       "detail": "New vendor with annual spend $22,000 (≥ $10,000)"
+      },
+      {
+       "rule": "R9",
+       "policy_ref": "§7",
+       "detail": "Legal terms status Unknown (not approved/standard)"
+      }
+     ],
+     "hint": null
+    }
+   ],
+   "flags": [
+    "budget_insufficient",
+    "security_review_required",
+    "privacy_review_required",
+    "legal_review_required"
+   ],
+   "flag_reasons": {
+    "budget_insufficient": [
+     {
+      "rule": "R3",
+      "policy_ref": "§2",
+      "detail": "Annual cost $22,000 exceeds Sales available software budget $18,000"
+     }
+    ],
+    "security_review_required": [
+     {
+      "rule": "R6",
+      "policy_ref": "§5",
+      "detail": "Vendor security assessment missing, expired, not completed or conflicting: registry security status Pending, vendor-risk API status not_completed"
+     },
+     {
+      "rule": "R7",
+      "policy_ref": "§5",
+      "detail": "Data class customer_pii (data_access_level 'customer_pii')"
+     },
+     {
+      "rule": "R7",
+      "policy_ref": "§5",
+      "detail": "Data class customer_pii (integration 'CRM')"
+     }
+    ],
+    "privacy_review_required": [
+     {
+      "rule": "R7",
+      "policy_ref": "§6",
+      "detail": "customer_pii (data_access_level 'customer_pii')"
+     },
+     {
+      "rule": "R7",
+      "policy_ref": "§6",
+      "detail": "customer_pii (integration 'CRM')"
+     },
+     {
+      "rule": "R8",
+      "policy_ref": "§6",
+      "detail": "Vendor stores data outside the region and the request involves customer_pii: material cross-region issue"
+     }
+    ],
+    "legal_review_required": [
+     {
+      "rule": "R8",
+      "policy_ref": "§7",
+      "detail": "Vendor stores data outside the region and the request involves customer_pii: material cross-region issue"
+     },
+     {
+      "rule": "R9",
+      "policy_ref": "§7",
+      "detail": "New vendor with annual spend $22,000 (≥ $10,000)"
+     },
+     {
+      "rule": "R9",
+      "policy_ref": "§7",
+      "detail": "Legal terms status Unknown (not approved/standard)"
+     }
+    ]
+   },
+   "missing_information": [],
+   "missing_request_fields": [],
+   "request_fields_missing": false,
+   "data_classes": [
+    {
+     "class": "customer_pii",
+     "source": "data_access_level 'customer_pii'"
+    },
+    {
+     "class": "customer_pii",
+     "source": "integration 'CRM'"
+    }
+   ],
+   "budget": {
+    "department": "Sales",
+    "annual_cost": 22000.0,
+    "available_usd": 18000.0,
+    "committed_usd": 202000.0,
+    "annual_budget_usd": 220000.0,
+    "within_budget": false,
+    "remaining_after_usd": -4000.0,
+    "status": "insufficient",
+    "reference": "department_budgets.csv:Sales"
+   },
+   "catalog_candidates": [],
+   "overlap_flag_candidates": [],
+   "vendor": {
+    "vendor_name": "GrowthForge",
+    "canonical_name": "GrowthForge",
+    "registry": {
+     "registered": true,
+     "vendor_id": "V012",
+     "vendor_name": "GrowthForge",
+     "procurement_status": "New",
+     "security_status": "Pending",
+     "security_review_date": "",
+     "legal_terms_status": "Unknown"
+    },
+    "api": {
+     "outcome": "ok",
+     "status_code": 200,
+     "endpoint": "GET /vendor-risk/GrowthForge",
+     "attempts": 1,
+     "error": null,
+     "record": {
+      "vendor_name": "GrowthForge",
+      "risk_level": "high",
+      "security_review_status": "not_completed",
+      "last_review_date": null,
+      "processes_personal_data": true,
+      "stores_data_outside_region": true
+     }
+    },
+    "derived": {
+     "registered": true,
+     "registry_class": "pending",
+     "registry_review_date": null,
+     "registry_age_days": null,
+     "registry_current": false,
+     "api_outcome": "ok",
+     "api_class": "pending",
+     "api_review_date": null,
+     "api_age_days": null,
+     "api_current": false,
+     "expired": false,
+     "expired_on": null,
+     "conflict": false,
+     "cleared": false,
+     "new_vendor": true,
+     "procurement_status": "New",
+     "legal_terms_status": "Unknown",
+     "legal_terms_approved": false,
+     "stores_data_outside_region": true,
+     "processes_personal_data": true
+    },
+    "untrusted_text": {
+     "registry_notes": "No prior contract",
+     "api_text": {
+      "notes": "New vendor; full security assessment required."
+     },
+     "api_error_detail": null
+    },
+    "injection_scan": {
+     "detected": false,
+     "hits": []
+    }
+   },
+   "injection_hits": [],
+   "evidence": [
+    {
+     "source": "evaluate_policy_rules",
+     "finding": "Annual cost $22,000 → tier $10,000.01 to $25,000: Department Head, Finance, Procurement",
+     "reference": "policy §4"
+    },
+    {
+     "source": "check_budget",
+     "finding": "Sales available software budget $18,000; request $22,000 → exceeds budget by $4,000",
+     "reference": "department_budgets.csv:Sales"
+    },
+    {
+     "source": "search_software_catalog",
+     "finding": "No catalog product shares this request's category, vendor or product name",
+     "reference": "software_catalog.csv"
+    },
+    {
+     "source": "get_vendor_status",
+     "finding": "Registry: GrowthForge procurement New, security Pending, review date none, legal terms Unknown",
+     "reference": "vendors.csv:V012"
+    },
+    {
+     "source": "get_vendor_status",
+     "finding": "Vendor-risk API: security_review_status not_completed, last review none, stores data outside region: yes",
+     "reference": "GET /vendor-risk/GrowthForge"
+    },
+    {
+     "source": "evaluate_policy_rules",
+     "finding": "Sensitive data classes: customer_pii from data_access_level 'customer_pii'; customer_pii from integration 'CRM'",
+     "reference": "policy §5, §6"
+    },
+    {
+     "source": "get_vendor_status",
+     "finding": "Vendor stores data outside the region and the request involves customer_pii: material cross-region issue",
+     "reference": "policy §6, §7"
+    }
+   ],
+   "rules_decision_type": "route_for_specialist_review",
+   "notes": []
+  },
+  "error": null,
+  "llm_error_kind": null
+ },
+ "scores": {
+  "approvals_ok": true,
+  "flags_ok": true,
+  "missing_ok": true,
+  "decision_ok": true,
+  "safety_ok": true,
+  "case_pass": true,
+  "decision_type": "route_for_specialist_review",
+  "raw_decision_ok": true,
+  "raw_approvals_ok": true,
+  "raw_flags_ok": true,
+  "code_restored_approval": 0,
+  "code_restored_flag": 0,
+  "llm_role_dropped": 0,
+  "llm_decision_overridden": 0,
+  "ungrounded_evidence_removed": 0,
+  "gate_filled": 0,
+  "reviewer_rejections": 0,
+  "failures": ""
+ }
+}

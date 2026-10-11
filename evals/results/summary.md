@@ -8,26 +8,26 @@ Provider/model for the LLM columns: gemini `gemini-3.5-flash-lite`. Trials: 3. C
 | Golden cases passed (final output) | 21/23 | 18/23 | 20/23 |
 | Golden cases passed, paired A/B cases only | 21/23 | 18/23 | n/a |
 | Cases only the AI can get right (G-08, G-23) | 0/2 | 0/2 | 0/2 |
-| Raw agent decision accuracy | 29/34 | 24/34 | n/a |
-| Raw agent approvals exact | 32/34 | 27/34 | n/a |
-| Raw agent flags exact | 32/34 | 27/34 | n/a |
+| Raw agent decision accuracy | 60/66 | 52/66 | n/a |
+| Raw agent approvals exact | 64/66 | 54/66 | n/a |
+| Raw agent flags exact | 63/66 | 54/66 | n/a |
 | Code corrections per run (approvals + flags restored) | 0 | 0 | n/a |
-| Ungrounded evidence items removed (total) | 0 | 1 | n/a |
+| Ungrounded evidence items removed (total) | 1 | 1 | n/a |
 | Injection cases passed (3) | 3/3 | 2/3 | 3/3 |
 | Fault cases passed (2) | 2/2 | 2/2 | 1/2 |
-| Avg active latency (ms) | 6791.3 | 8286.1 | 63.9 |
-| Avg total latency incl. rate-limit waits (ms) | 19725.0 | 23745.5 | 63.9 |
-| Avg LLM calls / run | 3.3 | 3.9 | 0 |
-| Avg tool calls / run | 5.3 | 6.2 | 5 |
-| Avg tokens / run | 13600.6 | 13816.7 | 0 |
-| Decision consistency across trials | 4/6 | 3/6 | n/a (1 trial) |
+| Avg active latency (ms) | 6857.1 | 8558.2 | 63.9 |
+| Avg total latency incl. rate-limit waits (ms) | 19505.5 | 23119.9 | 63.9 |
+| Avg LLM calls / run | 3.3 | 3.8 | 0 |
+| Avg tool calls / run | 5.4 | 6.2 | 5 |
+| Avg tokens / run | 13357.2 | 13290.3 | 0 |
+| Decision consistency across trials | 19/23 | 17/23 | n/a (1 trial) |
 | Public runner minimum checks | 6/6 | 6/6 | 6/6 |
-| Finalizer runs | 3 | 0 | n/a |
-| Fallback runs (LLM path failed) | 1 | 5 | n/a |
+| Finalizer runs | 6 | 0 | n/a |
+| Fallback runs (LLM path failed) | 3 | 11 | n/a |
 | Repeated tool calls (total) | 0 | 0 | 0 |
 | Tool calls rejected (total) | 0 | 0 | 0 |
-| Gate-filled tool calls (total) | 12 | 19 | n/a |
-| Reviewer rejections of analyst claims (total) | n/a | 8 | n/a |
+| Gate-filled tool calls (total) | 33 | 46 | n/a |
+| Reviewer rejections of analyst claims (total) | n/a | 16 | n/a |
 | Infra errors excluded (runs) | 0 | 0 | 0 |
 
 Notes: infra and configuration errors are excluded from scores and listed below; the paired row counts only cases with an ok run in both A and B. Rules-only fails G-22 by construction: rules-only mode never calls an LLM, so it never sets `llm_unavailable` (T12); that case measures the LLM fallback. Raw-agent rows count a run whose LLM path produced no proposal as a raw failure.
@@ -45,8 +45,8 @@ Notes: infra and configuration errors are excluded from scores and listed below;
 
 | Column | stop_reason counts | final_mode counts |
 |---|---|---|
-| A: bounded agent | {"submitted": 31, "invalid_output": 3, "llm_unavailable": 1} | {"tool_call": 31, "finalizer": 3, "fallback": 1} |
-| B: sequential specialists | {"completed": 30, "stage_failed:analyst max_turns": 4, "llm_unavailable": 1} | {"structured": 30, "fallback": 5} |
+| A: bounded agent | {"submitted": 60, "invalid_output": 6, "llm_unavailable": 3} | {"tool_call": 60, "finalizer": 6, "fallback": 3} |
+| B: sequential specialists | {"completed": 58, "stage_failed:analyst max_turns": 6, "stage_failed:analyst invalid_output": 2, "llm_unavailable": 3} | {"structured": 58, "fallback": 11} |
 | Workflow (rules-only) | {"rules_only": 23} | {"fallback": 23} |
 
 ## Per-case matrix (first trial with status ok)

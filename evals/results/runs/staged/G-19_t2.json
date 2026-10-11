@@ -1,0 +1,806 @@
+{
+ "case_id": "G-19",
+ "request_id": "REQ-X109",
+ "arch": "staged",
+ "trial": 2,
+ "status": "ok",
+ "fault": null,
+ "provider": "gemini",
+ "model": "gemini-3.5-flash-lite",
+ "error": null,
+ "decision": {
+  "request_id": "REQ-X109",
+  "recommendation": "Request clarification: Request clarification for missing requester department and employee identity details before proceeding with review.",
+  "evidence": [
+   {
+    "source": "get_request_details",
+    "finding": "Required request information missing: requester (unknown employee ID), department",
+    "reference": "policy §1"
+   },
+   {
+    "source": "evaluate_policy_rules",
+    "finding": "Annual cost $500 → tier up to $1,000: Manager",
+    "reference": "policy §4"
+   },
+   {
+    "source": "check_budget",
+    "finding": "Budget not checked: department unknown",
+    "reference": "department_budgets.csv"
+   },
+   {
+    "source": "search_software_catalog",
+    "finding": "Existing catalog products with the same category or product name: SW003 TaskFlow (Project Management, 180 seats, Company-wide)",
+    "reference": "software_catalog.csv:SW003"
+   },
+   {
+    "source": "get_vendor_status",
+    "finding": "Registry: TaskFlow procurement Approved, security Approved, review date 2026-06-03 (119 days before 2026-09-30), legal terms Approved",
+    "reference": "vendors.csv:V003"
+   },
+   {
+    "source": "get_vendor_status",
+    "finding": "Vendor-risk API: security_review_status approved, last review 2026-06-03, stores data outside region: no",
+    "reference": "GET /vendor-risk/TaskFlow"
+   },
+   {
+    "source": "get_request_details",
+    "finding": "Request REQ-X109 is for TaskFlow Guest Seats from vendor TaskFlow with an annual cost of $500.00 and 5 users.",
+    "reference": "REQ-X109"
+   },
+   {
+    "source": "get_request_details",
+    "finding": "Requester ID E999 is unknown and department is missing.",
+    "reference": "REQ-X109"
+   },
+   {
+    "source": "check_budget",
+    "finding": "Department budget could not be checked because the department is unknown.",
+    "reference": "department_budgets.csv"
+   },
+   {
+    "source": "search_software_catalog",
+    "finding": "Catalog has an existing approved product TaskFlow (software_id SW003) from TaskFlow for Project Management.",
+    "reference": "software_catalog.csv"
+   },
+   {
+    "source": "get_vendor_status",
+    "finding": "Vendor TaskFlow is registered with an approved procurement and security status.",
+    "reference": "GET /vendor-risk/TaskFlow"
+   }
+  ],
+  "required_approvals": [
+   "Manager"
+  ],
+  "missing_information": [
+   "requester (unknown employee ID)",
+   "department"
+  ],
+  "risk_flags": [
+   "existing_tool_overlap",
+   "missing_information"
+  ],
+  "next_step": "Contact the requester to obtain valid employee ID and department information so budget sufficiency and approvals can be determined.",
+  "human_review_required": true,
+  "telemetry": {
+   "llm_calls": 3,
+   "tool_calls": 6,
+   "tool_names": [
+    "get_request_details",
+    "check_budget",
+    "search_software_catalog",
+    "get_vendor_status",
+    "get_vendor_status",
+    "evaluate_policy_rules"
+   ]
+  }
+ },
+ "trace": {
+  "run_id": "REQ-X109-staged-4b375cf3",
+  "request_id": "REQ-X109",
+  "architecture": "staged",
+  "mode": "llm",
+  "provider": "gemini",
+  "model": "gemini-3.5-flash-lite",
+  "reference_date": "2026-09-30",
+  "created_at": "2026-10-11T15:15:20+00:00",
+  "latency_total_ms": 18954.7,
+  "llm_wait_ms": 11475.8,
+  "latency_active_ms": 7478.9,
+  "llm_ms": 7445.0,
+  "tool_ms": 27.8,
+  "llm_calls": 3,
+  "tool_calls": 6,
+  "tokens": {
+   "prompt": 8922,
+   "completion": 1345,
+   "cached": 0
+  },
+  "steps": [
+   {
+    "n": 1,
+    "actor": "code:supervisor",
+    "action": "route",
+    "summary_in": "step 0",
+    "summary_out": "analyst",
+    "route_reason": "no evidence pack yet",
+    "ms": null,
+    "tokens": null
+   },
+   {
+    "n": 2,
+    "actor": "agent:analyst",
+    "action": "llm turn 1",
+    "summary_in": "7 messages",
+    "summary_out": "get_request_details(REQ-X109) → ok; check_budget(REQ-X109) → ok; search_software_catalog(REQ-X109) → ok; get_vendor_status(Apex Analytics Inc.) → ok",
+    "route_reason": null,
+    "ms": 1439.6,
+    "tokens": {
+     "prompt": 2251,
+     "completion": 96,
+     "cached": 0
+    }
+   },
+   {
+    "n": 3,
+    "actor": "agent:analyst",
+    "action": "llm turn 2",
+    "summary_in": "7 messages",
+    "summary_out": "submit_evidence_pack: valid",
+    "route_reason": null,
+    "ms": 2651.3,
+    "tokens": {
+     "prompt": 3177,
+     "completion": 565,
+     "cached": 0
+    }
+   },
+   {
+    "n": 4,
+    "actor": "code:supervisor",
+    "action": "route",
+    "summary_in": "step 1",
+    "summary_out": "gate",
+    "route_reason": "verify required evidence ran",
+    "ms": null,
+    "tokens": null
+   },
+   {
+    "n": 5,
+    "actor": "code:gate",
+    "action": "completeness gate",
+    "summary_in": "required: get_request_details, check_budget, search_software_catalog, get_vendor_status",
+    "summary_out": "filled: get_vendor_status",
+    "route_reason": null,
+    "ms": null,
+    "tokens": null
+   },
+   {
+    "n": 6,
+    "actor": "code:supervisor",
+    "action": "route",
+    "summary_in": "step 2",
+    "summary_out": "policy_engine",
+    "route_reason": "authoritative rules not computed",
+    "ms": null,
+    "tokens": null
+   },
+   {
+    "n": 7,
+    "actor": "code:policy_engine",
+    "action": "evaluate_policy_rules",
+    "summary_in": "REQ-X109",
+    "summary_out": "approvals: Manager; flags: existing_tool_overlap, missing_information",
+    "route_reason": null,
+    "ms": null,
+    "tokens": null
+   },
+   {
+    "n": 8,
+    "actor": "code:supervisor",
+    "action": "route",
+    "summary_in": "step 3",
+    "summary_out": "reviewer",
+    "route_reason": "evidence and rules ready for independent review",
+    "ms": null,
+    "tokens": null
+   },
+   {
+    "n": 9,
+    "actor": "agent:reviewer",
+    "action": "structured review",
+    "summary_in": "evidence pack + raw tool results + policy",
+    "summary_out": "proposal: request_clarification; audit: 1 issues, 1 rejected claims",
+    "route_reason": null,
+    "ms": 3354.1,
+    "tokens": {
+     "prompt": 3494,
+     "completion": 684,
+     "cached": 0
+    }
+   },
+   {
+    "n": 10,
+    "actor": "code:supervisor",
+    "action": "route",
+    "summary_in": "step 4",
+    "summary_out": "finalize",
+    "route_reason": "all artifacts present",
+    "ms": null,
+    "tokens": null
+   },
+   {
+    "n": 11,
+    "actor": "code:guardrails",
+    "action": "merge + validate + ground",
+    "summary_in": "proposal: request_clarification",
+    "summary_out": "final: request_clarification; corrections: none",
+    "route_reason": null,
+    "ms": null,
+    "tokens": null
+   }
+  ],
+  "stop_reason": "completed",
+  "final_mode": "structured",
+  "analyst_stop_reason": "submitted",
+  "repeated_tool_calls": 0,
+  "tool_rejected": 0,
+  "event_counts": {
+   "gate_filled:get_vendor_status": 1,
+   "reviewer_rejection": 1
+  },
+  "events": [
+   {
+    "event": "gate_filled:get_vendor_status",
+    "tool": "get_vendor_status"
+   },
+   {
+    "event": "reviewer_rejection"
+   }
+  ],
+  "tool_log": [
+   {
+    "name": "get_request_details",
+    "args": {
+     "request_id": "REQ-X109"
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 2.5,
+    "cache_hit": false
+   },
+   {
+    "name": "check_budget",
+    "args": {
+     "request_id": "REQ-X109"
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 1.9,
+    "cache_hit": false
+   },
+   {
+    "name": "search_software_catalog",
+    "args": {
+     "request_id": "REQ-X109"
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 4.0,
+    "cache_hit": false
+   },
+   {
+    "name": "get_vendor_status",
+    "args": {
+     "vendor_name": "Apex Analytics Inc."
+    },
+    "initiator": "agent",
+    "status": "ok",
+    "duration_ms": 5.1,
+    "cache_hit": false
+   },
+   {
+    "name": "get_vendor_status",
+    "args": {
+     "vendor_name": "TaskFlow"
+    },
+    "initiator": "gate",
+    "status": "ok",
+    "duration_ms": 6.2,
+    "cache_hit": false
+   },
+   {
+    "name": "evaluate_policy_rules",
+    "args": {
+     "request_id": "REQ-X109"
+    },
+    "initiator": "orchestrator",
+    "status": "ok",
+    "duration_ms": 8.1,
+    "cache_hit": false
+   }
+  ],
+  "llm_call_log": [
+   {
+    "actor": "agent:analyst",
+    "latency_ms": 1439.6,
+    "wait_ms": 3598.7,
+    "attempts": 1,
+    "usage": {
+     "prompt": 2251,
+     "completion": 96,
+     "cached": 0
+    }
+   },
+   {
+    "actor": "agent:analyst",
+    "latency_ms": 2651.3,
+    "wait_ms": 4545.8,
+    "attempts": 1,
+    "usage": {
+     "prompt": 3177,
+     "completion": 565,
+     "cached": 0
+    }
+   },
+   {
+    "actor": "agent:reviewer",
+    "latency_ms": 3354.1,
+    "wait_ms": 3331.3,
+    "attempts": 1,
+    "usage": {
+     "prompt": 3494,
+     "completion": 684,
+     "cached": 0
+    }
+   }
+  ],
+  "proposals": [
+   {
+    "actor": "agent:analyst",
+    "final_mode": "tool_call",
+    "proposal": {
+     "need_summary": "The requester needs guest seats for an external agency on campaign boards.",
+     "data_classes_implied": [
+      "internal_documents"
+     ],
+     "overlap_assessment": [
+      {
+       "software_id": "SW003",
+       "relationship": "same_product_expansion",
+       "covers_stated_need": false,
+       "reason": "The request is for TaskFlow Guest Seats which is an expansion or additional seats/tier for TaskFlow (SW003), an already licensed product."
+      }
+     ],
+     "vendor_observations": [
+      "Vendor status was checked for Apex Analytics Inc. (not TaskFlow), returning not registered and not found (404). Note that the request vendor is TaskFlow."
+     ],
+     "uncertainties": [
+      "Requester department and identity verification are missing.",
+      "Budget availability is unknown due to missing department.",
+      "Vendor risk status for vendor TaskFlow was not directly queried (vendor status queried for Apex Analytics Inc.)."
+     ],
+     "injection_observed": false,
+     "injection_excerpt": null,
+     "evidence": [
+      {
+       "source": "get_request_details",
+       "finding": "Request REQ-X109 is for TaskFlow Guest Seats from vendor TaskFlow ($500.00 annual cost, 5 users).",
+       "reference": "REQ-X109"
+      },
+      {
+       "source": "get_request_details",
+       "finding": "Requester ID E999 is unknown and department is missing.",
+       "reference": "REQ-X109"
+      },
+      {
+       "source": "check_budget",
+       "finding": "Department budget could not be checked because the department is unknown.",
+       "reference": "REQ-X109"
+      },
+      {
+       "source": "search_software_catalog",
+       "finding": "Catalog has an existing approved product TaskFlow (software_id SW003) from TaskFlow for Project Management.",
+       "reference": "SW003"
+      },
+      {
+       "source": "get_vendor_status",
+       "finding": "Vendor Apex Analytics Inc. has no internal registry record and no vendor-risk record (404 Not Found).",
+       "reference": "Apex Analytics Inc."
+      }
+     ],
+     "gaps": [
+      "Requester ID E999 is unknown and department is missing.",
+      "Department budget status cannot be determined due to missing department.",
+      "Vendor risk and registry status could not be verified for Apex Analytics Inc. (Note: Request is for vendor TaskFlow, but vendor status was checked for Apex Analytics Inc. based on vendor_name input or request mismatch)."
+     ],
+     "unsupported_or_unverified": [
+      "Requester identity (E999) and department association.",
+      "Budget sufficiency for the requesting department."
+     ]
+    }
+   },
+   {
+    "actor": "agent:reviewer",
+    "final_mode": "structured",
+    "proposal": {
+     "decision_type": "request_clarification",
+     "recommendation": "Request clarification for missing requester department and employee identity details before proceeding with review.",
+     "next_step": "Contact the requester to obtain valid employee ID and department information so budget sufficiency and approvals can be determined.",
+     "required_approvals": [
+      {
+       "role": "Manager",
+       "reason": "R4 §4: Annual cost $500 is in the up to $1,000 tier"
+      }
+     ],
+     "risk_flags": [
+      "existing_tool_overlap",
+      "missing_information"
+     ],
+     "missing_information": [
+      "requester (unknown employee ID)",
+      "department"
+     ],
+     "overlap_assessment": [
+      {
+       "software_id": "SW003",
+       "relationship": "same_product_expansion",
+       "covers_stated_need": false,
+       "reason": "The request is for TaskFlow Guest Seats which is an expansion or additional seats/tier for TaskFlow (SW003), an already licensed product."
+      }
+     ],
+     "evidence": [
+      {
+       "source": "get_request_details",
+       "finding": "Request REQ-X109 is for TaskFlow Guest Seats from vendor TaskFlow with an annual cost of $500.00 and 5 users.",
+       "reference": "REQ-X109"
+      },
+      {
+       "source": "get_request_details",
+       "finding": "Requester ID E999 is unknown and department is missing.",
+       "reference": "REQ-X109"
+      },
+      {
+       "source": "check_budget",
+       "finding": "Department budget could not be checked because the department is unknown.",
+       "reference": "department_budgets.csv"
+      },
+      {
+       "source": "search_software_catalog",
+       "finding": "Catalog has an existing approved product TaskFlow (software_id SW003) from TaskFlow for Project Management.",
+       "reference": "software_catalog.csv"
+      },
+      {
+       "source": "get_vendor_status",
+       "finding": "Vendor TaskFlow is registered with an approved procurement and security status.",
+       "reference": "GET /vendor-risk/TaskFlow"
+      }
+     ],
+     "injection_observed": false,
+     "injection_excerpt": null,
+     "analyst_audit": {
+      "issues_found": [
+       "Analyst included an unnecessary secondary vendor status check for Apex Analytics Inc. due to a tool query mix-up, although correctly noted in text."
+      ],
+      "rejected_claims": [
+       "Vendor risk and registry status could not be verified for vendor TaskFlow (vendor status was successfully retrieved for TaskFlow as registered and approved)."
+      ],
+      "agrees_with_overlap_assessment": true
+     }
+    }
+   }
+  ],
+  "evidence_pack": {
+   "need_summary": "The requester needs guest seats for an external agency on campaign boards.",
+   "data_classes_implied": [
+    "internal_documents"
+   ],
+   "overlap_assessment": [
+    {
+     "software_id": "SW003",
+     "relationship": "same_product_expansion",
+     "covers_stated_need": false,
+     "reason": "The request is for TaskFlow Guest Seats which is an expansion or additional seats/tier for TaskFlow (SW003), an already licensed product."
+    }
+   ],
+   "vendor_observations": [
+    "Vendor status was checked for Apex Analytics Inc. (not TaskFlow), returning not registered and not found (404). Note that the request vendor is TaskFlow."
+   ],
+   "uncertainties": [
+    "Requester department and identity verification are missing.",
+    "Budget availability is unknown due to missing department.",
+    "Vendor risk status for vendor TaskFlow was not directly queried (vendor status queried for Apex Analytics Inc.)."
+   ],
+   "injection_observed": false,
+   "injection_excerpt": null,
+   "evidence": [
+    {
+     "source": "get_request_details",
+     "finding": "Request REQ-X109 is for TaskFlow Guest Seats from vendor TaskFlow ($500.00 annual cost, 5 users).",
+     "reference": "REQ-X109"
+    },
+    {
+     "source": "get_request_details",
+     "finding": "Requester ID E999 is unknown and department is missing.",
+     "reference": "REQ-X109"
+    },
+    {
+     "source": "check_budget",
+     "finding": "Department budget could not be checked because the department is unknown.",
+     "reference": "REQ-X109"
+    },
+    {
+     "source": "search_software_catalog",
+     "finding": "Catalog has an existing approved product TaskFlow (software_id SW003) from TaskFlow for Project Management.",
+     "reference": "SW003"
+    },
+    {
+     "source": "get_vendor_status",
+     "finding": "Vendor Apex Analytics Inc. has no internal registry record and no vendor-risk record (404 Not Found).",
+     "reference": "Apex Analytics Inc."
+    }
+   ],
+   "gaps": [
+    "Requester ID E999 is unknown and department is missing.",
+    "Department budget status cannot be determined due to missing department.",
+    "Vendor risk and registry status could not be verified for Apex Analytics Inc. (Note: Request is for vendor TaskFlow, but vendor status was checked for Apex Analytics Inc. based on vendor_name input or request mismatch)."
+   ],
+   "unsupported_or_unverified": [
+    "Requester identity (E999) and department association.",
+    "Budget sufficiency for the requesting department."
+   ]
+  },
+  "analyst_audit": {
+   "issues_found": [
+    "Analyst included an unnecessary secondary vendor status check for Apex Analytics Inc. due to a tool query mix-up, although correctly noted in text."
+   ],
+   "rejected_claims": [
+    "Vendor risk and registry status could not be verified for vendor TaskFlow (vendor status was successfully retrieved for TaskFlow as registered and approved)."
+   ],
+   "agrees_with_overlap_assessment": true
+  },
+  "guardrails": {
+   "questions_for_reviewer": [],
+   "ungrounded_evidence": [],
+   "llm_added_reviews": [],
+   "approval_reasons": {
+    "Manager": [
+     {
+      "rule": "R4",
+      "policy_ref": "§4",
+      "detail": "Annual cost $500 is in the up to $1,000 tier"
+     }
+    ]
+   },
+   "used_template_recommendation": false,
+   "used_template_next_step": false,
+   "decision_type": "request_clarification",
+   "overlap_covering": [],
+   "deterministic_evidence": 6
+  },
+  "policy": {
+   "request_id": "REQ-X109",
+   "reference_date": "2026-09-30",
+   "policy_version": "2026.09",
+   "requester": {
+    "id": "E999",
+    "known": false,
+    "name": null,
+    "department": null,
+    "level": null,
+    "manager_hint": null,
+    "department_head_hint": null
+   },
+   "department": null,
+   "annual_cost_usd": 500.0,
+   "tier": "up to $1,000",
+   "tier_roles": [
+    "Manager"
+   ],
+   "approvals": [
+    {
+     "role": "Manager",
+     "reasons": [
+      {
+       "rule": "R4",
+       "policy_ref": "§4",
+       "detail": "Annual cost $500 is in the up to $1,000 tier"
+      }
+     ],
+     "hint": null
+    }
+   ],
+   "flags": [
+    "existing_tool_overlap",
+    "missing_information"
+   ],
+   "flag_reasons": {
+    "existing_tool_overlap": [
+     {
+      "rule": "R5",
+      "policy_ref": "§3",
+      "detail": "Same category or identical product in catalog: SW003"
+     }
+    ],
+    "missing_information": [
+     {
+      "rule": "R1",
+      "policy_ref": "§1",
+      "detail": "Missing: requester (unknown employee ID), department"
+     }
+    ]
+   },
+   "missing_information": [
+    "requester (unknown employee ID)",
+    "department"
+   ],
+   "missing_request_fields": [
+    "requester (unknown employee ID)",
+    "department"
+   ],
+   "request_fields_missing": true,
+   "data_classes": [],
+   "budget": {
+    "department": null,
+    "annual_cost": 500.0,
+    "available_usd": null,
+    "committed_usd": null,
+    "annual_budget_usd": null,
+    "within_budget": null,
+    "remaining_after_usd": null,
+    "status": "not_checked",
+    "reference": "department_budgets.csv",
+    "reason": "department unknown"
+   },
+   "catalog_candidates": [
+    {
+     "software_id": "SW003",
+     "product_name": "TaskFlow",
+     "category": "Project Management",
+     "vendor_name": "TaskFlow",
+     "status": "Approved",
+     "annual_cost_usd": 36000.0,
+     "licensed_seats": 180,
+     "scope": "Company-wide",
+     "match": [
+      "same_category",
+      "same_vendor"
+     ],
+     "overlap_flag": true,
+     "purchase_history": [
+      {
+       "purchase_id": "PO-2501",
+       "purchase_date": "2026-06-22",
+       "department": "Operations",
+       "annual_amount_usd": 36000.0,
+       "status": "Approved",
+       "untrusted_text": {
+        "notes": "Company-wide agreement"
+       }
+      }
+     ]
+    }
+   ],
+   "overlap_flag_candidates": [
+    "SW003"
+   ],
+   "vendor": {
+    "vendor_name": "TaskFlow",
+    "canonical_name": "TaskFlow",
+    "registry": {
+     "registered": true,
+     "vendor_id": "V003",
+     "vendor_name": "TaskFlow",
+     "procurement_status": "Approved",
+     "security_status": "Approved",
+     "security_review_date": "2026-06-03",
+     "legal_terms_status": "Approved"
+    },
+    "api": {
+     "outcome": "ok",
+     "status_code": 200,
+     "endpoint": "GET /vendor-risk/TaskFlow",
+     "attempts": 1,
+     "error": null,
+     "record": {
+      "vendor_name": "TaskFlow",
+      "risk_level": "low",
+      "security_review_status": "approved",
+      "last_review_date": "2026-06-03",
+      "processes_personal_data": true,
+      "stores_data_outside_region": false
+     }
+    },
+    "derived": {
+     "registered": true,
+     "registry_class": "approved",
+     "registry_review_date": "2026-06-03",
+     "registry_age_days": 119,
+     "registry_current": true,
+     "api_outcome": "ok",
+     "api_class": "approved",
+     "api_review_date": "2026-06-03",
+     "api_age_days": 119,
+     "api_current": true,
+     "expired": false,
+     "expired_on": null,
+     "conflict": false,
+     "cleared": true,
+     "new_vendor": false,
+     "procurement_status": "Approved",
+     "legal_terms_status": "Approved",
+     "legal_terms_approved": true,
+     "stores_data_outside_region": false,
+     "processes_personal_data": true
+    },
+    "untrusted_text": {
+     "registry_notes": "Standard vendor",
+     "api_text": {
+      "notes": "Current assessment."
+     },
+     "api_error_detail": null
+    },
+    "injection_scan": {
+     "detected": false,
+     "hits": []
+    }
+   },
+   "injection_hits": [],
+   "evidence": [
+    {
+     "source": "get_request_details",
+     "finding": "Required request information missing: requester (unknown employee ID), department",
+     "reference": "policy §1"
+    },
+    {
+     "source": "evaluate_policy_rules",
+     "finding": "Annual cost $500 → tier up to $1,000: Manager",
+     "reference": "policy §4"
+    },
+    {
+     "source": "check_budget",
+     "finding": "Budget not checked: department unknown",
+     "reference": "department_budgets.csv"
+    },
+    {
+     "source": "search_software_catalog",
+     "finding": "Existing catalog products with the same category or product name: SW003 TaskFlow (Project Management, 180 seats, Company-wide)",
+     "reference": "software_catalog.csv:SW003"
+    },
+    {
+     "source": "get_vendor_status",
+     "finding": "Registry: TaskFlow procurement Approved, security Approved, review date 2026-06-03 (119 days before 2026-09-30), legal terms Approved",
+     "reference": "vendors.csv:V003"
+    },
+    {
+     "source": "get_vendor_status",
+     "finding": "Vendor-risk API: security_review_status approved, last review 2026-06-03, stores data outside region: no",
+     "reference": "GET /vendor-risk/TaskFlow"
+    }
+   ],
+   "rules_decision_type": "request_clarification",
+   "notes": []
+  },
+  "error": null,
+  "llm_error_kind": null
+ },
+ "scores": {
+  "approvals_ok": true,
+  "flags_ok": true,
+  "missing_ok": true,
+  "decision_ok": true,
+  "safety_ok": true,
+  "case_pass": true,
+  "decision_type": "request_clarification",
+  "raw_decision_ok": true,
+  "raw_approvals_ok": true,
+  "raw_flags_ok": true,
+  "code_restored_approval": 0,
+  "code_restored_flag": 0,
+  "llm_role_dropped": 0,
+  "llm_decision_overridden": 0,
+  "ungrounded_evidence_removed": 0,
+  "gate_filled": 1,
+  "reviewer_rejections": 1,
+  "failures": ""
+ }
+}
