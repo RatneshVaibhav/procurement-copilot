@@ -126,18 +126,21 @@ Further judgement calls made during the build are recorded in `docs/DECISIONS.md
 
 | Metric | A: bounded agent | B: sequential specialists | Workflow (rules-only) |
 |---|---:|---:|---:|
-| Golden cases passed (final output) | 11/12 | 5/7 | 20/23 |
-| Golden cases passed, paired A/B cases only | 6/7 | 5/7 | n/a |
+| Golden cases passed (final output) | 11/12 | 7/10 | 20/23 |
+| Golden cases passed, paired A/B cases only | 9/10 | 7/10 | n/a |
 | Cases only the AI can get right (G-08, G-23) | 1/2 | 1/2 | 0/2 |
-| Raw agent decision accuracy | 11/11 | 6/6 | n/a |
+| Injection cases passed (3) | 1/1 (2 not run) | 1/1 (2 not run) | 3/3 |
+| Fault cases passed (2) | 1/1 (1 not run) | 1/1 (1 not run) | 1/2 |
+| Raw agent decision accuracy | 11/11 | 9/9 | n/a |
 | Ungrounded evidence items removed (total) | 0 | 5 | n/a |
-| Avg active latency (ms) | 7498.0 | 7347.9 | 87.9 |
-| Avg LLM calls / run | 2.8 | 3.4 | 0 |
-| Avg tokens / run | 11526.6 | 12693.9 | 0 |
-| Public runner minimum checks | 6/6 | 3/3 | 6/6 |
-| Infra errors excluded (runs) | 3 | 1 | 0 |
+| Avg active latency (ms) | 7498.0 | 7456.5 | 63.5 |
+| Avg LLM calls / run | 2.8 | 3.6 | 0 |
+| Avg tool calls / run | 5.1 | 5 | 5 |
+| Avg tokens / run | 11526.6 | 13326 | 0 |
+| Public runner minimum checks | 6/6 | 5/5 | 6/6 |
+| Infra errors excluded (runs) | 3 | 3 | 0 |
 
-**Coverage (important).** The free-tier daily token cap (200K tokens/day per model on Groq) stopped the LLM eval before all 22 LLM cases ran for both architectures. A completed 12 cases and B 7; the 7 paired cases (G-01, G-02, G-06, G-07, G-08, G-22, G-23) include the existing-tool, injection, conflict, LLM-outage and PII-in-text scenarios. Rules-only covers all 23. Failures: A missed G-23 (did not add Security for customer PII implied by the text); B missed G-07 (judged the existing tool as covering an "Advanced" tier with a stated new capability) and G-23 (added no review). Every failure with its reason is listed in `summary.md`.
+**Coverage (important).** The free-tier daily token cap (200K tokens/day per model on Groq) stopped the LLM eval before all 22 LLM cases ran for both architectures. A completed 12 cases and B 10; the 10 paired cases (G-01, G-02, G-04, G-05, G-06, G-07, G-08, G-09, G-22, G-23) include the existing-tool, overlap, PII, injection, conflict, budget, API-outage and LLM-outage scenarios. Rules-only covers all 23. Failures: A missed G-23 (did not add Security for customer PII implied only by the text); B missed G-04 and G-07 (both agents judged an existing product as covering the need, so code chose `use_existing_tool` by R12; B's reviewer had proposed specialist review) and G-23 (added no review). Approvals, flags and human review were correct in every LLM run except G-23. Every failure with its reason is listed in `summary.md`; the manual review is in `evals/results/manual_review.md`.
 
 **Reproduce.**
 
@@ -148,7 +151,7 @@ python evals/run_all.py --provider groq --model qwen/qwen3.8-27b --reasoning-eff
 python evals/render_walkthroughs.py
 ```
 
-**Budget and infra.** The free tiers are tight (D-17): Groq `openai/gpt-oss-20b` makes one tool call per turn, so an A run took 7 calls and about 17K tokens against a 200K-tokens/day limit. The reported numbers therefore come from Gemini 2.5 Flash (free tier), with Groq used for development checks only. The harness prints tokens per run and a projection, stops after two consecutive infra errors, and resumes.
+**Budget and infra.** The free tiers are tight. Groq `openai/gpt-oss-20b` makes one tool call per turn (an A run took 7 calls and about 17K tokens), and Gemini 2.5 Flash's free tier allows 20 requests/day on this project. The reported numbers therefore come from Groq `qwen/qwen3.8-27b` for both architectures (D-20); gpt-oss-20b and Gemini were used for development checks only. The binding limit is Groq's 200K tokens/day per model, against about 12K–16K tokens per LLM run. The harness prints tokens per run and a projection, records rate-limit stops as `infra_error` (never as model failures), stops after consecutive infra errors and resumes with `--resume --retry-infra`.
 
 ## 8. Architecture comparison
 
@@ -158,12 +161,12 @@ Step-by-step A vs B traces for five representative scenarios (overlap + new vend
 
 Pre-registered rule (`evals/DECISION_RULE.md`, committed before the first LLM run): ship B only if B passes at least 2 more golden cases than A on final output, or fixes a `safety_ok` failure that A has, **and** B's average active latency is at most 2× A's; otherwise ship A.
 
-**Applied:** on the 7 paired cases A passes 6 and B passes 5, so clause (a) fails (B is not 2 or more cases ahead and fixes no `safety_ok` failure). **Ship A.** A also beats the rules-only workflow on the same 7 cases (per-case matrix in `summary.md`: rules-only fails G-08, G-22 and G-23 there). B's independent reviewer removed 5 ungrounded evidence items that A never produced, but it added calls and tokens without improving the final decisions on this sample. The sample is small; with more quota we would re-run all 22 LLM cases for both architectures (`--resume`).
+**Applied** (in code, `evals/score.py` `decision_rule()`; pass counts, latency and the rules-only comparison all use the paired cases): on the 10 paired cases A passes 9 and B passes 7, so clause (a) fails (B is not 2 or more cases ahead and fixes no `safety_ok` failure). Clause (b) holds (B/A active latency 0.93). **Ship A.** A also beats the rules-only workflow on the same 10 cases (9 vs 7; rules-only fails G-08, G-22 and G-23 there). B's independent reviewer removed 5 ungrounded evidence items that A never produced, but it added calls and tokens, and its two extra failures came from the analyst's overlap judgement, which the reviewer repeated rather than corrected. The sample is small; with more quota we would re-run all 22 LLM cases for both architectures (`--resume`).
 
 ## 10. Known limitations
 
 - F §9 open questions (budget shortfall blocking, SSO, Department Head without a Director, limited-use AI tools).
 - AC-2.2 status grounding gap (D-07.7): the grounding check verifies numbers, dates and IDs, not status words.
-- Partial LLM coverage: free-tier daily token caps stopped the eval at 12 cases for A and 7 for B (paired comparison on 7 cases); single trial, so no consistency figure.
+- Partial LLM coverage: free-tier daily token caps stopped the eval at 12 cases for A and 10 for B (paired comparison on 10 cases); single trial, so no consistency figure.
 - G-23 shows the agents do not reliably add Security/Privacy for personal data implied only by free text.
 - Free-tier rate limits make runs slow (about 2 minutes per run including waits); small eval set; no real integrations.

@@ -7,7 +7,7 @@
  "fault": null,
  "provider": "groq",
  "model": "qwen/qwen3.8-27b",
- "error": "LLMRateLimited: rate limited after 1 attempt(s): Error code: 429 - {'error': {'message': 'Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01khzth47sfed9ghhvb36vmfnb` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 198231, Requested 4065. Please try again in 16m31.872s. Need more tokens? Upgrade to Dev Tier",
+ "error": "LLMRateLimited: rate limited after 1 attempt(s): Error code: 429 - {'error': {'message': 'Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_[redacted]` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 198231, Requested 4065. Please try again in 16m31.872s. Need more tokens? Upgrade to Dev Tier",
  "decision": {
   "request_id": "REQ-X101",
   "recommendation": "Route for approval: Request is complete and within policy; route to the approvers for this cost tier.",
@@ -426,7 +426,7 @@
    "rules_decision_type": "route_for_approval",
    "notes": []
   },
-  "error": "LLMRateLimited: rate limited after 1 attempt(s): Error code: 429 - {'error': {'message': 'Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01khzth47sfed9ghhvb36vmfnb` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 198231, Requested 4065. Please try again in 16m31.872s. Need more tokens? Upgrade to Dev Tier",
+  "error": "LLMRateLimited: rate limited after 1 attempt(s): Error code: 429 - {'error': {'message': 'Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_[redacted]` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 198231, Requested 4065. Please try again in 16m31.872s. Need more tokens? Upgrade to Dev Tier",
   "llm_error_kind": "rate_limited"
  },
  "scores": {

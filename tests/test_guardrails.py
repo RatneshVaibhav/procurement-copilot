@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+from types import SimpleNamespace
 
 from helpers import in_process_vendor_api
 from src import guardrails, tools
@@ -174,6 +175,16 @@ class EvidenceTests(unittest.TestCase):
             tools.execute("get_vendor_status", {"vendor_name": "Vendor 77777"}, ctx, actor="single")
         for finding in ["Spend is $99,999", "Vendor ZZZ9999 is listed", "Vendor 77777 has no record"]:
             self.assertFalse(guardrails.is_grounded(EvidenceProposal(source="copilot_analysis", finding=finding), ctx)[0])
+
+    def test_grounding_accepts_a_decimal_as_written(self):
+        ctx = SimpleNamespace(tool_log=[{"name": "get_vendor_status", "status": "ok"}],
+                              evidence_corpus='{"notes": "SDK version 3.10 assessed", "annual_cost": 8000.0}')
+        cases = {"SDK version 3.10 was assessed": True,   # raw form in the tool text
+                 "SDK version 3.1 was assessed": False,    # not the same number
+                 "Annual cost $8,000.00": True}            # canonical form vs 8000.0
+        for finding, expected in cases.items():
+            with self.subTest(finding=finding):
+                self.assertEqual(guardrails.is_grounded(EvidenceProposal(source="get_vendor_status", finding=finding), ctx)[0], expected)
 
     def test_grounding_tokens(self):
         self.assertEqual(guardrails.grounding_tokens("$12,000 on 2026-09-30 for SW001"), ["12000", "2026", "09", "30", "SW001"])

@@ -16,6 +16,7 @@ import csv
 import importlib.util
 import json
 import os
+import re
 import sys
 import time
 from pathlib import Path
@@ -115,6 +116,9 @@ def should_skip(prev: dict | None, resume: bool, retry_infra: bool) -> bool:
     return prev["status"] == "ok" or (prev["status"] == "infra_error" and not retry_infra)
 
 
+ORG_ID = re.compile(r"\borg_[A-Za-z0-9]{8,}")
+
+
 def run_case(case: dict, arch: str, trial: int, results: Path, run=None) -> dict:
     run = run or handle_request_with_trace
     mode = "rules_only" if arch == "rules_only" else "llm"
@@ -131,8 +135,14 @@ def run_case(case: dict, arch: str, trial: int, results: Path, run=None) -> dict
     }
     path = run_path(results, arch, case["case_id"], trial)
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(record, indent=1, ensure_ascii=False, default=str), encoding="utf-8")
-    return record
+    text = redact(json.dumps(record, indent=1, ensure_ascii=False, default=str))
+    path.write_text(text, encoding="utf-8")
+    return json.loads(text)
+
+
+def redact(text: str) -> str:
+    """Provider error bodies carry the account's organisation ID; stored results are committed, so drop it."""
+    return ORG_ID.sub("org_[redacted]", text)
 
 
 def row_of(rec: dict) -> dict:

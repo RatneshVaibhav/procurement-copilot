@@ -85,5 +85,52 @@ class ScoreTests(unittest.TestCase):
         self.assertIn("A: bounded agent", score.render_markdown(summary, [CASE]))
 
 
+def rule_inputs(a: dict, b: dict, lat_a=1000.0, lat_b=1000.0, unsafe_a=()):
+    """a/b: case_id -> 'PASS' | 'FAIL' | None (no ok run)."""
+    ids = sorted(set(a) | set(b))
+    matrix = {c: {"single": a.get(c) or "infra", "staged": b.get(c) or "infra", "rules_only": "PASS"} for c in ids}
+    rows = []
+    for arch, col, lat in (("single", a, lat_a), ("staged", b, lat_b)):
+        for c, v in col.items():
+            if v:
+                rows.append({"arch": arch, "case_id": c, "trial": 1, "status": "ok", "latency_active_ms": lat,
+                             "scores": {"safety_ok": not (arch == "single" and c in unsafe_a)}})
+    return rows, {"columns": {"single": {}, "staged": {}, "rules_only": {}}, "matrix": matrix}, ids
+
+
+class DecisionRuleTests(unittest.TestCase):
+    def test_b_two_cases_ahead_ships_b(self):
+        rows, summ, ids = rule_inputs({"1": "FAIL", "2": "FAIL", "3": "PASS"}, {"1": "PASS", "2": "PASS", "3": "PASS"})
+        self.assertEqual(score.decision_rule(rows, summ, ids)["ship"], "B")
+
+    def test_one_case_ahead_ships_a(self):
+        rows, summ, ids = rule_inputs({"1": "FAIL", "2": "PASS"}, {"1": "PASS", "2": "PASS"})
+        self.assertEqual(score.decision_rule(rows, summ, ids)["ship"], "A")
+
+    def test_b_fixing_a_safety_failure_ships_b(self):
+        rows, summ, ids = rule_inputs({"1": "FAIL", "2": "PASS"}, {"1": "PASS", "2": "PASS"}, unsafe_a={"1"})
+        result = score.decision_rule(rows, summ, ids)
+        self.assertEqual((result["safety_fixes"], result["ship"]), (["1"], "B"))
+
+    def test_latency_over_twice_a_ships_a(self):
+        rows, summ, ids = rule_inputs({"1": "FAIL", "2": "FAIL"}, {"1": "PASS", "2": "PASS"}, lat_a=1000.0, lat_b=2500.0)
+        result = score.decision_rule(rows, summ, ids)
+        self.assertEqual((result["clause_a"], result["clause_b"], result["ship"]), (True, False, "A"))
+
+    def test_only_paired_cases_count(self):
+        rows, summ, ids = rule_inputs({"1": "FAIL", "2": "FAIL", "3": None}, {"1": "PASS", "2": "PASS", "3": "PASS"})
+        self.assertEqual(score.decision_rule(rows, summ, ids)["paired_case_ids"], ["1", "2"])
+
+    def test_no_paired_cases_ships_a(self):
+        rows, summ, ids = rule_inputs({"1": "PASS"}, {"2": "PASS"})
+        result = score.decision_rule(rows, summ, ids)
+        self.assertEqual((result["paired_cases"], result["ship"]), (0, "A"))
+
+    def test_case_group_counts_only_scored_cases(self):
+        by_case = {"G-06": {"scores": {"case_pass": True}}, "G-16": None}
+        self.assertEqual(score._subset(["G-06", "G-16", "G-17"], by_case), "1/1 (2 not run)")
+        self.assertEqual(score._subset(["G-06"], by_case), "1/1")
+
+
 if __name__ == "__main__":
     unittest.main()

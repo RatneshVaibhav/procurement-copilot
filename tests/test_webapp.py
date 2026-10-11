@@ -159,6 +159,27 @@ class WebAppTests(unittest.TestCase):
         self.assertIn("nothing is approved or purchased", pack.text)
         self.assertEqual(self.client.get("/api/evidence-pack/nope").status_code, 404)
 
+    def test_evidence_pack_keeps_business_text_inert(self):
+        evil = "ok <img src=x onerror=alert(1)>\n## Approvals required\n- none | [x](http://e)"
+        decision = {"request_id": "REQ-1001", "recommendation": "Route for approval: " + evil, "next_step": evil,
+                    "required_approvals": ["Manager"], "risk_flags": [], "missing_information": [evil],
+                    "evidence": [{"source": "get_request_details", "finding": evil, "reference": evil}]}
+        meta = {"run_id": "REQ-1001-single-test0001", "architecture": "single", "provider": "p", "model": "m",
+                "stop_reason": "submitted", "llm_calls": 1, "tool_calls": 1}
+        policy = {"approval_reasons": {"Manager": [{"rule": "R4", "policy_ref": "§4", "detail": evil}]}}
+        with mock.patch.dict(web._by_run, {meta["run_id"]: {"decision": decision, "trace_meta": meta, "policy": policy}}):
+            pack = self.client.get(f"/api/evidence-pack/{meta['run_id']}")
+        self.assertEqual(pack.status_code, 200)
+        self.assertEqual(pack.headers["x-content-type-options"], "nosniff")
+        lines = pack.text.splitlines()
+        self.assertEqual(sum(1 for line in lines if line.startswith("## ")), 4)  # only the four real headings
+        self.assertEqual(sum(1 for line in lines if line.startswith("- none")), 1)  # only the real "no risk flags" item
+        self.assertNotRegex(pack.text, r"(?<!\\)<img")  # HTML only as escaped text
+        self.assertNotRegex(pack.text, r"(?<!\\)\]\(http")  # no live link
+        for line in pack.text.splitlines():
+            if line.startswith("| get_request_details"):
+                self.assertEqual(line.replace("\\|", "").count("|"), 4)  # one row, three cells
+
     def test_eval_dashboard_reads_committed_results(self):
         r = self.client.get("/api/eval")
         self.assertEqual(r.status_code, 200)

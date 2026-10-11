@@ -76,6 +76,14 @@ class RunAllTests(unittest.TestCase):
             rec = run_all.run_case(GOLDEN["G-01"], "single", 1, Path(tmp), run=stub_run(kind="not_configured"))
         self.assertEqual(rec["status"], "config_error")
 
+    def test_provider_org_id_is_redacted_in_stored_runs(self):
+        fake = "Rate limit reached in organization `org_01abcdefghijklmnopqrst` on tokens per day"
+        with tempfile.TemporaryDirectory() as tmp:
+            rec = run_all.run_case(GOLDEN["G-01"], "single", 1, Path(tmp), run=stub_run(kind=fake))
+            stored = run_all.run_path(Path(tmp), "single", "G-01", 1).read_text(encoding="utf-8")
+        self.assertNotIn("org_01abcdefghijklmnopqrst", stored)
+        self.assertIn("org_[redacted]", rec["error"])
+
 
 if __name__ == "__main__":
     unittest.main()

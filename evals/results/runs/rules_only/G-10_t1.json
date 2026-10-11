@@ -58,19 +58,19 @@
   }
  },
  "trace": {
-  "run_id": "REQ-1010-single-0e671dee",
+  "run_id": "REQ-1010-single-2446df11",
   "request_id": "REQ-1010",
   "architecture": "single",
   "mode": "rules_only",
   "provider": "groq",
   "model": "openai/gpt-oss-20b",
   "reference_date": "2026-09-30",
-  "created_at": "2026-10-10T16:46:49+00:00",
-  "latency_total_ms": 47.0,
+  "created_at": "2026-10-11T01:11:16+00:00",
+  "latency_total_ms": 19.4,
   "llm_wait_ms": 0,
-  "latency_active_ms": 47.0,
+  "latency_active_ms": 19.4,
   "llm_ms": 0,
-  "tool_ms": 45.1,
+  "tool_ms": 18.7,
   "llm_calls": 0,
   "tool_calls": 5,
   "tokens": {
@@ -152,7 +152,7 @@
     },
     "initiator": "gate",
     "status": "ok",
-    "duration_ms": 4.6,
+    "duration_ms": 2.3,
     "cache_hit": false
    },
    {
@@ -162,7 +162,7 @@
     },
     "initiator": "gate",
     "status": "ok",
-    "duration_ms": 7.2,
+    "duration_ms": 3.0,
     "cache_hit": false
    },
    {
@@ -172,7 +172,7 @@
     },
     "initiator": "gate",
     "status": "ok",
-    "duration_ms": 5.7,
+    "duration_ms": 2.4,
     "cache_hit": false
    },
    {
@@ -182,7 +182,7 @@
     },
     "initiator": "gate",
     "status": "ok",
-    "duration_ms": 8.4,
+    "duration_ms": 3.8,
     "cache_hit": false
    },
    {
@@ -192,7 +192,7 @@
     },
     "initiator": "gate",
     "status": "ok",
-    "duration_ms": 19.2,
+    "duration_ms": 7.2,
     "cache_hit": false
    }
   ],

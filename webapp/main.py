@@ -26,6 +26,7 @@ AUDIT_LOG = RUNTIME / "audit_log.jsonl"
 TRACE_DIR = RUNTIME / "traces"
 EVAL_DIR = ROOT / "evals"
 RESULTS_DIR = EVAL_DIR / "results"
+MD_SPECIAL = re.compile(r"([\\`\[\]<>|])")  # escaped in the Markdown evidence pack
 
 ACTIONS = ["send_for_approvals", "request_clarification", "suggest_existing_tool", "hold_manual_review"]
 RECOMMENDED_ACTION = {
@@ -313,6 +314,11 @@ def compare(body: AnalyzeBody) -> dict:
 
 
 # ---------------------------------------------------------------- evidence pack for approvers
+def _md(text) -> str:
+    """Business or LLM text as inert Markdown: one line (no forged headings or rows), no HTML, links or code spans."""
+    return MD_SPECIAL.sub(r"\\\1", " ".join(str(text or "").split()))
+
+
 @app.get("/api/evidence-pack/{run_id}", response_class=PlainTextResponse)
 def evidence_pack(run_id: str) -> PlainTextResponse:
     """Markdown evidence pack for one analysis: what an approver would receive. Nothing is sent anywhere."""
@@ -320,19 +326,19 @@ def evidence_pack(run_id: str) -> PlainTextResponse:
     if run is None:
         raise HTTPException(404, "Unknown run; analyse the request again.")
     d, m, reasons = run["decision"], run["trace_meta"], run["policy"]["approval_reasons"]
-    lines = [f"# Evidence pack: {d['request_id']}", "",
-             f"Copilot recommendation (advisory; nothing is approved or purchased): {d['recommendation']}", "",
-             f"Next step: {d['next_step']}", "", "## Approvals required", ""]
+    lines = [f"# Evidence pack: {_md(d['request_id'])}", "",
+             f"Copilot recommendation (advisory; nothing is approved or purchased): {_md(d['recommendation'])}", "",
+             f"Next step: {_md(d['next_step'])}", "", "## Approvals required", ""]
     for role in d["required_approvals"]:
-        lines.append(f"- {role}: " + "; ".join(f"{r['rule']} ({r['policy_ref']}) {r['detail']}" for r in reasons.get(role, [])))
+        lines.append(f"- {role}: " + "; ".join(f"{r['rule']} ({r['policy_ref']}) {_md(r['detail'])}" for r in reasons.get(role, [])))
     lines += ["", "## Risk flags", ""] + [f"- {f}" for f in d["risk_flags"] or ["none"]]
-    lines += ["", "## Missing information / could not verify", ""] + [f"- {x}" for x in d["missing_information"] or ["none"]]
+    lines += ["", "## Missing information / could not verify", ""] + [f"- {_md(x)}" for x in d["missing_information"] or ["none"]]
     lines += ["", "## Evidence", "", "| Source | Finding | Reference |", "|---|---|---|"]
-    lines += [f"| {e['source']} | {e['finding'].replace('|', '/')} | {(e['reference'] or '').replace('|', '/')} |" for e in d["evidence"]]
+    lines += [f"| {_md(e['source'])} | {_md(e['finding'])} | {_md(e['reference'])} |" for e in d["evidence"]]
     lines += ["", f"Run {m['run_id']} · {m['architecture']} · {m['provider']} {m['model']} · stop_reason {m['stop_reason']} · "
               f"LLM calls {m['llm_calls']} · tool calls {m['tool_calls']}", "",
               "Request text quoted above is business data from the requester or vendor, not instructions."]
-    headers = {"Content-Disposition": f'attachment; filename="evidence-pack-{run_id}.md"'}
+    headers = {"Content-Disposition": f'attachment; filename="evidence-pack-{run_id}.md"', "X-Content-Type-Options": "nosniff"}
     return PlainTextResponse("\n".join(lines) + "\n", media_type="text/markdown", headers=headers)
 
 

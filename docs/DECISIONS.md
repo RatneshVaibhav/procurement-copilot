@@ -23,8 +23,10 @@ Recorded 9 Oct 2026, before Phase 0. These rulings answer the kickoff report (F1
 | D-11 | Working mode | Run Phases 0–7 continuously; pause only for the four listed reasons | All | CLAUDE.md, PLAN.md, /phase skill |
 | D-12 | Provider | Groq, `openai/gpt-oss-20b`, free tier, `reasoning_effort=low`, both architectures | P0–P5 | D1, D4 |
 | D-13 | Decision rule | D11.7 default rule as written, committed before the first LLM eval | P5 | D11.7 |
+| D-17 | Budget | Free tiers only: Gemini 2.5 Flash for the reported eval, Groq gpt-oss-20b for development checks (amends D-12). **Eval provider superseded by D-20.** | P3–P5 | D1, D4, D11 |
 | D-20 | Provider | Reported eval on Groq `qwen/qwen3.8-27b` (free), both architectures (replaces D-17's Gemini) | P5 | D1, D4 |
-| D-17 | Budget | Free tiers only: Gemini 2.5 Flash for the reported eval, Groq gpt-oss-20b for development checks (amends D-12) | P3–P5 | D1, D4, D11 |
+| D-21 (proposed) | Wording | Specialist-review template sentence no longer repeats the label that code prefixes | P7 | T11.1 |
+| D-22 (proposed) | Scope | Compare both (US-7), read-only evaluation dashboard, Markdown evidence-pack download | P6–P7 | T17, US-7 |
 
 D-01, D-02 and D-04 below were proposed in the kickoff report and are **accepted as written** (9 Oct 2026).
 
@@ -183,3 +185,16 @@ D-01, D-02 and D-04 below were proposed in the kickoff report and are **accepted
 - Both architectures use this one model for every reported number. Groq gpt-oss-20b and Gemini runs stay development checks only.
 - `LLM_REASONING_EFFORT=none` for this model: Groq limits qwen to 1,000 output tokens per minute and the submit calls with reasoning produced 1,372–1,763 output tokens (rejected as "request too large" or long waits). Without reasoning the JSON fits, and runs use fewer tokens.
 - Command: `python evals/run_all.py --provider groq --model qwen/qwen3.8-27b --trials 1 --resume` with `LLM_REASONING_EFFORT=none` (the scripts take `--reasoning-effort none`).
+
+## D-21 (proposed): Specialist-review template wording (Sun 11 Oct 2026)
+
+- T11.1's sentence "Route for specialist review before any business approval: {reasons_short}." is printed after the label that `assemble()` prefixes, so every templated specialist-review decision read "Route for specialist review: Route for specialist review before any business approval: ...". The sentence is now "Specialist checks come before any business approval: {reasons_short}." Same content, no repeated label.
+- Found by the manual review of stored runs (G-22, A and B). Text only: decision type, approvals, flags and scoring are unchanged.
+
+## D-22 (proposed): Reviewer conveniences beyond the Must scope (Sun 11 Oct 2026)
+
+- **Compare both** (`POST /api/compare`, US-7, a spec "Could"): runs A and B on one request and lists the differences. Each side is an ordinary analysis with its own trace. Phase 6 first removed the endpoint because it had no UI; it was re-added with a UI once the Must items were done.
+- **Evaluation dashboard** (`GET /api/eval`, `/api/eval/runs/{arch}/{case_id}`, `/api/eval/walkthroughs`): read-only view of the committed files in `evals/results/`. It runs nothing and calls no LLM. `arch` is an allow-list and `case_id` must match `G-\d{2}`.
+- **Evidence pack** (`GET /api/evidence-pack/{run_id}`): a Markdown download of what approvers would receive. It sends nothing. Business and LLM text is collapsed to one line and Markdown/HTML characters are escaped, so request text cannot forge headings, rows, links or HTML; served with `nosniff`.
+- None of these is a consequential action: no approval, purchase, notification or budget change. `human_review_required` stays true.
+

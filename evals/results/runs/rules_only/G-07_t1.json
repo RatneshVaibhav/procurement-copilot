@@ -10,7 +10,7 @@
  "error": null,
  "decision": {
   "request_id": "REQ-1007",
-  "recommendation": "Route for specialist review: Route for specialist review before any business approval: Security review, conflicting vendor evidence.",
+  "recommendation": "Route for specialist review: Specialist checks come before any business approval: Security review, conflicting vendor evidence.",
   "evidence": [
    {
     "source": "evaluate_policy_rules",
@@ -81,19 +81,19 @@
   }
  },
  "trace": {
-  "run_id": "REQ-1007-single-f6b50eaa",
+  "run_id": "REQ-1007-single-59292358",
   "request_id": "REQ-1007",
   "architecture": "single",
   "mode": "rules_only",
   "provider": "groq",
   "model": "openai/gpt-oss-20b",
   "reference_date": "2026-09-30",
-  "created_at": "2026-10-10T16:46:49+00:00",
-  "latency_total_ms": 43.5,
+  "created_at": "2026-10-11T01:11:15+00:00",
+  "latency_total_ms": 20.3,
   "llm_wait_ms": 0,
-  "latency_active_ms": 43.5,
+  "latency_active_ms": 20.3,
   "llm_ms": 0,
-  "tool_ms": 42.1,
+  "tool_ms": 19.5,
   "llm_calls": 0,
   "tool_calls": 5,
   "tokens": {
@@ -127,7 +127,7 @@
     "actor": "code:fallback",
     "action": "rules-only decision",
     "summary_in": "rules-only mode",
-    "summary_out": "Route for specialist review: Route for specialist review before any business approval: Security review, conflicting vendor evidence.",
+    "summary_out": "Route for specialist review: Specialist checks come before any business approval: Security review, conflicting vendor evidence.",
     "route_reason": null,
     "ms": null,
     "tokens": null
@@ -175,7 +175,7 @@
     },
     "initiator": "gate",
     "status": "ok",
-    "duration_ms": 5.9,
+    "duration_ms": 2.4,
     "cache_hit": false
    },
    {
@@ -185,7 +185,7 @@
     },
     "initiator": "gate",
     "status": "ok",
-    "duration_ms": 6.7,
+    "duration_ms": 3.2,
     "cache_hit": false
    },
    {
@@ -195,7 +195,7 @@
     },
     "initiator": "gate",
     "status": "ok",
-    "duration_ms": 5.6,
+    "duration_ms": 2.6,
     "cache_hit": false
    },
    {
@@ -205,7 +205,7 @@
     },
     "initiator": "gate",
     "status": "ok",
-    "duration_ms": 7.8,
+    "duration_ms": 3.8,
     "cache_hit": false
    },
    {
@@ -215,7 +215,7 @@
     },
     "initiator": "gate",
     "status": "ok",
-    "duration_ms": 16.1,
+    "duration_ms": 7.5,
     "cache_hit": false
    }
   ],

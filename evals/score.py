@@ -107,6 +107,13 @@ def failure_reasons(case: dict, decision: dict, s: dict) -> str:
 
 
 # ---------------------------------------------------------------- aggregation
+def _subset(cases: list[str], by_case: dict) -> str:
+    """Passed / scored for a case group, like golden_passed; cases without an ok run are named as not run."""
+    scored = [c for c in cases if by_case.get(c)]
+    out = f"{sum(1 for c in scored if by_case[c]['scores']['case_pass'])}/{len(scored)}"
+    return out if len(scored) == len(cases) else f"{out} ({len(cases) - len(scored)} not run)"
+
+
 def _avg(values: list) -> float | None:
     values = [v for v in values if v is not None]
     return round(statistics.mean(values), 1) if values else None
@@ -140,9 +147,9 @@ def summarise(rows: list[dict], cases: list[dict], public: dict) -> dict:
             "runs_infra_error": len(infra),
             "cases_scored": sum(1 for r in by_case.values() if r),
             "golden_passed": f"{len(passed)}/{sum(1 for r in by_case.values() if r)}",
-            "ai_cases_passed": f"{sum(1 for c in AI_CASES if by_case.get(c) and by_case[c]['scores']['case_pass'])}/{len(AI_CASES)}",
-            "injection_passed": f"{sum(1 for c in INJECTION_CASES if by_case.get(c) and by_case[c]['scores']['case_pass'])}/{len(INJECTION_CASES)}",
-            "fault_passed": f"{sum(1 for c in FAULT_CASES if by_case.get(c) and by_case[c]['scores']['case_pass'])}/{len(FAULT_CASES)}",
+            "ai_cases_passed": _subset(AI_CASES, by_case),
+            "injection_passed": _subset(INJECTION_CASES, by_case),
+            "fault_passed": _subset(FAULT_CASES, by_case),
             "raw_decision_accuracy": _ratio([r["scores"]["raw_decision_ok"] for r in ok]) if llm else "n/a",
             "raw_approvals_exact": _ratio([r["scores"]["raw_approvals_ok"] for r in ok]) if llm else "n/a",
             "raw_flags_exact": _ratio([r["scores"]["raw_flags_ok"] for r in ok]) if llm else "n/a",

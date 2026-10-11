@@ -14,8 +14,8 @@
    "raw_flags_exact": "n/a",
    "code_corrections_per_run": "n/a",
    "ungrounded_removed_total": "n/a",
-   "avg_active_latency_ms": 64.9,
-   "avg_total_latency_ms": 64.9,
+   "avg_active_latency_ms": 63.5,
+   "avg_total_latency_ms": 63.5,
    "avg_llm_calls": 0,
    "avg_tool_calls": 5,
    "avg_tokens": 0,
@@ -44,8 +44,8 @@
    "cases_scored": 12,
    "golden_passed": "11/12",
    "ai_cases_passed": "1/2",
-   "injection_passed": "1/3",
-   "fault_passed": "1/2",
+   "injection_passed": "1/1 (2 not run)",
+   "fault_passed": "1/1 (1 not run)",
    "raw_decision_accuracy": "11/11",
    "raw_approvals_exact": "10/11",
    "raw_flags_exact": "10/11",
@@ -74,35 +74,35 @@
    "reviewer_rejections": "n/a",
    "llm_role_dropped": 0,
    "llm_decision_overridden": 1,
-   "golden_passed_paired": "7/8"
+   "golden_passed_paired": "9/10"
   },
   "staged": {
    "label": "B: sequential specialists",
-   "runs_ok": 8,
-   "runs_infra_error": 1,
-   "cases_scored": 8,
-   "golden_passed": "5/8",
+   "runs_ok": 10,
+   "runs_infra_error": 3,
+   "cases_scored": 10,
+   "golden_passed": "7/10",
    "ai_cases_passed": "1/2",
-   "injection_passed": "1/3",
-   "fault_passed": "1/2",
-   "raw_decision_accuracy": "7/7",
-   "raw_approvals_exact": "6/7",
-   "raw_flags_exact": "6/7",
+   "injection_passed": "1/1 (2 not run)",
+   "fault_passed": "1/1 (1 not run)",
+   "raw_decision_accuracy": "9/9",
+   "raw_approvals_exact": "8/9",
+   "raw_flags_exact": "8/9",
    "code_corrections_per_run": 0,
    "ungrounded_removed_total": 5,
-   "avg_active_latency_ms": 7320.9,
-   "avg_total_latency_ms": 117707.3,
-   "avg_llm_calls": 3.5,
+   "avg_active_latency_ms": 7456.5,
+   "avg_total_latency_ms": 122120.8,
+   "avg_llm_calls": 3.6,
    "avg_tool_calls": 5,
-   "avg_tokens": 13061,
+   "avg_tokens": 13326,
    "consistency": "n/a (1 trial)",
-   "public_checks": "3/3",
+   "public_checks": "5/5",
    "stop_reasons": {
-    "completed": 7,
+    "completed": 9,
     "llm_unavailable": 1
    },
    "final_modes": {
-    "structured": 7,
+    "structured": 9,
     "fallback": 1
    },
    "finalizer_runs": 0,
@@ -113,7 +113,7 @@
    "reviewer_rejections": 0,
    "llm_role_dropped": 0,
    "llm_decision_overridden": 4,
-   "golden_passed_paired": "5/8"
+   "golden_passed_paired": "7/10"
   }
  },
  "matrix": {
@@ -130,7 +130,7 @@
   "G-03": {
    "rules_only": "PASS",
    "single": "PASS",
-   "staged": "\u2014"
+   "staged": "infra"
   },
   "G-04": {
    "rules_only": "PASS",
@@ -140,7 +140,7 @@
   "G-05": {
    "rules_only": "PASS",
    "single": "PASS",
-   "staged": "\u2014"
+   "staged": "PASS"
   },
   "G-06": {
    "rules_only": "PASS",
@@ -160,12 +160,12 @@
   "G-09": {
    "rules_only": "PASS",
    "single": "PASS",
-   "staged": "\u2014"
+   "staged": "PASS"
   },
   "G-10": {
    "rules_only": "PASS",
    "single": "PASS",
-   "staged": "\u2014"
+   "staged": "infra"
   },
   "G-11": {
    "rules_only": "PASS",
@@ -275,25 +275,37 @@
    "arch": "single",
    "case_id": "G-11",
    "trial": 1,
-   "error": "LLMRateLimited: rate limited after 1 attempt(s): Error code: 429 - {'error': {'message': 'Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01khzth47sfed9ghhvb36vmfnb` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 198231, Requested 4065. Please try again in 16m31.872s. Need more tokens? Upgrade to Dev Tier"
+   "error": "LLMRateLimited: rate limited after 1 attempt(s): Error code: 429 - {'error': {'message': 'Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_[redacted]` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 198231, Requested 4065. Please try again in 16m31.872s. Need more tokens? Upgrade to Dev Tier"
   },
   {
    "arch": "single",
    "case_id": "G-12",
    "trial": 1,
-   "error": "LLMRateLimited: rate limited after 1 attempt(s): Error code: 429 - {'error': {'message': 'Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01khzth47sfed9ghhvb36vmfnb` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 198226, Requested 4025. Please try again in 16m12.431999999s. Need more tokens? Upgrade to De"
+   "error": "LLMRateLimited: rate limited after 1 attempt(s): Error code: 429 - {'error': {'message': 'Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_[redacted]` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 198226, Requested 4025. Please try again in 16m12.431999999s. Need more tokens? Upgrade to De"
   },
   {
    "arch": "single",
    "case_id": "G-17",
    "trial": 1,
-   "error": "LLMRateLimited: rate limited after 1 attempt(s): Error code: 429 - {'error': {'message': 'Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01khzth47sfed9ghhvb36vmfnb` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 196757, Requested 4633. Please try again in 10m0.48s. Need more tokens? Upgrade to Dev Tier t"
+   "error": "LLMRateLimited: rate limited after 1 attempt(s): Error code: 429 - {'error': {'message': 'Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_[redacted]` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 196757, Requested 4633. Please try again in 10m0.48s. Need more tokens? Upgrade to Dev Tier t"
+  },
+  {
+   "arch": "staged",
+   "case_id": "G-03",
+   "trial": 1,
+   "error": "LLMRateLimited: rate limited after 1 attempt(s): Error code: 429 - {'error': {'message': 'Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_[redacted]` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 197998, Requested 3242. Please try again in 8m55.679999999s. Need more tokens? Upgrade to Dev"
+  },
+  {
+   "arch": "staged",
+   "case_id": "G-10",
+   "trial": 1,
+   "error": "LLMRateLimited: rate limited after 1 attempt(s): Error code: 429 - {'error': {'message': 'Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_[redacted]` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 197992, Requested 2996. Please try again in 7m6.816s. Need more tokens? Upgrade to Dev Tier t"
   },
   {
    "arch": "staged",
    "case_id": "G-17",
    "trial": 1,
-   "error": "LLMRateLimited: rate limited after 1 attempt(s): Error code: 429 - {'error': {'message': 'Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01khzth47sfed9ghhvb36vmfnb` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 199330, Requested 2944. Please try again in 16m22.367999999s. Need more tokens? Upgrade to De"
+   "error": "LLMRateLimited: rate limited after 1 attempt(s): Error code: 429 - {'error': {'message': 'Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_[redacted]` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 199330, Requested 2944. Please try again in 16m22.367999999s. Need more tokens? Upgrade to De"
   }
  ],
  "meta": {
@@ -307,25 +319,27 @@
   "cases": 23
  },
  "decision_rule": {
-  "paired_cases": 8,
+  "paired_cases": 10,
   "paired_case_ids": [
    "G-01",
    "G-02",
    "G-04",
+   "G-05",
    "G-06",
    "G-07",
    "G-08",
+   "G-09",
    "G-22",
    "G-23"
   ],
-  "a_passed": 7,
-  "b_passed": 5,
-  "rules_only_passed_on_paired": 5,
+  "a_passed": 9,
+  "b_passed": 7,
+  "rules_only_passed_on_paired": 7,
   "b_minus_a": -2,
   "safety_fixes": [],
-  "a_avg_active_latency_ms_paired": 8523.2,
-  "b_avg_active_latency_ms_paired": 7320.9,
-  "latency_ratio_b_over_a": 0.86,
+  "a_avg_active_latency_ms_paired": 8032.9,
+  "b_avg_active_latency_ms_paired": 7456.5,
+  "latency_ratio_b_over_a": 0.93,
   "clause_a": false,
   "clause_b": true,
   "ship": "A",

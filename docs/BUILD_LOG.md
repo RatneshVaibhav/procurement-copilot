@@ -76,18 +76,24 @@ Written by Claude Code under D-11 (continuous mode). Each phase appends 5–10 l
 - Written: README sections 7–9 and limitations, `docs/DECISION_MEMO.md` (draft, 465 words), `scenario_walkthroughs.md`, architecture.md handoff example.
 - Not done for time (deadline moved to Sat 23:00): final Phase 7 diff review; consistency trials; full LLM coverage; manual review (human).
 
+### Final review and fixes (Sun 11 Oct, 06:30–07:45 IST)
+- Eval loop: the 15-minute retry loop had made no progress since 04:41. Groq's daily token cap refills continuously (the 429 wait times match 200K tokens/24 h), so each pass spent the refill on a run that then failed partway. Replaced by a paced local helper (`runtime/`, git-ignored) that runs one (architecture, case) at a time, only when the bucket should hold a whole run; same command, model and flags (D-20). Stops at 20:00 IST.
+- Final consolidated diff review (re-run; the first attempt failed on a Claude rate limit): 1 FAIL (README said the reported numbers come from Gemini) and fixes, all applied: evidence pack escapes business/LLM text (one line, Markdown/HTML characters escaped, `nosniff`); grounding accepts a decimal as written ("3.10") as well as its canonical form (regression from the number-format fix); `decision_rule()` unit tests; Groq organisation ID redacted from stored run records (`run_all.redact`) and from existing result files; architecture.md §10 table repaired plus a caveat that the overlap clarifications were tuned on G-08/G-01 dev checks; D-17 marked superseded; D-22 (proposed) records compare, dashboard and evidence pack.
+- Manual review drafted from the stored runs (`evals/results/manual_review.md`, for the human to verify): policy failures A = 0, B = 2 (G-04, G-07, decision level only). Both come from B's overlap judgement: its reviewer proposed specialist review but kept `covers_stated_need=true`, so code applied R12.
+- Also fixed: templated specialist-review recommendations repeated the label (D-21 proposed); injection/fault/AI-case rows now count only scored cases and name the cases not run ("1/1 (2 not run)" instead of "1/3"); README/memo tables filled from `summary.md` and now include tool calls per run (brief: latency + LLM/tool-call counts).
+- Mid-eval code changes are text-only for scoring purposes: decision type, approvals, flags and scores do not depend on them. Rules-only re-run: 20/23, unchanged.
+- Tests: 209 pass (was 199). Real app smoke test with a simulated LLM outage: page, queue, analyse, compare, dashboard, evidence pack all OK.
+
 ## Human checklist
 
-Items that need the human. The build does not wait for them.
+Items that need the human. The build does not wait for them. In order:
 
-- [ ] Push to GitHub and make the repository **public** (check in a private window). Never done by Claude Code.
-- [ ] Write `docs/AGENT_LOG.md` (Class 10 evidence).
-- [ ] Rewrite `docs/DECISION_MEMO.md` in your own voice (draft present; keep ≤500 words and the numbers as in summary.md).
-- [ ] Submit the repo URL on the Google Form.
-- [ ] **Before Phase 5:** add `GEMINI_API_KEY=` to `.env` (free key from Google AI Studio). Needed for the reported eval (D-17).
-- [ ] P6 browser checks (`python run_local.py`, http://127.0.0.1:8000): REQ-1006 → injection banner + clarification, "Send for approvals" needs an override reason; REQ-1007 → conflict side by side; REQ-1008 → "Suggest existing tool" highlighted (with an LLM key); stop the mock (or bad `VENDOR_RISK_BASE_URL`) and run REQ-1001 → unavailable banner; trace panel shows steps + stop reason (staged: route reasons + reviewer audit); confirming writes `runtime/audit_log.jsonl`; a justification `<img src=x onerror=alert(1)>` via "New request" renders as text.
-- [ ] P5: fill `evals/results/manual_review.md` once the Gemini runs exist.
-- [ ] P3: read the three Groq outputs and step traces in `runtime/dev_checks/p3_checks.log`. Is the recommendation useful to a reviewer?
-- [ ] P2: safety net exists; push to GitHub when convenient. Review D-16 (proposed) and its open question.
-- [ ] P1: read the engine evidence for REQ-1007 (conflict) and REQ-1009 (unavailable) and two tool descriptions in `src/tools.py`: would a reviewer understand them? Review D-14 and D-15 (proposed).
-- [ ] P0: note the model and rate-limit headers (above) in `docs/AGENT_LOG.md`. LLM budget option is fixed by D-12 (Groq free).
+- [ ] **Push** (no remote is configured yet): create an empty public GitHub repo, then `git remote add origin <url>` and `git push -u origin master`. Check in a private window that it is public and the README and Mermaid diagram render. `.env` is git-ignored.
+- [ ] **Browser checks** (`python run_local.py`, http://127.0.0.1:8000): REQ-1006 → injection banner + clarification, "Send for approvals" needs an override reason; REQ-1007 → registry vs vendor-risk side by side; REQ-1008 → "Suggest existing tool"; stop the mock and run REQ-1001 → unavailable banner; trace panel shows steps and stop reason; confirming writes `runtime/audit_log.jsonl`; "New request" with justification `<img src=x onerror=alert(1)>` renders as text; Evaluation tab, Compare both and the evidence-pack download work.
+- [ ] **Manual review:** check each row of `evals/results/manual_review.md` against the run files, correct what you disagree with, delete the draft note.
+- [ ] **AGENT_LOG:** rewrite `docs/AGENT_LOG.md` in your own words (facts draft present), then delete its note.
+- [ ] **Memo (after the final refresh, ~20:30):** rewrite `docs/DECISION_MEMO.md` in your own voice, keep it ≤ 500 words and every number exactly as in `evals/results/summary.md`, delete the DRAFT line.
+- [ ] **Rehearse** defending: the pre-registered rule and why it says ship A; assumption 11 (overlap flag); assumption 13 (API down + not sensitive); why B's reviewer did not fix G-04/G-07; why the answer is not "more agents".
+- [ ] **Submit** the repo URL on the Google Form; screenshot the confirmation.
+- [ ] **Rotate the Gemini key** (it was pasted into a chat session). Optional: older commits contain the Groq organisation ID inside stored 429 messages (an account ID, not a key); current files are redacted.
+- Optional reading from earlier phases: P3 Groq outputs in `runtime/dev_checks/p3_checks.log`; P1 engine evidence for REQ-1007/REQ-1009; D-14, D-15, D-16, D-18, D-19, D-21, D-22 (proposed).

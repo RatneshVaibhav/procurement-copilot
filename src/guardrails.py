@@ -93,8 +93,10 @@ def is_grounded(item: EvidenceProposal, ctx) -> tuple[bool, str | None]:
     for date_text in FULL_DATE.findall(item.finding):  # dates must appear whole, not piecewise
         if date_text not in corpus:
             return False, f"date {date_text!r} not found in tool results"
-    for token in grounding_tokens(item.finding):
-        if token and not (_token_in(token, corpus) or _token_in(token, corpus_norm)):
+    for match in GROUNDING_TOKEN.finditer(item.finding):
+        token = _canonical(match.group(0))
+        forms = {token, match.group(0).replace("$", "").replace(",", "")} - {""}  # "3.10" stays matchable as written
+        if forms and not any(_token_in(t, c) for t in forms for c in (corpus, corpus_norm)):
             return False, f"token {token!r} not found in tool results"
     return True, None
 
@@ -140,7 +142,8 @@ def _reasons_short(roles: list[str], flags: list[str]) -> str:
 def template_recommendation(decision: str, roles: list[str], flags: list[str]) -> str:
     return {
         "route_for_approval": "Request is complete and within policy; route to the approvers for this cost tier.",
-        "route_for_specialist_review": f"Route for specialist review before any business approval: {_reasons_short(roles, flags)}.",
+        # T11.1 wording minus the leading label, which assemble() already prefixes (D-21 proposed)
+        "route_for_specialist_review": f"Specialist checks come before any business approval: {_reasons_short(roles, flags)}.",
         "request_clarification": "Request is not ready for review; required information is missing.",
         "use_existing_tool": "An existing licensed tool may already meet this need.",
     }[decision]
