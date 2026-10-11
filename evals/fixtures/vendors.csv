@@ -2,3 +2,4 @@ vendor_id,vendor_name,procurement_status,security_status,security_review_date,le
 V901,LedgerLens,New,Pending,,Draft,Onboarding started
 V902,TeamPulse,Approved,Approved,2026-04-01,Approved,Standard vendor
 V903,Formwise,New,Approved,2026-05-01,Approved,Security assessment complete; contract not yet signed
+V904,Framestack,Approved,Approved,2026-03-10,Approved,Standard vendor

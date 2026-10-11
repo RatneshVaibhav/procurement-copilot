@@ -22,15 +22,20 @@ COLUMNS = {
     "single": "A: bounded agent",
     "staged": "B: sequential specialists",
 }
-INJECTION_CASES = ["G-06", "G-16", "G-17"]
-FAULT_CASES = ["G-21", "G-22"]
-AI_CASES = ["G-08", "G-23"]
 CORRECTION_EVENTS = ["code_restored_approval", "code_restored_flag", "llm_role_dropped", "llm_decision_overridden",
                      "ungrounded_evidence_removed"]
 
 
 def exact_set_ok(final: set, required: set, optional: set) -> bool:
     return required <= final <= required | optional
+
+
+def case_groups(cases: list[dict]) -> tuple[list[str], list[str], list[str]]:
+    """AI-only, injection and fault case IDs, read from each case's labels (requires_ai, tests, fault).
+    For golden_cases.json: (G-08, G-23), (G-06, G-16, G-17), (G-21, G-22)."""
+    return ([c["case_id"] for c in cases if c.get("requires_ai")],
+            [c["case_id"] for c in cases if "prompt_injection" in c.get("tests", [])],
+            [c["case_id"] for c in cases if c.get("fault")])
 
 
 def missing_ok(items: list[str], spec: dict) -> bool:
@@ -128,6 +133,7 @@ def summarise(rows: list[dict], cases: list[dict], public: dict) -> dict:
     """rows: one dict per run with keys arch, case_id, trial, status, scores, cost fields, trace meta."""
     summary = {"columns": {}, "matrix": {}, "failures": [], "infra_errors": [], "meta": {}}
     case_ids = [c["case_id"] for c in cases]
+    ai_cases, injection_cases, fault_cases = case_groups(cases)
     for arch, label in COLUMNS.items():
         arch_rows = [r for r in rows if r["arch"] == arch]
         if not arch_rows:
@@ -147,9 +153,9 @@ def summarise(rows: list[dict], cases: list[dict], public: dict) -> dict:
             "runs_infra_error": len(infra),
             "cases_scored": sum(1 for r in by_case.values() if r),
             "golden_passed": f"{len(passed)}/{sum(1 for r in by_case.values() if r)}",
-            "ai_cases_passed": _subset(AI_CASES, by_case),
-            "injection_passed": _subset(INJECTION_CASES, by_case),
-            "fault_passed": _subset(FAULT_CASES, by_case),
+            "ai_cases_passed": _subset(ai_cases, by_case),
+            "injection_passed": _subset(injection_cases, by_case),
+            "fault_passed": _subset(fault_cases, by_case),
             "raw_decision_accuracy": _ratio([r["scores"]["raw_decision_ok"] for r in ok]) if llm else "n/a",
             "raw_approvals_exact": _ratio([r["scores"]["raw_approvals_ok"] for r in ok]) if llm else "n/a",
             "raw_flags_exact": _ratio([r["scores"]["raw_flags_ok"] for r in ok]) if llm else "n/a",
@@ -216,19 +222,21 @@ def consistency(ok_rows: list[dict]) -> str:
 def render_markdown(summary: dict, cases: list[dict]) -> str:
     cols = [a for a in ["single", "staged", "rules_only"] if a in summary["columns"]]
     c = summary["columns"]
+    ai_cases, injection_cases, fault_cases = case_groups(cases)
+    llm_fault = [x["case_id"] for x in cases if x.get("fault") == "llm_unavailable"]
     head = "| Metric | " + " | ".join(c[a]["label"] for a in cols) + " |"
     sep = "|---|" + "---:|" * len(cols)
     rows = [
         ("Golden cases passed (final output)", "golden_passed"),
         ("Golden cases passed, paired A/B cases only", "golden_passed_paired"),
-        ("Cases only the AI can get right (G-08, G-23)", "ai_cases_passed"),
+        (f"Cases only the AI can get right ({', '.join(ai_cases)})", "ai_cases_passed"),
         ("Raw agent decision accuracy", "raw_decision_accuracy"),
         ("Raw agent approvals exact", "raw_approvals_exact"),
         ("Raw agent flags exact", "raw_flags_exact"),
         ("Code corrections per run (approvals + flags restored)", "code_corrections_per_run"),
         ("Ungrounded evidence items removed (total)", "ungrounded_removed_total"),
-        ("Injection cases passed (3)", "injection_passed"),
-        ("Fault cases passed (2)", "fault_passed"),
+        (f"Injection cases passed ({len(injection_cases)})", "injection_passed"),
+        (f"Fault cases passed ({len(fault_cases)})", "fault_passed"),
         ("Avg active latency (ms)", "avg_active_latency_ms"),
         ("Avg total latency incl. rate-limit waits (ms)", "avg_total_latency_ms"),
         ("Avg LLM calls / run", "avg_llm_calls"),
@@ -247,10 +255,12 @@ def render_markdown(summary: dict, cases: list[dict]) -> str:
     lines = ["# Evaluation summary", "", _meta_line(summary), ""] + [f"**{w}**" for w in summary.get("warnings", [])] + ["", head, sep]
     for label, key in rows:
         lines.append(f"| {label} | " + " | ".join(str(c[a].get(key, "n/a")) for a in cols) + " |")
-    lines += ["", "Notes: infra and configuration errors are excluded from scores and listed below; the paired row counts "
-              "only cases with an ok run in both A and B. Rules-only fails G-22 by construction: rules-only mode never "
-              "calls an LLM, so it never sets `llm_unavailable` (T12); that case measures the LLM fallback. "
-              "Raw-agent rows count a run whose LLM path produced no proposal as a raw failure."]
+    note = ("Notes: infra and configuration errors are excluded from scores and listed below; the paired row counts "
+            "only cases with an ok run in both A and B. ")
+    if llm_fault:
+        note += (f"Rules-only fails {', '.join(llm_fault)} by construction: rules-only mode never "
+                 "calls an LLM, so it never sets `llm_unavailable` (T12); that case measures the LLM fallback. ")
+    lines += ["", note + "Raw-agent rows count a run whose LLM path produced no proposal as a raw failure."]
     rule = summary.get("decision_rule")
     if rule:
         lines += ["", "## Decision rule (pre-registered, evals/DECISION_RULE.md), applied in code", "",

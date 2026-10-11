@@ -1,0 +1,81 @@
+{
+ "columns": {
+  "rules_only": {
+   "label": "Workflow (rules-only)",
+   "runs_ok": 5,
+   "runs_infra_error": 0,
+   "cases_scored": 5,
+   "golden_passed": "2/5",
+   "ai_cases_passed": "0/3",
+   "injection_passed": "0/1",
+   "fault_passed": "0/0",
+   "raw_decision_accuracy": "n/a",
+   "raw_approvals_exact": "n/a",
+   "raw_flags_exact": "n/a",
+   "code_corrections_per_run": "n/a",
+   "ungrounded_removed_total": "n/a",
+   "avg_active_latency_ms": 33.2,
+   "avg_total_latency_ms": 33.2,
+   "avg_llm_calls": 0,
+   "avg_tool_calls": 5,
+   "avg_tokens": 0,
+   "consistency": "n/a (1 trial)",
+   "public_checks": "n/a",
+   "stop_reasons": {
+    "rules_only": 5
+   },
+   "final_modes": {
+    "fallback": 5
+   },
+   "finalizer_runs": "n/a",
+   "fallback_runs": "n/a",
+   "repeated_tool_calls": 0,
+   "tool_rejected": 0,
+   "gate_filled": "n/a",
+   "reviewer_rejections": "n/a",
+   "llm_role_dropped": "n/a",
+   "llm_decision_overridden": "n/a"
+  }
+ },
+ "matrix": {
+  "H-01": {
+   "rules_only": "FAIL"
+  },
+  "H-02": {
+   "rules_only": "PASS"
+  },
+  "H-03": {
+   "rules_only": "PASS"
+  },
+  "H-04": {
+   "rules_only": "FAIL"
+  },
+  "H-05": {
+   "rules_only": "FAIL"
+  }
+ },
+ "failures": [
+  {
+   "arch": "rules_only",
+   "case_id": "H-01",
+   "reason": "decision route_for_approval not in ['use_existing_tool']"
+  },
+  {
+   "arch": "rules_only",
+   "case_id": "H-04",
+   "reason": "approvals missing ['Privacy', 'Security'] extra []; flags missing ['privacy_review_required', 'security_review_required'] extra []; decision route_for_approval not in ['route_for_specialist_review']"
+  },
+  {
+   "arch": "rules_only",
+   "case_id": "H-05",
+   "reason": "flags missing ['prompt_injection_detected'] extra []"
+  }
+ ],
+ "infra_errors": [],
+ "meta": {
+  "providers": [],
+  "trials": 1,
+  "cases": 5
+ },
+ "decision_rule": null
+}

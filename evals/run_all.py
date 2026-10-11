@@ -251,6 +251,8 @@ def main() -> None:
     parser.add_argument("--model", help="override MODEL_NAME for this run (D-20)")
     parser.add_argument("--reasoning-effort", help="override LLM_REASONING_EFFORT (e.g. none, low; off = do not send it)")
     parser.add_argument("--results-dir", default=str(ROOT / "evals" / "results"))
+    parser.add_argument("--cases-file", default=str(GOLDEN_PATH),
+                        help="case labels; the pre-registered decision rule and public checks apply only to golden_cases.json")
     parser.add_argument("--summary-only", action="store_true", help="rebuild summary/CSV from stored runs; run nothing")
     parser.add_argument("--interleave", action="store_true",
                         help="case-major order (A and B per case) so a budget stop leaves paired results")
@@ -268,12 +270,15 @@ def main() -> None:
         os.environ["LLM_REASONING_EFFORT"] = "" if args.reasoning_effort == "off" else args.reasoning_effort  # off: not sent
     results = Path(args.results_dir)
     results.mkdir(parents=True, exist_ok=True)
-    golden = json.loads(GOLDEN_PATH.read_text(encoding="utf-8"))
+    cases_path = Path(args.cases_file)
+    golden = json.loads(cases_path.read_text(encoding="utf-8"))
+    pre_registered = cases_path.resolve() == GOLDEN_PATH.resolve()  # held-out sets: no decision rule, no public checks
+    args.skip_public = args.skip_public or not pre_registered
     if args.summary_only:
-        write_outputs(load_records(results), golden, results, {} if args.skip_public else None)
+        write_outputs(load_records(results), golden, results, {} if args.skip_public else None, pre_registered)
         return
     wanted = [c.strip() for c in args.cases.split(",") if c.strip()]
-    if args.trials > 1 and not wanted:
+    if args.trials > 1 and not wanted and pre_registered:
         wanted = CONSISTENCY_SUBSET
         print(f"--trials {args.trials} without --cases: using the D11.5 subset {', '.join(wanted)}")
     by_id = {c["case_id"]: c for c in golden}
@@ -355,15 +360,18 @@ def main() -> None:
     finally:
         launcher.stop(proc)
 
-    write_outputs(records, golden, results, public)
+    write_outputs(records, golden, results, public, pre_registered)
 
 
-def write_outputs(records: list[dict], golden: list[dict], results: Path, public: dict | None) -> None:
+def write_outputs(records: list[dict], golden: list[dict], results: Path, public: dict | None,
+                  pre_registered: bool = True) -> None:
     if public is None:
         public = public_from_golden(records, golden, results)
     rows = [row_of(r) for r in records]
     write_csv(rows, results / "golden_runs.csv")
     summary = score.summarise(rows, golden, public)
+    if not pre_registered:
+        summary["decision_rule"] = None  # the rule (evals/DECISION_RULE.md) was registered for the golden set only
     (results / "summary.json").write_text(json.dumps(summary, indent=1, default=str), encoding="utf-8")
     (results / "summary.md").write_text(score.render_markdown(summary, golden), encoding="utf-8")
     print("\n" + (results / "summary.md").read_text(encoding="utf-8").split("## Stop reasons")[0])

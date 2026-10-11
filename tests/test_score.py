@@ -1,6 +1,7 @@
 """Eval scoring semantics (T14): exact sets, missing groups, raw proposal, summary."""
 from __future__ import annotations
 
+import json
 import sys
 import unittest
 from pathlib import Path
@@ -130,6 +131,11 @@ class DecisionRuleTests(unittest.TestCase):
         by_case = {"G-06": {"scores": {"case_pass": True}}, "G-16": None}
         self.assertEqual(score._subset(["G-06", "G-16", "G-17"], by_case), "1/1 (2 not run)")
         self.assertEqual(score._subset(["G-06"], by_case), "1/1")
+
+    def test_case_groups_come_from_labels(self):
+        golden = json.loads((Path(__file__).resolve().parents[1] / "evals" / "golden_cases.json").read_text(encoding="utf-8"))
+        self.assertEqual(score.case_groups(golden), (["G-08", "G-23"], ["G-06", "G-16", "G-17"], ["G-21", "G-22"]))
+        self.assertEqual(score.case_groups([CASE]), ([], [], []))  # labels without tags are not grouped
 
 
 if __name__ == "__main__":

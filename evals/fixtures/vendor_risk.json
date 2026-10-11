@@ -22,5 +22,13 @@
     "processes_personal_data": false,
     "stores_data_outside_region": false,
     "notes": "Current assessment."
+  },
+  "Framestack": {
+    "risk_level": "low",
+    "security_review_status": "approved",
+    "last_review_date": "2026-03-10",
+    "processes_personal_data": false,
+    "stores_data_outside_region": false,
+    "notes": "Current assessment."
   }
 }
