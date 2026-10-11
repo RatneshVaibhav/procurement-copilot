@@ -1,6 +1,6 @@
 # Evaluation
 
-Two harnesses. Both call `src.solution` exactly as the hidden evaluation does.
+Two harnesses (the golden one also scores a held-out set). Both call `src.solution` exactly as the hidden evaluation does.
 
 ## 1. Golden evaluation (`run_all.py`, the reported numbers)
 
@@ -23,9 +23,20 @@ python evals/render_walkthroughs.py                  # A vs B traces for 5 scena
 - **Budget.** Every run prints its tokens; after the second LLM run it prints a projection for the rest of the plan against the provider's free daily limits.
 - **Public checks.** By default the six public cases are scored with the public runner's own `evaluate()` on the golden runs of the same requests, so no extra LLM calls are made (D-18 proposed). `--public-subprocess` runs `run_public_evals.py` itself instead.
 - **Outputs** in `results/`: `golden_runs.csv` (one row per run), `runs/`, `summary.json`, `summary.md` (metric table, stop reasons, per-case matrix, every failure with its reason, infra errors), `public_<arch>.csv`, `scenario_walkthroughs.md`, `manual_review.md`.
-- **Decision rule:** `DECISION_RULE.md`, committed before the first LLM run.
+- **Decision rule:** `DECISION_RULE.md`, committed before the first LLM run and not edited since. Its note on the provider names D-17's Gemini 2.5 Flash, the plan at the time; the rule itself is applied unchanged to each eval (Flash-Lite, D-23; qwen, D-20), in code (`score.py::decision_rule`).
 
-## 2. Public runner (`run_public_evals.py`, starter compatibility)
+## 2. Held-out cases (`heldout_cases.json`, D-25)
+
+```bash
+python evals/run_all.py --no-llm --cases-file evals/heldout_cases.json --results-dir evals/results_heldout
+python evals/run_all.py --provider gemini --model gemini-3.5-flash-lite --reasoning-effort off --trials 3 --resume --interleave --cases-file evals/heldout_cases.json --results-dir evals/results_heldout
+```
+
+- Five cases written after the prompts were frozen and never used to change a prompt: H-01 a licensed tool already covers the need, H-02 an add-on is an expansion, H-03 a credible capability gap, H-04 employee PII implied only by the text, H-05 an injection worded outside the regex patterns. Fixture records REQ-H201 to REQ-H205 and vendor Framestack are in `fixtures/`.
+- Same scorer and columns; three trials per case for A and B. The pre-registered decision rule and the public checks apply only to the golden set, so the held-out summary has neither.
+- The AI-only, injection and fault rows are read from each case's labels (`requires_ai`, `tests`, `fault`).
+
+## 3. Public runner (`run_public_evals.py`, starter compatibility)
 
 ```bash
 python evals/run_public_evals.py --architecture single

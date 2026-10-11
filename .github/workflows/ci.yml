@@ -36,8 +36,13 @@ jobs:
         run: |
           python evals/run_all.py --no-llm --results-dir "$RUNNER_TEMP/rules_only"
           python -c "import json,sys; c=json.load(open(sys.argv[1]))['columns']['rules_only']; print(c['golden_passed'], c['injection_passed']); assert c['golden_passed'] == '20/23', c['golden_passed']" "$RUNNER_TEMP/rules_only/summary.json"
+      - name: Held-out rules-only baseline still scores 2/5
+        run: |
+          python evals/run_all.py --no-llm --cases-file evals/heldout_cases.json --results-dir "$RUNNER_TEMP/heldout"
+          python -c "import json,sys; c=json.load(open(sys.argv[1]))['columns']['rules_only']; print(c['golden_passed']); assert c['golden_passed'] == '2/5', c['golden_passed']" "$RUNNER_TEMP/heldout/summary.json"
       - name: Reported summaries rebuild byte-identical from the stored runs
         run: |
           python evals/run_all.py --summary-only
           python evals/run_all.py --summary-only --results-dir evals/results_qwen
+          python evals/run_all.py --summary-only --cases-file evals/heldout_cases.json --results-dir evals/results_heldout
           git diff --exit-code -- evals/

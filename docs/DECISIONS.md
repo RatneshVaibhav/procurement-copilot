@@ -28,6 +28,9 @@ Recorded 9 Oct 2026, before Phase 0. These rulings answer the kickoff report (F1
 | D-21 (proposed) | Wording | Specialist-review template sentence no longer repeats the label that code prefixes | P7 | T11.1 |
 | D-22 (proposed) | Scope | Compare both (US-7), read-only evaluation dashboard, Markdown evidence-pack download | P6–P7 | T17, US-7 |
 | D-23 | Provider | Full-coverage eval on Gemini `gemini-3.5-flash-lite` (free) as the primary reported eval; qwen (D-20) kept as a second model | P7 | D1, D4, D11 |
+| D-24 | Setup | `.env.example` defaults to the evaluated Flash-Lite configuration | P7 | F §6, T3 |
+| D-25 | Eval | Five held-out cases, scored separately; the pre-registered rule stays on the golden set | P7 | D11 |
+| D-26 | Review | Pre-submission review: rollback by revoke, bounded form input, restart-safe actions, CI | P7 | US-5, T17 |
 
 D-01, D-02 and D-04 below were proposed in the kickoff report and are **accepted as written** (9 Oct 2026).
 
@@ -206,3 +209,26 @@ D-01, D-02 and D-04 below were proposed in the kickoff report and are **accepted
 - **Reporting, fixed before the full run** (after a 2-case trial: G-07 PASS for A and B, G-08 FAIL for A and B): the Flash-Lite eval is the primary reported eval because it is the only one that covers every case on both architectures (brief: same test set on both). The qwen results are reported next to it as a second, stronger model on the cases it covered. The pre-registered rule (D-13, unchanged) is applied to each eval; if they disagree, the README and memo say so.
 - Prompts are unchanged. Within each eval both architectures use the same model; models are never mixed in one comparison.
 
+
+## D-24: The default configuration is the evaluated one (Sun 11 Oct 2026)
+
+- F §6 names Groq `openai/gpt-oss-20b` as the default. That model was never evaluated, it makes about 7 calls per run on the free tier (BUILD_LOG Phase 3), and the README says it cannot carry the eval. Someone cloning the repo should get the model whose numbers we report.
+- `.env.example` now defaults to the primary evaluated configuration: `LLM_PROVIDER=gemini`, `MODEL_NAME=gemini-3.5-flash-lite`, `LLM_REASONING_EFFORT=` (not sent; D-23). The qwen settings (D-20) are a comment. The code defaults in `src/config.py` are unchanged.
+- No key still means the rule-based result with the "AI analysis unavailable" banner.
+
+## D-25: Held-out cases (Sun 11 Oct 2026)
+
+- **Why.** Two golden requests (G-08, G-01) informed the overlap wording in the prompts (architecture.md §10), and the set is small. A grader can fairly ask whether the agents generalise.
+- **What.** Five new cases in `evals/heldout_cases.json`, written after the prompts were frozen and never used to change a prompt: H-01 a licensed tool already covers the need (new vendor, product and category), H-02 an add-on is an expansion, H-03 same category with a credible capability gap, H-04 employee PII implied only by the text, H-05 an injection worded outside the R10 regex patterns. Records are appended to `evals/fixtures` (golden runs are unaffected; rules-only stays 20/23).
+- **Labels.** Code-owned parts (tier, approvals, overlap flag, vendor status) agree with the engine (`tests/test_golden_deterministic.py::test_heldout_cases`); the AI-owned parts follow policy §3, §5, §6 and §9 and mirror the matching golden cases (G-08, G-01, G-23, G-16).
+- **Scoring.** Same scorer, separate results dir (`evals/results_heldout/`), three trials per case for A and B on Flash-Lite. The pre-registered decision rule (D-13) is applied only to the golden set, as registered; the held-out numbers are reported next to it.
+- No prompt or agent change followed the held-out run.
+
+## D-26: Pre-submission review fixes (Sun 11 Oct 2026)
+
+- **Rollback.** A recorded action can be revoked, with a reason, as a new audit entry (`POST /api/actions/revoke`). Nothing in the log is edited or deleted, and the queue status ignores revoked actions.
+- **Bounded form input.** `POST /api/requests` rejects fields over 200 characters, a justification over 4,000, or more than 20 integrations, with a readable 422. Before this, a 1 MB justification was stored and would have gone to the LLM.
+- **Restart-safe actions.** Actions, the consequence preview and the evidence pack rebuild a run from `runtime/traces/` when the app has restarted (run IDs must be path-safe).
+- **CI** (`.github/workflows/ci.yml`): unit tests on Python 3.11 and 3.12, the rules-only baselines (golden 20/23, held-out 2/5), and a check that every committed summary rebuilds byte-identical from its stored runs. No secrets, no LLM calls.
+- **Scorer.** The AI-only, injection and fault groups are read from each case's labels instead of hardcoded IDs, so the held-out set is scored the same way; both existing summaries rebuild unchanged.
+- **Docs.** README audit-log wording (no reviewer identity without authentication), before/after workflow and success metrics (`docs/WORKFLOW.md`), per-case comparison with rules-only, both manual reviews checked against their run files.

@@ -53,6 +53,7 @@ python run_local.py                             # ONE command: mock API :8001 + 
 python evals/run_all.py --no-llm                # rules-only baseline, no key needed
 python evals/run_all.py --provider gemini --model gemini-3.5-flash-lite --reasoning-effort off --trials 1 --resume --interleave   # primary reported eval (D-23)
 python evals/run_all.py --provider groq --model qwen/qwen3.8-27b --reasoning-effort none --trials 1 --resume --interleave --results-dir evals/results_qwen   # second model, partial (D-20)
+python evals/run_all.py --provider gemini --model gemini-3.5-flash-lite --reasoning-effort off --trials 3 --resume --interleave --cases-file evals/heldout_cases.json --results-dir evals/results_heldout   # held-out cases (D-25)
 ```
 
 ## Writing style for README, memo and docs

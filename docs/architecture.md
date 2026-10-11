@@ -1,6 +1,6 @@
 # Architecture: AI Procurement Request Copilot
 
-Companion to `README.md`. Sections follow SPEC_V2_DELTA D15. Every number quoted here comes from `evals/results/`.
+Companion to `README.md`. Sections follow SPEC_V2_DELTA D15. Every number quoted here comes from `evals/results/` (primary eval) or, where named, `evals/results_qwen/` (second model).
 
 ## 1. Design ladder (Class 12)
 

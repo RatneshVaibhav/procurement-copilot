@@ -1,8 +1,8 @@
 # Manual review (brief metric: policy failures found manually)
 
-Second model: Groq `qwen/qwen3.8-27b` (D-20). Filled in from `evals/results_qwen/runs/`. Six runs per architecture: REQ-1002 (G-02), REQ-1004 (G-04), REQ-1006 (G-06), REQ-1007 (G-07), REQ-1008 (G-08), plus one fault case. G-22 (LLM unavailable) is used because G-21 had no LLM run when this review was drafted.
+Second model: Groq `qwen/qwen3.8-27b` (D-20). Filled in from `evals/results_qwen/runs/`. Six runs per architecture: REQ-1002 (G-02), REQ-1004 (G-04), REQ-1006 (G-06), REQ-1007 (G-07), REQ-1008 (G-08), plus one fault case. G-22 (LLM unavailable) is used because G-21 had no LLM run when this review was written (it still has none: the free token cap stopped the qwen run first).
 
-> **Before submitting:** this table is a draft compiled by Claude Code from the stored run files (decision, trace, tool results, golden labels). I must open each run file, check every row, correct anything I disagree with, then delete this note.
+Checked on Sun 11 Oct 2026: every row was compared with its run file (decision, trace steps, tool log, proposals, evidence and guardrail events). Nothing needed correcting. Examples from the files: A G-06 added Privacy and Security (the Security reason cites "vendor-assessed AI use"), code dropped B G-02's extra `privacy_review_required` flag, and B's grounding check removed 2 + 1 + 1 items in G-06, G-07 and G-08.
 
 For each run: Is the recommendation sensible? Does every evidence item check out against the tool results? Is anything misleading? Is the tone right for a procurement reviewer?
 

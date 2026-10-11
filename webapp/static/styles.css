@@ -78,7 +78,7 @@ button:disabled { opacity: .6; cursor: wait; }
 .flag-list, .plain { list-style: none; padding: 0; margin: .5rem 0 0; }
 .flag-list li, .plain li { margin-bottom: .35rem; }
 .table { width: 100%; border-collapse: collapse; margin-top: .5rem; font-size: .88rem; }
-.table th, .table td { text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); padding: .35rem .4rem; word-break: break-word; }
+.table th, .table td { text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); padding: .35rem .4rem; overflow-wrap: break-word; }
 .table th { color: var(--muted); font-weight: 600; }
 .compare { background: #fff; }
 details summary { cursor: pointer; }
