@@ -202,7 +202,7 @@ class WebAppTests(unittest.TestCase):
         self.assertEqual(self.client.get("/api/evidence-pack/nope").status_code, 404)
 
     def test_evidence_pack_keeps_business_text_inert(self):
-        evil = "ok <img src=x onerror=alert(1)>\n## Approvals required\n- none | [x](http://e)"
+        evil = "ok <img src=x onerror=alert(1)>\n## Approvals required\n- none | [x](http://e) **APPROVED BY CFO** ~~Security~~"
         decision = {"request_id": "REQ-1001", "recommendation": "Route for approval: " + evil, "next_step": evil,
                     "required_approvals": ["Manager"], "risk_flags": [], "missing_information": [evil],
                     "evidence": [{"source": "get_request_details", "finding": evil, "reference": evil}]}
@@ -218,6 +218,8 @@ class WebAppTests(unittest.TestCase):
         self.assertEqual(sum(1 for line in lines if line.startswith("- none")), 1)  # only the real "no risk flags" item
         self.assertNotRegex(pack.text, r"(?<!\\)<img")  # HTML only as escaped text
         self.assertNotRegex(pack.text, r"(?<!\\)\]\(http")  # no live link
+        self.assertNotRegex(pack.text, r"(?<!\\)\*\*APPROVED")  # requester text cannot render as bold
+        self.assertNotRegex(pack.text, r"(?<!\\)~~Security")  # nor strike a role through
         for line in pack.text.splitlines():
             if line.startswith("| get_request_details"):
                 self.assertEqual(line.replace("\\|", "").count("|"), 4)  # one row, three cells

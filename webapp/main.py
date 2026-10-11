@@ -27,7 +27,7 @@ AUDIT_LOG = RUNTIME / "audit_log.jsonl"
 TRACE_DIR = RUNTIME / "traces"
 EVAL_DIR = ROOT / "evals"
 RESULTS_DIR = EVAL_DIR / "results"
-MD_SPECIAL = re.compile(r"([\\`\[\]<>|])")  # escaped in the Markdown evidence pack
+MD_SPECIAL = re.compile(r"([\\`*_~\[\]<>|])")  # escaped in the Markdown evidence pack (emphasis too: no bold "APPROVED")
 RUN_ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9_-]{0,119}")  # path-safe: no dots or slashes
 
 ACTIONS = ["send_for_approvals", "request_clarification", "suggest_existing_tool", "hold_manual_review"]
