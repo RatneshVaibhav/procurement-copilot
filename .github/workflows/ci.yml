@@ -1,0 +1,43 @@
+name: CI
+
+# No secrets and no LLM calls: unit tests use ScriptedLLM, and the eval checks run the rules-only
+# baseline and rebuild the committed summaries from the stored run files.
+on:
+  push:
+  pull_request:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - run: python -m pip install -r requirements.txt
+      - run: python verify_setup.py
+      - run: python -m unittest discover -s tests -v
+
+  eval-reproducibility:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: python -m pip install -r requirements.txt
+      - name: Rules-only baseline still scores 20/23 (no key needed)
+        run: |
+          python evals/run_all.py --no-llm --results-dir "$RUNNER_TEMP/rules_only"
+          python -c "import json,sys; c=json.load(open(sys.argv[1]))['columns']['rules_only']; print(c['golden_passed'], c['injection_passed']); assert c['golden_passed'] == '20/23', c['golden_passed']" "$RUNNER_TEMP/rules_only/summary.json"
+      - name: Reported summaries rebuild byte-identical from the stored runs
+        run: |
+          python evals/run_all.py --summary-only
+          python evals/run_all.py --summary-only --results-dir evals/results_qwen
+          git diff --exit-code -- evals/
