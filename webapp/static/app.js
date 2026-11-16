@@ -122,6 +122,7 @@ async function selectRequest(id) {
   for (const li of document.querySelectorAll(".queue-item")) {
     li.classList.toggle("active", li.querySelector(".q-id").textContent === id);
   }
+  if (window.matchMedia("(max-width: 760px)").matches) $("detail").scrollIntoView({ behavior: "smooth" });
   try {
     const data = await api("/api/requests/" + encodeURIComponent(id));
     renderRequest(data.request, data.requester);
@@ -612,6 +613,7 @@ $("btn-compare").addEventListener("click", compareBoth);
 $("btn-pack").addEventListener("click", downloadPack);
 $("nav-review").addEventListener("click", () => showView("review"));
 $("nav-eval").addEventListener("click", () => showView("eval"));
+for (const b of document.querySelectorAll("[data-req]")) b.addEventListener("click", () => selectRequest(b.dataset.req));
 $("btn-walk").addEventListener("click", showWalkthroughs);
 $("btn-retry-analyze").addEventListener("click", analyze);
 $("confirm-cancel").addEventListener("click", () => $("confirm").close());

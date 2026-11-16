@@ -103,3 +103,20 @@ button.link { border: none; background: none; color: var(--accent); padding: 0 .
 .matrix td.fail { color: #9b2c2c; font-weight: 600; cursor: pointer; }
 .matrix td.na { color: var(--muted); }
 .walk { white-space: pre-wrap; font-size: .8rem; max-height: 32rem; overflow: auto; background: #fafbfc; padding: .6rem; }
+.intro { max-width: 46rem; line-height: 1.5; }
+.intro p { margin: .4rem 0 .8rem; }
+.intro-list { padding-left: 1.1rem; margin: .5rem 0 .9rem; }
+.intro-list li { margin-bottom: .35rem; }
+.intro-list button.link { padding-left: 0; font-weight: 600; }
+
+@media (max-width: 760px) {
+  .topbar { flex-wrap: wrap; gap: .5rem .75rem; padding: .6rem 1rem; }
+  .health { order: 3; width: 100%; margin-left: 0; }
+  .layout { flex-direction: column; padding: .75rem 1rem; }
+  .queue { flex: none; width: 100%; max-height: 45vh; }
+  .detail { order: -1; width: 100%; }
+  .grid2 { grid-template-columns: 1fr; }
+  .fields { grid-template-columns: max-content 1fr; }
+  .card, .eval-view { overflow-x: auto; }
+  .eval-view { padding: .75rem 1rem; }
+}
